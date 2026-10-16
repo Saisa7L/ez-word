@@ -1,4 +1,11 @@
-import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 
 import { colors, radii, shadow } from '@/constants/theme';
 
@@ -6,6 +13,7 @@ type HomeActionCardProps = {
   backgroundColor: string;
   icon: ImageSourcePropType;
   iconColor: string;
+  onPress?: () => void;
   title: string;
 };
 
@@ -13,15 +21,21 @@ export function HomeActionCard({
   backgroundColor,
   icon,
   iconColor,
+  onPress,
   title,
 }: HomeActionCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      disabled={!onPress}
+      onPress={onPress}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+    >
       <Text style={styles.title}>{title}</Text>
       <View style={[styles.iconBox, { backgroundColor }]}>
         <Image source={icon} style={[styles.icon, { tintColor: iconColor }]} />
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -46,6 +60,9 @@ const styles = StyleSheet.create({
     height: 66,
     justifyContent: 'center',
     width: 66,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   title: {
     color: colors.text,

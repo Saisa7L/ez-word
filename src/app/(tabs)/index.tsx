@@ -1,4 +1,5 @@
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HomeActionCard } from '@/components/HomeActionCard';
@@ -45,6 +46,7 @@ export default function HomeScreen() {
             backgroundColor={colors.mint}
             icon={f1Assets.homeCalendar}
             iconColor={colors.primary}
+            onPress={() => router.push('/daily-task')}
             title="今日任务"
           />
           <HomeActionCard

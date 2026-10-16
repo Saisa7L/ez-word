@@ -15,6 +15,7 @@
 6. F:\English vocabulary app\Project\vocab-app\docs\CSV_IMPORT_FORMAT.md
 7. F:\English vocabulary app\Project\vocab-app\docs\WORKFLOW.md
 8. F:\English vocabulary app\Project\vocab-app\docs\ASSET_REQUIREMENTS.md
+9. F:\English vocabulary app\Project\vocab-app\docs\F3_STATUS.md
 
 同时运行：
 
@@ -161,11 +162,21 @@ API Key 不得写入代码、GitHub、文档或聊天。
 - A01、A02、A03 基础 UI 和底部导航
 - A11 导入页面和 A12 导入结果弹窗
 - F2 真机导入验证
+- F3 每日任务页面和核心交互
 
 当前正在 F 阶段，已修正开发顺序：
 1. A01、A02、A03 基础 UI 和底部导航已完成。
 2. A11 导入 UI 和 CSV、SQLite 核心接入已完成。
-3. 下一步做每日任务流程 A04 至 A08。
+3. F3 每日任务流程已实现，但真机验收未通过。
+
+F3 的两个阻塞问题：
+
+1. 选词填空和听力窗口仍会切断上下内容。
+2. 完成页“返回主界面”仍进入每日任务开始页。
+
+下一步只修复这两个问题，不要把 F3 标记为完成。详细代码位置、截图和尝试记录见：
+
+docs/F3_STATUS.md
 
 之前从导入页开始的做法已经取消，但 F1 数据层代码继续保留。
 
