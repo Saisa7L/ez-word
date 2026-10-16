@@ -12,7 +12,7 @@
 | 测试手机 | 一加 Ace 2，Android 16 |
 | 项目路径 | `F:\English vocabulary app\Project\vocab-app` |
 | Git 分支 | `main` |
-| 最新功能提交 | `f519920 Add SQLite and CSV import core` |
+| 最新功能提交 | `2f5d9d2 Add F3 daily task flow with known UI issues` |
 | 当前阶段 | F3 已实现但真机验收未通过，存在 2 个阻塞问题 |
 
 ## 技术栈
