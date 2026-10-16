@@ -23,6 +23,7 @@
 | `docs/` | 需求、结构、Git 和长期上下文文档 |
 | `docs/UI_MAP.md` | 页面编号、路由、组件和 UI 缺口 |
 | `docs/NEXT_THREAD_PROMPT.md` | 新窗口接续项目的完整提示词 |
+| `docs/WORKFLOW.md` | 阶段推进、细节确认和报错处理规则 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
 | `eslint.config.js` | ESLint 代码检查规则 |

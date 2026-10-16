@@ -37,11 +37,11 @@ F:\English vocabulary app\ui\生成后的图片
 |---|---|---|---|---|
 | A01 | `A01-home.png` | `src/app/(tabs)/index.tsx` | 首页、学习统计和三个快捷入口 | UI 已提供 |
 | A02 | `A02-settings.png` | `src/app/(tabs)/settings.tsx` | 我的、设置和子功能入口 | UI 已提供 |
-| A03 | `A03-wrong-book.png` | `src/app/(tabs)/wrong-book.tsx` | 错题本列表、分页、添加和移除 | UI 已提供，交互待确认 |
+| A03 | `A03-wrong-book.png` | `src/app/(tabs)/wrong-book.tsx` | 错题本列表、分页、添加和移除 | UI 和交互已确认 |
 | A04 | `A04-daily-task-start.png` | `src/app/daily-task/index.tsx` | 每日任务开始页 | UI 已提供 |
-| A05 | `A05-daily-task-learn-word.png` | `src/app/daily-task/learn.tsx` | 逐个认识单词 | UI 已提供，AI 内容位置待确认 |
-| A06 | `A06-daily-task-fill-in-blank.png` | `src/app/daily-task/fill-blank.tsx` | 选词填空 | UI 已提供，题目规则待确认 |
-| A07 | `A07-daily-task-listening.png` | `src/app/daily-task/listening.tsx` | 听力测试和单词听写 | UI 已提供，音频播放规则待确认 |
+| A05 | `A05-daily-task-learn-word.png` | `src/app/daily-task/learn.tsx` | 认识单词，不显示例句 | UI 和内容位置已确认 |
+| A06 | `A06-daily-task-fill-in-blank.png` | `src/app/daily-task/fill-blank.tsx` | 使用 AI 例句做选词填空 | UI 已提供 |
+| A07 | `A07-daily-task-listening.png` | `src/app/daily-task/listening.tsx` | 一次播放全部单词并完成听写 | UI 已提供 |
 | A08 | `A08-daily-task-complete.png` | `src/app/daily-task/complete.tsx` | 每日任务完成和统计 | UI 已提供 |
 | M01 | `10-daily-task-exit-confirm.png` | 全局任务退出弹窗 | 退出每日任务确认 | UI 已提供 |
 | A11 | `A11-setting-import.png` | `src/app/settings/import.tsx` | 选择 CSV、开始导入 | UI 已提供 |
@@ -71,22 +71,29 @@ F:\English vocabulary app\ui\生成后的图片
 | 修改每日任务页 | 无法设置每天单词数量 |
 | 导入失败和导入中状态 | 导入过程反馈不完整 |
 | 定时复习页面 | 每三次打卡后的复习流程没有设计图 |
-| AI 单词问答 | 需求中有，但当前 A05 没有明确入口 |
-| AI 例句和翻译 | 需求中有，但当前 A05 没有明确展示区域 |
+| AI 单词问答入口 | 需求中有，具体入口在对应功能开发时确定 |
+| 填空阶段的 AI 例句规则 | 在 A06 开发前确定生成和判分细节 |
 | 空数据状态 | 没有单词或错题时缺少页面 |
 | 加载和网络错误状态 | AI、导入和数据库失败时缺少页面 |
 | 关于页 | A02 有入口但没有页面 |
 | 头像更换流程 | 第一版为单机单用户，可能暂时不需要 |
 
-## 需要用户确认
+## 已确认的 UI 行为
 
-| 编号 | 问题 | 为什么重要 |
-|---|---|---|
-| 1 | 首页的“今日任务、错题回顾、单词再练”分别打开哪个流程？ | 决定底部三个入口的真实功能，避免做错页面 |
-| 2 | A05 学习中，AI 例句、翻译和提问入口放在卡片下方，还是使用独立页面或弹窗？ | 决定页面结构和滚动方式 |
-| 3 | A07 是一次播放全部单词，还是一个单词播放一次并提交一次？每页显示几个单词？ | 决定 TTS 和答案保存方式 |
-| 4 | A03 的“添加、移除”分别代表什么？是否允许手动添加单词？每页显示几个错题？ | 决定错题本交互和数据库字段 |
-| 5 | 第一版是否需要“更换头像、关于、修改每日任务”的完整页面，还是先保留入口占位？ | 决定基础 UI 阶段的范围 |
+| 页面 | 已确认内容 |
+|---|---|
+| A01 今日任务 | 打开每日任务流程 |
+| A01 错题回顾 | 打开错题再练流程 |
+| A01 单词再练 | 打开复习流程 |
+| A05 认识单词 | 不显示例句；翻译显示在单词和音标之间 |
+| A07 听力测试 | 一次播放全部单词；播放细节在 A07 开发前确定 |
+| A03 添加 | 从 CSV 已有单词中选择并加入错题本 |
+| A03 移除 | 将选中的单词移出错题本 |
+| A03 手动添加 | 允许 |
+| A03 每页数量 | 设计图为 4 个，UI 开发时改为 5 个 |
+| A02 更换头像、修改每日任务、关于 | 第一版保留入口，基础页面阶段先做占位 |
+
+如果 UI 图片中有未识别清楚的元素，用户会在对应功能开发时提供带中文标注的图片。
 
 ## 修正后的 F 阶段顺序
 
