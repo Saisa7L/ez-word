@@ -1,4 +1,5 @@
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SettingsRow } from '@/components/SettingsRow';
@@ -46,6 +47,7 @@ export default function SettingsScreen() {
             icon={f1Assets.settingsImport}
             iconColor={colors.primary}
             label="导入单词"
+            onPress={() => router.push('/settings/import')}
           />
           <SettingsRow
             backgroundColor={colors.blueSoft}

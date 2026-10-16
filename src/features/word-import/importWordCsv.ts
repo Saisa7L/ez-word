@@ -1,4 +1,3 @@
-import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import type { SQLiteDatabase } from 'expo-sqlite';
 
@@ -20,29 +19,31 @@ const CSV_MIME_TYPES = [
 ];
 
 export async function pickWordCsvFile(): Promise<PickedCsvFile | null> {
-  const result = await DocumentPicker.getDocumentAsync({
-    copyToCacheDirectory: true,
-    multiple: false,
-    type: CSV_MIME_TYPES,
+  const result = await File.pickFileAsync({
+    mimeTypes: CSV_MIME_TYPES,
   });
 
-  if (result.canceled || result.assets.length === 0) {
+  if (result.canceled || !result.result) {
     return null;
   }
 
-  const asset = result.assets[0];
-  if (!asset.name.toLocaleLowerCase('en-US').endsWith('.csv')) {
+  const file = result.result;
+  if (!file.name.toLocaleLowerCase('en-US').endsWith('.csv')) {
     throw new CsvValidationError('请选择扩展名为 .csv 的文件');
   }
 
-  const file = new File(asset.uri);
-  const content = await file.text();
+  let content: string;
+  try {
+    content = await file.text();
+  } catch {
+    throw new CsvValidationError('无法读取所选文件，请重新选择该 CSV');
+  }
 
   return {
     content,
-    name: asset.name,
-    size: asset.size,
-    uri: asset.uri,
+    name: file.name,
+    size: file.size,
+    uri: file.uri,
   };
 }
 

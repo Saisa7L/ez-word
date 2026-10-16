@@ -6,8 +6,12 @@
 |---|---|
 | `src/app/` | Expo Router 页面目录，里面的文件对应手机页面 |
 | `src/app/_layout.tsx` | App 最外层导航结构 |
-| `src/app/index.tsx` | 当前首页路由 |
+| `src/app/(tabs)/index.tsx` | A01 首页 |
+| `src/app/(tabs)/settings.tsx` | A02 我的 |
+| `src/app/(tabs)/wrong-book.tsx` | A03 错题本 |
+| `src/app/settings/import.tsx` | A11 导入单词页面 |
 | `src/components/` | 多个页面重复使用的界面组件 |
+| `src/components/ImportResultModal.tsx` | CSV 导入结果弹窗 |
 | `src/constants/` | 颜色、间距、固定文字等常量 |
 | `src/database/` | SQLite 初始化、查询和数据迁移 |
 | `src/database/database.ts` | 数据库名称和建表迁移 |
@@ -19,12 +23,14 @@
 | `src/services/` | DeepSeek、TTS、CSV 导入等外部服务 |
 | `src/types/` | 全项目共用的 TypeScript 数据类型 |
 | `src/utils/` | 通用的小工具函数 |
+| `src/utils/formatBytes.ts` | 文件大小格式化 |
 | `assets/` | 图标、启动图和图片资源 |
 | `docs/` | 需求、结构、Git 和长期上下文文档 |
 | `docs/UI_MAP.md` | 页面编号、路由、组件和 UI 缺口 |
 | `docs/NEXT_THREAD_PROMPT.md` | 新窗口接续项目的完整提示词 |
 | `docs/WORKFLOW.md` | 阶段推进、细节确认和报错处理规则 |
 | `docs/ASSET_REQUIREMENTS.md` | F1 头像、图标、字体和设计规范资源清单 |
+| `docs/samples/f2-import-test.csv` | F2 导入测试 CSV |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
 | `eslint.config.js` | ESLint 代码检查规则 |

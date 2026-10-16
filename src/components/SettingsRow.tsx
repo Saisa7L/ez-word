@@ -1,5 +1,6 @@
 import {
   Image,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -18,6 +19,7 @@ type SettingsRowProps = {
   label: string;
   last?: boolean;
   hideChevron?: boolean;
+  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -28,10 +30,11 @@ export function SettingsRow({
   label,
   last = false,
   hideChevron = false,
+  onPress,
   style,
 }: SettingsRowProps) {
-  return (
-    <View style={[styles.row, !last && styles.rowBorder, style]}>
+  const content = (
+    <>
       <View style={styles.left}>
         <View style={[styles.iconBox, { backgroundColor }]}>
           <Image source={icon} style={[styles.icon, { tintColor: iconColor }]} />
@@ -41,6 +44,29 @@ export function SettingsRow({
       {!hideChevron ? (
         <ChevronRight color="#A8AFBC" size={28} strokeWidth={2} />
       ) : null}
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.row,
+          !last && styles.rowBorder,
+          style,
+          pressed && styles.pressed,
+        ]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View style={[styles.row, !last && styles.rowBorder, style]}>
+      {content}
     </View>
   );
 }
@@ -66,6 +92,9 @@ const styles = StyleSheet.create({
   left: {
     alignItems: 'center',
     flexDirection: 'row',
+  },
+  pressed: {
+    opacity: 0.65,
   },
   row: {
     alignItems: 'center',
