@@ -67,6 +67,14 @@
 - 确认使用自定义字体还是 Android 默认字体。
 - 资源清单见 `docs/ASSET_REQUIREMENTS.md`。
 
+## F1 已确认实现方式
+
+- 三个基础页面使用 Mock 数据。
+- 尚未开发的功能入口不处理点击。
+- 图标库使用 Lucide，并安装 `lucide-react-native` 和 `react-native-svg`。
+- 设计图中的文字和数字照搬。
+- 首页绿色小恐龙是头像资源，不是吉祥物。
+
 ## 已确认的 UI 映射
 
 - 今日任务进入每日任务流程。
