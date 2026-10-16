@@ -130,14 +130,27 @@ page-horizontal-padding:
 | `icon-home-word-practice.svg.svg` | 已改名为 `icon-home-word-practice.svg` |
 | SVG 格式 | 全部可以正常解析 |
 | SVG 内嵌位图 | 未发现 |
-| 图标视觉检查 | 可以使用，开发时会统一颜色和尺寸 |
+| 图标视觉检查 | 部分匹配，4 个图标需要替换 |
 | `avatar-dinosaur.svg` | 不符合设计，当前是通用用户剪影 |
 | `avatar-user.svg` | 不符合设计，当前是通用用户剪影 |
 | 两个头像是否相同 | 是，SHA-256 完全相同 |
 | 字体文件 | 未提供 |
 
+需要替换的图标：
+
+| 文件名 | 问题 |
+|---|---|
+| `icon-home-wrong-review.svg` | 当前只有放大镜，设计图还包含回顾箭头 |
+| `icon-settings-daily-goal.svg` | 当前剪贴板没有勾选标记 |
+| `icon-settings-import.svg` | 当前箭头向下，设计图箭头向上 |
+| `icon-settings-ai.svg` | 当前是滑杆图标，设计图是 AI 智能图标 |
+
 当前阻塞：
 
 1. 需要替换为真实绿色恐龙用户头像。
 2. 需要替换为真实女性用户头像。
-3. 需要确认使用 Android 默认字体，或补交自定义字体文件和授权。
+3. 需要替换 `icon-home-wrong-review.svg`。
+4. 需要替换 `icon-settings-daily-goal.svg`。
+5. 需要替换 `icon-settings-import.svg`。
+6. 需要替换 `icon-settings-ai.svg`。
+7. 需要确认使用 Android 默认字体，或补交自定义字体文件和授权。
