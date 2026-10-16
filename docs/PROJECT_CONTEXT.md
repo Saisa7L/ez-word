@@ -62,10 +62,11 @@
 
 ## F1 阻塞项
 
-- 等待 `avatar-dinosaur.png` 和 `avatar-user.png`。
-- 等待 A01、A02 和底部导航的 11 个 SVG 图标。
+- 等待可用的 `avatar-dinosaur` 和 `avatar-user` 真实头像资源。
 - 确认使用自定义字体还是 Android 默认字体。
 - 资源清单见 `docs/ASSET_REQUIREMENTS.md`。
+- 当前 11 个图标已提供并可解析。
+- 当前两个头像文件内容相同，均为通用用户剪影，需要替换。
 
 ## F1 已确认实现方式
 
