@@ -10,7 +10,10 @@
 | `src/components/` | 多个页面重复使用的界面组件 |
 | `src/constants/` | 颜色、间距、固定文字等常量 |
 | `src/database/` | SQLite 初始化、查询和数据迁移 |
+| `src/database/database.ts` | 数据库名称和建表迁移 |
+| `src/database/wordsRepository.ts` | 单词查询、新增和更新 |
 | `src/features/daily-task/` | 每日任务相关代码 |
+| `src/features/word-import/` | CSV 选择、解析、校验和导入 |
 | `src/features/wrong-book/` | 错题本和错题再练相关代码 |
 | `src/features/review/` | 定时复习相关代码 |
 | `src/services/` | DeepSeek、TTS、CSV 导入等外部服务 |
@@ -18,6 +21,7 @@
 | `src/utils/` | 通用的小工具函数 |
 | `assets/` | 图标、启动图和图片资源 |
 | `docs/` | 需求、结构、Git 和长期上下文文档 |
+| `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
 | `eslint.config.js` | ESLint 代码检查规则 |
 | `package.json` | 项目依赖和可执行命令 |

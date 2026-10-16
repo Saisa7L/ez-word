@@ -1,0 +1,82 @@
+import type { SQLiteDatabase } from 'expo-sqlite';
+
+import type { WordImportRow } from '@/features/word-import/types';
+
+export type WordRecord = {
+  id: number;
+  word: string;
+  meaning: string;
+  phonetic: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UpsertWordsResult = {
+  inserted: number;
+  updated: number;
+};
+
+export async function upsertWords(
+  db: SQLiteDatabase,
+  rows: WordImportRow[],
+): Promise<UpsertWordsResult> {
+  let inserted = 0;
+  let updated = 0;
+  const now = new Date().toISOString();
+
+  await db.withExclusiveTransactionAsync(async (transaction) => {
+    for (const row of rows) {
+      const existing = await transaction.getFirstAsync<{ id: number }>(
+        'SELECT id FROM words WHERE word = $word COLLATE NOCASE',
+        { $word: row.word },
+      );
+
+      if (existing) {
+        await transaction.runAsync(
+          `UPDATE words
+           SET meaning = $meaning,
+               phonetic = $phonetic,
+               updated_at = $updatedAt
+           WHERE id = $id`,
+          {
+            $id: existing.id,
+            $meaning: row.meaning,
+            $phonetic: row.phonetic,
+            $updatedAt: now,
+          },
+        );
+        updated += 1;
+      } else {
+        await transaction.runAsync(
+          `INSERT INTO words (word, meaning, phonetic, created_at, updated_at)
+           VALUES ($word, $meaning, $phonetic, $createdAt, $updatedAt)`,
+          {
+            $word: row.word,
+            $meaning: row.meaning,
+            $phonetic: row.phonetic,
+            $createdAt: now,
+            $updatedAt: now,
+          },
+        );
+        inserted += 1;
+      }
+    }
+  });
+
+  return { inserted, updated };
+}
+
+export async function getWordCount(db: SQLiteDatabase): Promise<number> {
+  const result = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) AS count FROM words');
+  return result?.count ?? 0;
+}
+
+export async function listWords(db: SQLiteDatabase, limit = 50): Promise<WordRecord[]> {
+  return db.getAllAsync<WordRecord>(
+    `SELECT id, word, meaning, phonetic, created_at, updated_at
+     FROM words
+     ORDER BY word COLLATE NOCASE ASC
+     LIMIT ?`,
+    limit,
+  );
+}

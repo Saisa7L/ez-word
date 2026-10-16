@@ -11,7 +11,7 @@
 | 运行平台 | Android |
 | 测试手机 | 一加 Ace 2，Android 16 |
 | 项目路径 | `F:\English vocabulary app\Project\vocab-app` |
-| 当前阶段 | E 阶段已完成，等待进入 F 阶段 |
+| 当前阶段 | F1，SQLite 与 CSV 导入 |
 
 ## 技术栈
 
@@ -38,12 +38,15 @@
 - Expo Router 依赖安装和入口迁移
 - 项目目录骨架
 - 本地 Git 骨架提交
+- SQLite 数据库迁移和单词仓库
+- CSV 解析、字段校验和错误行统计
+- CSV 文件选择与导入核心流程
+- F1 页面等待 Figma 截图后完成
 
 ## 待办
 
 - 完成 E 阶段验证和稳定提交
-- F 阶段逐项开发功能
-- CSV 模板和导入流程
+- F1 导入页面按 Figma 完成
 - SQLite 数据模型
 - 每日任务
 - AI 例句、翻译和问答
