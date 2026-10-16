@@ -1,0 +1,15 @@
+export const f1Assets = {
+  avatarDinosaur: require('../../assets/f1/avatar-dinosaur.png'),
+  avatarUser: require('../../assets/f1/avatar-user.png'),
+  homeCalendar: require('../../assets/f1/icon-home-calendar.png'),
+  homeWordPractice: require('../../assets/f1/icon-home-word-practice.png'),
+  homeWrongReview: require('../../assets/f1/icon-home-wrong-review.png'),
+  settingsAbout: require('../../assets/f1/icon-settings-about.png'),
+  settingsAi: require('../../assets/f1/icon-settings-ai.png'),
+  settingsAvatar: require('../../assets/f1/icon-settings-avatar.png'),
+  settingsDailyGoal: require('../../assets/f1/icon-settings-daily-goal.png'),
+  settingsImport: require('../../assets/f1/icon-settings-import.png'),
+  tabHome: require('../../assets/f1/icon-tab-home.png'),
+  tabProfile: require('../../assets/f1/icon-tab-profile.png'),
+  tabWrongBook: require('../../assets/f1/icon-tab-wrong-book.png'),
+} as const;

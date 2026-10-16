@@ -154,3 +154,14 @@ page-horizontal-padding:
 5. 需要替换 `icon-settings-import.svg`。
 6. 需要替换 `icon-settings-ai.svg`。
 7. 需要确认使用 Android 默认字体，或补交自定义字体文件和授权。
+
+## 用户决定
+
+用户已确认：
+
+1. 使用 Android 默认字体。
+2. 不替换头像或图标文件。
+3. 当前头像允许使用 AI 生成的占位效果。
+4. 当前资源直接用于 F1。
+
+因此 F1 资源门禁已解除，不再等待文件替换。
