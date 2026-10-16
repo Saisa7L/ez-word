@@ -35,7 +35,7 @@ F:\English vocabulary app\ui\生成后的图片
 
 | 编号 | 图片文件 | 建议路由 | 作用 | 状态 |
 |---|---|---|---|---|
-| A01 | `A01-home.png` | `src/app/(tabs)/index.tsx` | 首页、学习统计和三个快捷入口 | UI 已提供 |
+| A01 | `A01-home.png` | `src/app/(tabs)/index.tsx` | 首页、学习统计和三个快捷入口，绿色小恐龙是用户头像 | UI 已提供 |
 | A02 | `A02-settings.png` | `src/app/(tabs)/settings.tsx` | 我的、设置和子功能入口 | UI 已提供 |
 | A03 | `A03-wrong-book.png` | `src/app/(tabs)/wrong-book.tsx` | 错题本列表、分页、添加和移除 | UI 和交互已确认 |
 | A04 | `A04-daily-task-start.png` | `src/app/daily-task/index.tsx` | 每日任务开始页 | UI 已提供 |
@@ -94,6 +94,8 @@ F:\English vocabulary app\ui\生成后的图片
 | A02 更换头像、修改每日任务、关于 | 第一版保留入口，基础页面阶段先做占位 |
 
 如果 UI 图片中有未识别清楚的元素，用户会在对应功能开发时提供带中文标注的图片。
+
+F1 所需头像、图标和字体清单见 `docs/ASSET_REQUIREMENTS.md`。
 
 ## 修正后的 F 阶段顺序
 

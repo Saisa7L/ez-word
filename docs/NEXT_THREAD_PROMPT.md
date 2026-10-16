@@ -14,6 +14,7 @@
 5. F:\English vocabulary app\Project\vocab-app\docs\GIT_BASICS.md
 6. F:\English vocabulary app\Project\vocab-app\docs\CSV_IMPORT_FORMAT.md
 7. F:\English vocabulary app\Project\vocab-app\docs\WORKFLOW.md
+8. F:\English vocabulary app\Project\vocab-app\docs\ASSET_REQUIREMENTS.md
 
 同时运行：
 
@@ -97,6 +98,8 @@ UI 缺口和待确认项已经写入 docs/UI_MAP.md。
 - 移除表示把选中单词移出错题本。
 - 允许手动添加单词。
 - 设计图每页 4 条，实际 UI 开发时改为每页 5 条。
+- 首页绿色小恐龙是用户头像，不是吉祥物。
+- F1 尚未开始写页面，正在等待 ASSET_REQUIREMENTS.md 中的资源。
 
 ## 软件架构
 

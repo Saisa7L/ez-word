@@ -13,7 +13,7 @@
 | 项目路径 | `F:\English vocabulary app\Project\vocab-app` |
 | Git 分支 | `main` |
 | 最新功能提交 | `f519920 Add SQLite and CSV import core` |
-| 当前阶段 | F 阶段，先搭建基础 UI，再接入已有数据层 |
+| 当前阶段 | F1 资源准备，等待头像、图标和字体文件 |
 
 ## 技术栈
 
@@ -47,6 +47,7 @@
 - 已确认首页入口、A05 内容、听力方式和错题本行为
 - 已生成新窗口接续提示词
 - 已建立按功能开发前再确认实现细节的工作流
+- 已明确 F1 所需的头像、图标和字体资源
 
 ## 待办
 
@@ -58,6 +59,13 @@
 - 定时复习 UI
 - AI 例句、翻译和问答入口
 - 加载、失败和空数据状态
+
+## F1 阻塞项
+
+- 等待 `avatar-dinosaur.png` 和 `avatar-user.png`。
+- 等待 A01、A02 和底部导航的 11 个 SVG 图标。
+- 确认使用自定义字体还是 Android 默认字体。
+- 资源清单见 `docs/ASSET_REQUIREMENTS.md`。
 
 ## 已确认的 UI 映射
 
