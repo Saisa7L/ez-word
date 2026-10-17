@@ -35,6 +35,7 @@
 | `docs/samples/f4-daily-task-100.csv` | F4 设置、按个位取词和防重复学习测试 CSV，共 100 个单词 |
 | `docs/F4_STATUS.md` | F4 完成状态、测试数据和当前例句缺口 |
 | `docs/F5_STATUS.md` | F5 完成状态、任务设置项和已知边界 |
+| `docs/F6_STATUS.md` | F6 完成状态、词库软清空和数据不变量 |
 | `docs/F3_STATUS.md` | F3 完成状态、修复记录和真机验收结果 |
 | `docs/evidence/f3/` | F3 验收过程的手机截图证据 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
