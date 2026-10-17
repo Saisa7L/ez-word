@@ -85,7 +85,12 @@ export async function listWords(db: SQLiteDatabase, limit = 50): Promise<WordRec
 export async function listUnlearnedActiveWords(
   db: SQLiteDatabase,
   limit: number,
+  randomize = false,
 ): Promise<WordRecord[]> {
+  const orderBy = randomize
+    ? 'RANDOM()'
+    : 'words.word COLLATE NOCASE ASC';
+
   return db.getAllAsync<WordRecord>(
     `SELECT
        words.id,
@@ -99,7 +104,7 @@ export async function listUnlearnedActiveWords(
        ON word_learning_state.word_id = words.id
      WHERE words.is_active = 1
        AND word_learning_state.word_id IS NULL
-     ORDER BY words.word COLLATE NOCASE ASC
+     ORDER BY ${orderBy}
      LIMIT ?`,
     limit,
   );

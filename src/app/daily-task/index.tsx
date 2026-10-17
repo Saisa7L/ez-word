@@ -14,7 +14,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { f3Assets } from '@/constants/f3Assets';
 import { colors, radii, spacing } from '@/constants/theme';
-import { getDailyTaskSettings } from '@/database/settingsRepository';
+import {
+  getDailyTaskSettings,
+  type DailyTaskSettings,
+} from '@/database/settingsRepository';
 import {
   listUnlearnedActiveWords,
   type WordRecord,
@@ -27,6 +30,7 @@ export default function DailyTaskStartScreen() {
   const { startTask } = useDailyTask();
   const navigation = useNavigation<AppNavigation>('/');
   const [availableWords, setAvailableWords] = useState<WordRecord[] | null>(null);
+  const [taskSettings, setTaskSettings] = useState<DailyTaskSettings | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -38,13 +42,16 @@ export default function DailyTaskStartScreen() {
           const words = await listUnlearnedActiveWords(
             db,
             settings.dailyWordLimit,
+            settings.randomWordSelection,
           );
           if (active) {
             setAvailableWords(words);
+            setTaskSettings(settings);
           }
         } catch {
           if (active) {
             setAvailableWords([]);
+            setTaskSettings(null);
           }
         }
       }
@@ -58,11 +65,11 @@ export default function DailyTaskStartScreen() {
   );
 
   function handleStart() {
-    if (!availableWords || availableWords.length === 0) {
+    if (!availableWords || availableWords.length === 0 || !taskSettings) {
       return;
     }
 
-    startTask(availableWords);
+    startTask(availableWords, taskSettings);
     router.push('/daily-task/learn');
   }
 
@@ -123,11 +130,12 @@ export default function DailyTaskStartScreen() {
 
       <Pressable
         accessibilityRole="button"
-        disabled={availableWords === null}
+        disabled={availableWords === null || taskSettings === null}
         onPress={isEmpty ? handleReturnHome : handleStart}
         style={({ pressed }) => [
           styles.startButton,
-          availableWords === null && styles.startButtonDisabled,
+          (availableWords === null || taskSettings === null) &&
+            styles.startButtonDisabled,
           pressed && styles.pressed,
         ]}
       >

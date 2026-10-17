@@ -28,6 +28,7 @@ export default function FillBlankScreen() {
     questions,
     setFillAnswer,
     setFillWrongWordIds,
+    taskSettings,
     wordBank,
     words,
   } = useDailyTask();
@@ -90,6 +91,9 @@ export default function FillBlankScreen() {
   function handleErrorConfirm() {
     setFillWrongWordIds(errorWordIds);
     setErrorModalVisible(false);
+    if (taskSettings.advanceOnMistakes) {
+      router.push('/daily-task/listening');
+    }
   }
 
   function handleQuestionLayout(event: LayoutChangeEvent) {

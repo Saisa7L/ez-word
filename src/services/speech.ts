@@ -8,10 +8,11 @@ type PlayWordSequenceOptions = {
   onWordStart: (readIndex: number) => void;
   rate: number;
   startReadIndex?: number;
+  wordGapMs?: number;
   words: WordRecord[];
 };
 
-const READ_GAP_MS = 5000;
+const DEFAULT_READ_GAP_MS = 5000;
 
 export function playWordSequence({
   onError,
@@ -19,6 +20,7 @@ export function playWordSequence({
   onWordStart,
   rate,
   startReadIndex = 0,
+  wordGapMs = DEFAULT_READ_GAP_MS,
   words,
 }: PlayWordSequenceOptions): () => void {
   let currentReadIndex = startReadIndex;
@@ -61,7 +63,7 @@ export function playWordSequence({
           return;
         }
 
-        timer = setTimeout(speakNext, READ_GAP_MS);
+        timer = setTimeout(speakNext, wordGapMs);
       },
       onError: (error) => {
         if (!cancelled) {

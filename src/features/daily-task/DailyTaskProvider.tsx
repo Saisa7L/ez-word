@@ -8,6 +8,10 @@ import {
 } from 'react';
 
 import type { WordRecord } from '@/database/wordsRepository';
+import {
+  DEFAULT_DAILY_TASK_SETTINGS,
+  type DailyTaskSettings,
+} from '@/database/settingsRepository';
 
 import { buildDailyTaskQuestions } from './sentenceTemplates';
 import type { FillAnswerMap, ListeningAnswerMap } from './types';
@@ -16,9 +20,11 @@ type DailyTaskContextValue = {
   clearFillAnswer: (questionWordId: number) => void;
   durationSeconds: number;
   fillAnswers: FillAnswerMap;
+  fillWords: WordRecord[];
   finishTask: () => void;
   fillWrongWordIds: Set<number>;
   listeningAnswers: ListeningAnswerMap;
+  listeningWords: WordRecord[];
   listeningWrongWordIds: Set<number>;
   questions: ReturnType<typeof buildDailyTaskQuestions>;
   resetTask: () => void;
@@ -27,7 +33,8 @@ type DailyTaskContextValue = {
   setListeningAnswer: (wordId: number, answer: string) => void;
   setListeningWrongWordIds: (wordIds: number[]) => void;
   startedAt: number | null;
-  startTask: (words: WordRecord[]) => void;
+  startTask: (words: WordRecord[], settings: DailyTaskSettings) => void;
+  taskSettings: DailyTaskSettings;
   wordBank: WordRecord[];
   words: WordRecord[];
   wrongWordIds: Set<number>;
@@ -50,6 +57,8 @@ type DailyTaskProviderProps = {
 
 export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
   const [words, setWords] = useState<WordRecord[]>([]);
+  const [fillWords, setFillWords] = useState<WordRecord[]>([]);
+  const [listeningWords, setListeningWords] = useState<WordRecord[]>([]);
   const [wordBank, setWordBank] = useState<WordRecord[]>([]);
   const [fillAnswers, setFillAnswers] = useState<FillAnswerMap>({});
   const [listeningAnswers, setListeningAnswers] = useState<ListeningAnswerMap>({});
@@ -57,20 +66,37 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
   const [listeningWrongWordIds, setListeningWrongWordIdSet] = useState<Set<number>>(
     new Set(),
   );
+  const [fillMistakeWordIds, setFillMistakeWordIdSet] = useState<Set<number>>(
+    new Set(),
+  );
+  const [listeningMistakeWordIds, setListeningMistakeWordIdSet] = useState<
+    Set<number>
+  >(new Set());
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [durationSeconds, setDurationSeconds] = useState(0);
+  const [taskSettings, setTaskSettings] = useState<DailyTaskSettings>({
+    ...DEFAULT_DAILY_TASK_SETTINGS,
+  });
 
-  const startTask = useCallback((nextWords: WordRecord[]) => {
-    const limitedWords = [...nextWords];
-    setWords(limitedWords);
-    setWordBank(shuffle(limitedWords));
-    setFillAnswers({});
-    setListeningAnswers({});
-    setFillWrongWordIdSet(new Set());
-    setListeningWrongWordIdSet(new Set());
-    setStartedAt(Date.now());
-    setDurationSeconds(0);
-  }, []);
+  const startTask = useCallback(
+    (nextWords: WordRecord[], settings: DailyTaskSettings) => {
+      const limitedWords = [...nextWords];
+      setWords(limitedWords);
+      setFillWords(shuffle(limitedWords));
+      setListeningWords(shuffle(limitedWords));
+      setWordBank(shuffle(limitedWords));
+      setFillAnswers({});
+      setListeningAnswers({});
+      setFillWrongWordIdSet(new Set());
+      setListeningWrongWordIdSet(new Set());
+      setFillMistakeWordIdSet(new Set());
+      setListeningMistakeWordIdSet(new Set());
+      setStartedAt(Date.now());
+      setDurationSeconds(0);
+      setTaskSettings(settings);
+    },
+    [],
+  );
 
   const finishTask = useCallback(() => {
     if (startedAt !== null) {
@@ -80,13 +106,18 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
 
   const resetTask = useCallback(() => {
     setWords([]);
+    setFillWords([]);
+    setListeningWords([]);
     setWordBank([]);
     setFillAnswers({});
     setListeningAnswers({});
     setFillWrongWordIdSet(new Set());
     setListeningWrongWordIdSet(new Set());
+    setFillMistakeWordIdSet(new Set());
+    setListeningMistakeWordIdSet(new Set());
     setStartedAt(null);
     setDurationSeconds(0);
+    setTaskSettings({ ...DEFAULT_DAILY_TASK_SETTINGS });
   }, []);
 
   const setFillAnswer = useCallback(
@@ -142,16 +173,25 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
 
   const setFillWrongWordIds = useCallback((wordIds: number[]) => {
     setFillWrongWordIdSet(new Set(wordIds));
+    setFillMistakeWordIdSet((current) => new Set([...current, ...wordIds]));
   }, []);
 
   const setListeningWrongWordIds = useCallback((wordIds: number[]) => {
     setListeningWrongWordIdSet(new Set(wordIds));
+    if (wordIds.length > 0) {
+      setListeningMistakeWordIdSet(
+        (current) => new Set([...current, ...wordIds]),
+      );
+    }
   }, []);
 
-  const questions = useMemo(() => buildDailyTaskQuestions(words), [words]);
+  const questions = useMemo(
+    () => buildDailyTaskQuestions(fillWords),
+    [fillWords],
+  );
   const wrongWordIds = useMemo(
-    () => new Set([...fillWrongWordIds, ...listeningWrongWordIds]),
-    [fillWrongWordIds, listeningWrongWordIds],
+    () => new Set([...fillMistakeWordIds, ...listeningMistakeWordIds]),
+    [fillMistakeWordIds, listeningMistakeWordIds],
   );
 
   const value = useMemo<DailyTaskContextValue>(
@@ -159,9 +199,11 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       clearFillAnswer,
       durationSeconds,
       fillAnswers,
+      fillWords,
       finishTask,
       fillWrongWordIds,
       listeningAnswers,
+      listeningWords,
       listeningWrongWordIds,
       questions,
       resetTask,
@@ -171,6 +213,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       setListeningWrongWordIds,
       startedAt,
       startTask,
+      taskSettings,
       wordBank,
       words,
       wrongWordIds,
@@ -179,9 +222,11 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       clearFillAnswer,
       durationSeconds,
       fillAnswers,
+      fillWords,
       finishTask,
       fillWrongWordIds,
       listeningAnswers,
+      listeningWords,
       listeningWrongWordIds,
       questions,
       resetTask,
@@ -191,6 +236,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       setListeningWrongWordIds,
       startedAt,
       startTask,
+      taskSettings,
       wordBank,
       words,
       wrongWordIds,

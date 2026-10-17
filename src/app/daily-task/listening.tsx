@@ -19,11 +19,8 @@ import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow } from '@/constants/theme';
-import {
-  DEFAULT_DAILY_TASK_SETTINGS,
-  getDailyTaskSettings,
-  LISTENING_RATES,
-} from '@/database/settingsRepository';
+import { LISTENING_RATES } from '@/database/settingsRepository';
+import { recordTaskCompletion } from '@/database/studyRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { playWordSequence } from '@/services/speech';
@@ -36,19 +33,23 @@ export default function ListeningScreen() {
   const db = useSQLiteContext();
   const {
     listeningAnswers,
+    listeningWords,
     listeningWrongWordIds,
     finishTask,
     setListeningAnswer,
     setListeningWrongWordIds,
+    taskSettings,
     words,
+    wrongWordIds,
   } = useDailyTask();
   const exitGuard = useDailyTaskExitGuard();
   const stopPlaybackRef = useRef<(() => void) | null>(null);
-  const speedTouchedRef = useRef(false);
+  const submittingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentRead, setCurrentRead] = useState(0);
   const [speed, setSpeed] = useState<number>(
-    DEFAULT_DAILY_TASK_SETTINGS.listeningDefaultRate,
+    taskSettings.listeningDefaultRate,
   );
   const [errorWordIds, setErrorWordIds] = useState<number[]>([]);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
@@ -57,28 +58,10 @@ export default function ListeningScreen() {
   const [answerScrollY, setAnswerScrollY] = useState(0);
 
   useEffect(() => {
-    if (words.length === 0) {
+    if (listeningWords.length === 0) {
       router.replace('/daily-task');
     }
-  }, [words.length]);
-
-  useEffect(() => {
-    let active = true;
-
-    getDailyTaskSettings(db)
-      .then((settings) => {
-        if (active && !speedTouchedRef.current) {
-          setSpeed(settings.listeningDefaultRate);
-        }
-      })
-      .catch(() => {
-        // Keep the app default when settings cannot be read.
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [db]);
+  }, [listeningWords.length]);
 
   useEffect(
     () => () => {
@@ -87,17 +70,22 @@ export default function ListeningScreen() {
     [],
   );
 
-  if (words.length === 0) {
+  if (listeningWords.length === 0) {
     return null;
   }
 
-  const totalReads = words.length * 2;
+  const totalReads = listeningWords.length * 2;
   const currentWordIndex = Math.min(
-    words.length,
+    listeningWords.length,
     Math.floor(currentRead / 2) + 1,
   );
-  const allAnswered = words.every((word) => listeningAnswers[word.id]?.trim());
-  const progress = words.length === 0 ? 0 : (currentWordIndex / words.length) * 100;
+  const allAnswered = listeningWords.every(
+    (word) => listeningAnswers[word.id]?.trim(),
+  );
+  const progress =
+    listeningWords.length === 0
+      ? 0
+      : (currentWordIndex / listeningWords.length) * 100;
 
   function stopPlayback() {
     stopPlaybackRef.current?.();
@@ -121,7 +109,8 @@ export default function ListeningScreen() {
       onWordStart: (readIndex) => setCurrentRead(readIndex),
       rate: playbackSpeed,
       startReadIndex,
-      words,
+      wordGapMs: taskSettings.listeningWordIntervalSeconds * 1000,
+      words: listeningWords,
     });
   }
 
@@ -148,7 +137,6 @@ export default function ListeningScreen() {
   }
 
   function handleSpeedChange() {
-    speedTouchedRef.current = true;
     const currentIndex = LISTENING_RATES.indexOf(
       speed as (typeof LISTENING_RATES)[number],
     );
@@ -162,7 +150,7 @@ export default function ListeningScreen() {
   }
 
   function handleSubmit() {
-    const wrongIds = words
+    const wrongIds = listeningWords
       .filter(
         (word) =>
           listeningAnswers[word.id]?.trim().toLocaleLowerCase('en-US') !==
@@ -176,14 +164,41 @@ export default function ListeningScreen() {
       return;
     }
 
+    setListeningWrongWordIds([]);
+    void completeTask([]);
+  }
+
+  async function completeTask(wrongIds: number[]) {
+    if (submittingRef.current) {
+      return;
+    }
+
+    submittingRef.current = true;
+    setIsSubmitting(true);
     stopPlayback();
-    finishTask();
-    router.push('/daily-task/complete');
+
+    const combinedWrongIds = new Set([...wrongWordIds, ...wrongIds]);
+
+    try {
+      await recordTaskCompletion(db, {
+        wordIds: words.map((word) => word.id),
+        wrongCount: combinedWrongIds.size,
+      });
+      finishTask();
+      router.push('/daily-task/complete');
+    } catch {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+      Alert.alert('保存失败', '无法保存本次学习记录，请稍后重试');
+    }
   }
 
   function handleErrorConfirm() {
     setListeningWrongWordIds(errorWordIds);
     setErrorModalVisible(false);
+    if (taskSettings.advanceOnMistakes) {
+      void completeTask(errorWordIds);
+    }
   }
 
   return (
@@ -261,7 +276,7 @@ export default function ListeningScreen() {
             showsVerticalScrollIndicator={false}
             style={styles.scrollView}
           >
-            {words.map((word, index) => {
+            {listeningWords.map((word, index) => {
               const isWrong = listeningWrongWordIds.has(word.id);
               return (
                 <View key={word.id} style={styles.answerRow}>
@@ -288,15 +303,17 @@ export default function ListeningScreen() {
 
       <Pressable
         accessibilityRole="button"
-        disabled={!allAnswered}
+        disabled={!allAnswered || isSubmitting}
         onPress={handleSubmit}
         style={({ pressed }) => [
           styles.submitButton,
-          !allAnswered && styles.submitButtonDisabled,
-          pressed && styles.pressed,
+          (!allAnswered || isSubmitting) && styles.submitButtonDisabled,
+          pressed && !isSubmitting && styles.pressed,
         ]}
       >
-        <Text style={styles.submitText}>提交</Text>
+        <Text style={styles.submitText}>
+          {isSubmitting ? '保存中...' : '提交'}
+        </Text>
       </Pressable>
 
       <TaskErrorModal
