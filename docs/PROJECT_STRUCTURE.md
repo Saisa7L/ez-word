@@ -32,8 +32,8 @@
 | `docs/ASSET_REQUIREMENTS.md` | F1 头像、图标、字体和设计规范资源清单 |
 | `docs/samples/f2-import-test.csv` | F2 导入测试 CSV |
 | `docs/samples/f3-daily-task-test.csv` | F3 每日任务测试 CSV |
-| `docs/F3_STATUS.md` | F3 当前未通过问题、代码位置和接续要求 |
-| `docs/evidence/f3/` | F3 未通过问题的手机截图证据 |
+| `docs/F3_STATUS.md` | F3 完成状态、修复记录和真机验收结果 |
+| `docs/evidence/f3/` | F3 验收过程的手机截图证据 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
 | `eslint.config.js` | ESLint 代码检查规则 |
