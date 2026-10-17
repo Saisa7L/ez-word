@@ -1,8 +1,17 @@
 import { router } from 'expo-router';
 
-export function returnToHome() {
-  router.dismissAll();
-  router.replace('/(tabs)');
+export type AppNavigation = {
+  reset: (state: {
+    index: number;
+    routes: { name: string }[];
+  }) => void;
+};
+
+export function returnToHome(navigation: AppNavigation) {
+  navigation.reset({
+    index: 0,
+    routes: [{ name: '(tabs)' }],
+  });
 }
 
 export function returnToDailyTaskStart() {

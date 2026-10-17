@@ -112,45 +112,48 @@ export default function FillBlankScreen() {
         <View style={styles.headerPlaceholder} />
       </View>
 
-      <View onLayout={handleQuestionLayout} style={styles.questionCard}>
-        <ScrollView
-          contentContainerStyle={styles.questionContent}
-          onContentSizeChange={(_, height) => setQuestionContentHeight(height)}
-          onScroll={(event) => setQuestionScrollY(event.nativeEvent.contentOffset.y)}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
-        >
-          {questions.map((question, index) => {
-            const answerWordId = fillAnswers[question.word.id];
-            const answerWord = wordBank.find((word) => word.id === answerWordId);
-            const isWrong = fillWrongWordIds.has(question.word.id);
-            const [before, after] = question.sentence.split('______');
+      <View style={styles.questionCard}>
+        <View onLayout={handleQuestionLayout} style={styles.scrollViewport}>
+          <ScrollView
+            contentContainerStyle={styles.questionContent}
+            onContentSizeChange={(_, height) => setQuestionContentHeight(height)}
+            onScroll={(event) => setQuestionScrollY(event.nativeEvent.contentOffset.y)}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            style={styles.scrollView}
+          >
+            {questions.map((question, index) => {
+              const answerWordId = fillAnswers[question.word.id];
+              const answerWord = wordBank.find((word) => word.id === answerWordId);
+              const isWrong = fillWrongWordIds.has(question.word.id);
+              const [before, after] = question.sentence.split('______');
 
-            return (
-              <View key={question.word.id} style={styles.questionRow}>
-                <Text style={styles.sentence}>
-                  {index + 1}. {before}
-                  <Text
-                    onPress={() => handleBlankPress(question.word.id)}
-                    style={[
-                      styles.blankText,
-                      answerWord && styles.blankTextFilled,
-                      isWrong && styles.blankTextWrong,
-                    ]}
-                  >
-                    {answerWord?.word ?? '________'}
+              return (
+                <View key={question.word.id} style={styles.questionRow}>
+                  <Text style={styles.sentence}>
+                    {index + 1}. {before}
+                    <Text
+                      onPress={() => handleBlankPress(question.word.id)}
+                      style={[
+                        styles.blankText,
+                        answerWord && styles.blankTextFilled,
+                        isWrong && styles.blankTextWrong,
+                      ]}
+                    >
+                      {answerWord?.word ?? '________'}
+                    </Text>
+                    {after}
                   </Text>
-                  {after}
-                </Text>
-              </View>
-            );
-          })}
-        </ScrollView>
-        <ScrollIndicator
-          contentHeight={questionContentHeight}
-          scrollY={questionScrollY}
-          viewportHeight={questionViewportHeight}
-        />
+                </View>
+              );
+            })}
+          </ScrollView>
+          <ScrollIndicator
+            contentHeight={questionContentHeight}
+            scrollY={questionScrollY}
+            viewportHeight={questionViewportHeight}
+          />
+        </View>
       </View>
 
       <View style={styles.wordBank}>
@@ -322,9 +325,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   questionContent: {
-    paddingBottom: 40,
+    paddingBottom: 16,
     paddingRight: 38,
-    paddingTop: 40,
+    paddingTop: 16,
     paddingLeft: 24,
   },
   questionRow: {
@@ -333,6 +336,14 @@ const styles = StyleSheet.create({
   screen: {
     backgroundColor: colors.background,
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewport: {
+    flex: 1,
+    marginVertical: 24,
+    position: 'relative',
   },
   sentence: {
     color: colors.text,

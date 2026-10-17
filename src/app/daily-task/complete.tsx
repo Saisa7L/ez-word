@@ -1,3 +1,4 @@
+import { useNavigation } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,7 +7,11 @@ import { SurfaceCard } from '@/components/SurfaceCard';
 import { f3Assets } from '@/constants/f3Assets';
 import { colors, shadow } from '@/constants/theme';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
-import { returnToDailyTaskStart, returnToHome } from '@/utils/navigation';
+import {
+  returnToDailyTaskStart,
+  returnToHome,
+  type AppNavigation,
+} from '@/utils/navigation';
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -16,10 +21,11 @@ function formatDuration(totalSeconds: number): string {
 
 export default function DailyTaskCompleteScreen() {
   const { durationSeconds, resetTask, words, wrongWordIds } = useDailyTask();
+  const navigation = useNavigation<AppNavigation>('/');
 
   function handleHome() {
     resetTask();
-    returnToHome();
+    returnToHome(navigation);
   }
 
   function handleBackToStart() {

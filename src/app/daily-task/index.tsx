@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useNavigation } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
@@ -16,11 +16,12 @@ import { f3Assets } from '@/constants/f3Assets';
 import { colors, radii, spacing } from '@/constants/theme';
 import { listWords, type WordRecord } from '@/database/wordsRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
-import { returnToHome } from '@/utils/navigation';
+import { returnToHome, type AppNavigation } from '@/utils/navigation';
 
 export default function DailyTaskStartScreen() {
   const db = useSQLiteContext();
   const { startTask } = useDailyTask();
+  const navigation = useNavigation<AppNavigation>('/');
   const [availableWords, setAvailableWords] = useState<WordRecord[] | null>(null);
 
   useFocusEffect(
@@ -59,6 +60,10 @@ export default function DailyTaskStartScreen() {
     } else {
       router.replace('/');
     }
+  }
+
+  function handleReturnHome() {
+    returnToHome(navigation);
   }
 
   const wordCount = availableWords?.length ?? 0;
@@ -105,7 +110,7 @@ export default function DailyTaskStartScreen() {
       <Pressable
         accessibilityRole="button"
         disabled={availableWords === null}
-        onPress={isEmpty ? returnToHome : handleStart}
+        onPress={isEmpty ? handleReturnHome : handleStart}
         style={({ pressed }) => [
           styles.startButton,
           availableWords === null && styles.startButtonDisabled,

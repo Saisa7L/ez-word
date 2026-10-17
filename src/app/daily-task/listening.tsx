@@ -218,39 +218,42 @@ export default function ListeningScreen() {
         </Text>
       </View>
 
-      <View
-        onLayout={(event) => setAnswerViewportHeight(event.nativeEvent.layout.height)}
-        style={styles.answerCard}
-      >
-        <ScrollView
-          contentContainerStyle={styles.answerContent}
-          onContentSizeChange={(_, height) => setAnswerContentHeight(height)}
-          onScroll={(event) => setAnswerScrollY(event.nativeEvent.contentOffset.y)}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
+      <View style={styles.answerCard}>
+        <View
+          onLayout={(event) => setAnswerViewportHeight(event.nativeEvent.layout.height)}
+          style={styles.scrollViewport}
         >
-          {words.map((word, index) => {
-            const isWrong = listeningWrongWordIds.has(word.id);
-            return (
-              <View key={word.id} style={styles.answerRow}>
-                <Text style={styles.answerNumber}>{index + 1}.</Text>
-                <TextInput
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onChangeText={(value) => setListeningAnswer(word.id, value)}
-                  spellCheck={false}
-                  style={[styles.input, isWrong && styles.inputWrong]}
-                  value={listeningAnswers[word.id] ?? ''}
-                />
-              </View>
-            );
-          })}
-        </ScrollView>
-        <ScrollIndicator
-          contentHeight={answerContentHeight}
-          scrollY={answerScrollY}
-          viewportHeight={answerViewportHeight}
-        />
+          <ScrollView
+            contentContainerStyle={styles.answerContent}
+            onContentSizeChange={(_, height) => setAnswerContentHeight(height)}
+            onScroll={(event) => setAnswerScrollY(event.nativeEvent.contentOffset.y)}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            style={styles.scrollView}
+          >
+            {words.map((word, index) => {
+              const isWrong = listeningWrongWordIds.has(word.id);
+              return (
+                <View key={word.id} style={styles.answerRow}>
+                  <Text style={styles.answerNumber}>{index + 1}.</Text>
+                  <TextInput
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onChangeText={(value) => setListeningAnswer(word.id, value)}
+                    spellCheck={false}
+                    style={[styles.input, isWrong && styles.inputWrong]}
+                    value={listeningAnswers[word.id] ?? ''}
+                  />
+                </View>
+              );
+            })}
+          </ScrollView>
+          <ScrollIndicator
+            contentHeight={answerContentHeight}
+            scrollY={answerScrollY}
+            viewportHeight={answerViewportHeight}
+          />
+        </View>
       </View>
 
       <Pressable
@@ -292,9 +295,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   answerContent: {
-    paddingBottom: 40,
+    paddingBottom: 16,
     paddingRight: 38,
-    paddingTop: 40,
+    paddingTop: 16,
     paddingLeft: 24,
   },
   answerNumber: {
@@ -391,6 +394,14 @@ const styles = StyleSheet.create({
   screen: {
     backgroundColor: colors.background,
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewport: {
+    flex: 1,
+    marginVertical: 24,
+    position: 'relative',
   },
   speedText: {
     color: colors.primary,
