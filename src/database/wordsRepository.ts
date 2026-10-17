@@ -72,6 +72,37 @@ export async function getWordCount(db: SQLiteDatabase): Promise<number> {
   return result?.count ?? 0;
 }
 
+export async function getActiveWordCount(db: SQLiteDatabase): Promise<number> {
+  const result = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) AS count FROM words WHERE is_active = 1',
+  );
+  return result?.count ?? 0;
+}
+
+export async function deactivateAllWords(db: SQLiteDatabase): Promise<number> {
+  let clearedCount = 0;
+  const now = new Date().toISOString();
+
+  await db.withExclusiveTransactionAsync(async (transaction) => {
+    const result = await transaction.getFirstAsync<{ count: number }>(
+      'SELECT COUNT(*) AS count FROM words WHERE is_active = 1',
+    );
+    clearedCount = result?.count ?? 0;
+
+    if (clearedCount > 0) {
+      await transaction.runAsync(
+        `UPDATE words
+         SET is_active = 0,
+             updated_at = $updatedAt
+         WHERE is_active = 1`,
+        { $updatedAt: now },
+      );
+    }
+  });
+
+  return clearedCount;
+}
+
 export async function listWords(db: SQLiteDatabase, limit = 50): Promise<WordRecord[]> {
   return db.getAllAsync<WordRecord>(
     `SELECT id, word, meaning, phonetic, created_at, updated_at

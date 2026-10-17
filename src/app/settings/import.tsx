@@ -1,7 +1,12 @@
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { ArrowLeft, FileSpreadsheet, Upload } from 'lucide-react-native';
-import { useState } from 'react';
+import {
+  ArrowLeft,
+  FileSpreadsheet,
+  Trash2,
+  Upload,
+} from 'lucide-react-native';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -24,15 +29,43 @@ import {
   type PickedCsvFile,
   type WordImportSummary,
 } from '@/features/word-import/types';
+import {
+  deactivateAllWords,
+  getActiveWordCount,
+} from '@/database/wordsRepository';
 import { formatBytes } from '@/utils/formatBytes';
 
 export default function ImportWordsScreen() {
   const db = useSQLiteContext();
   const [file, setFile] = useState<PickedCsvFile | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const [activeWordCount, setActiveWordCount] = useState<number | null>(null);
   const [summary, setSummary] = useState<WordImportSummary | null>(null);
 
-  const importDisabled = !file || isImporting;
+  const importDisabled = !file || isImporting || isClearing;
+  const clearDisabled =
+    isImporting || isClearing || activeWordCount === null || activeWordCount === 0;
+
+  useEffect(() => {
+    let active = true;
+
+    getActiveWordCount(db)
+      .then((count) => {
+        if (active) {
+          setActiveWordCount(count);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setActiveWordCount(null);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [db]);
 
   async function handlePickFile() {
     try {
@@ -52,7 +85,7 @@ export default function ImportWordsScreen() {
   }
 
   async function handleImport() {
-    if (!file || isImporting) {
+    if (!file || isImporting || isClearing) {
       return;
     }
 
@@ -60,6 +93,11 @@ export default function ImportWordsScreen() {
     try {
       const result = await importWordCsv(db, file.content);
       setSummary(result);
+      try {
+        setActiveWordCount(await getActiveWordCount(db));
+      } catch {
+        setActiveWordCount(null);
+      }
     } catch (error) {
       Alert.alert(
         '导入失败',
@@ -67,6 +105,48 @@ export default function ImportWordsScreen() {
       );
     } finally {
       setIsImporting(false);
+    }
+  }
+
+  function requestClearWords() {
+    if (clearDisabled) {
+      return;
+    }
+
+    Alert.alert(
+      '清空已导入单词？',
+      '学习记录、学习天数、打卡和错题本记录会保留。清空后可以重新导入 CSV。',
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '清空',
+          style: 'destructive',
+          onPress: () => {
+            void handleClearWords();
+          },
+        },
+      ],
+    );
+  }
+
+  async function handleClearWords() {
+    if (isClearing) {
+      return;
+    }
+
+    setIsClearing(true);
+    try {
+      const clearedCount = await deactivateAllWords(db);
+      setActiveWordCount(0);
+      setSummary(null);
+      Alert.alert(
+        '清空完成',
+        `已清空 ${clearedCount} 个单词，学习记录和错题记录仍然保留`,
+      );
+    } catch {
+      Alert.alert('清空失败', '无法清空已导入单词，请稍后重试');
+    } finally {
+      setIsClearing(false);
     }
   }
 
@@ -157,6 +237,33 @@ export default function ImportWordsScreen() {
             </Pressable>
           </View>
         </SurfaceCard>
+
+        <View style={styles.clearSection}>
+          <Text style={styles.activeCountText}>
+            {activeWordCount === null
+              ? '正在读取当前词库'
+              : `当前词库共 ${activeWordCount} 个单词`}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            disabled={clearDisabled}
+            onPress={requestClearWords}
+            style={({ pressed }) => [
+              styles.clearButton,
+              clearDisabled && styles.clearButtonDisabled,
+              pressed && !clearDisabled && styles.pressed,
+            ]}
+          >
+            {isClearing ? (
+              <ActivityIndicator color={colors.red} />
+            ) : (
+              <>
+                <Trash2 color={colors.red} size={24} strokeWidth={2.2} />
+                <Text style={styles.clearButtonText}>清空已导入单词</Text>
+              </>
+            )}
+          </Pressable>
+        </View>
       </ScrollView>
 
       <ImportResultModal
@@ -197,6 +304,28 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textDecorationLine: 'underline',
   },
+  clearButton: {
+    alignItems: 'center',
+    borderColor: colors.red,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    gap: 10,
+    height: 56,
+    justifyContent: 'center',
+  },
+  clearButtonDisabled: {
+    borderColor: colors.border,
+    opacity: 0.5,
+  },
+  clearButtonText: {
+    color: colors.red,
+    fontSize: 19,
+    fontWeight: '600',
+  },
+  clearSection: {
+    marginTop: 28,
+  },
   chooseButton: {
     borderColor: colors.primary,
     borderWidth: 1.5,
@@ -209,6 +338,12 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xl,
     paddingHorizontal: spacing.lg,
+  },
+  activeCountText: {
+    color: colors.textSecondary,
+    fontSize: 16,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   csvBadge: {
     color: colors.primary,
