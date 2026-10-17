@@ -14,27 +14,51 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { f3Assets } from '@/constants/f3Assets';
 import { colors, radii, spacing } from '@/constants/theme';
-import { countWrongBookWords } from '@/database/wrongBookRepository';
+import { getDailyTaskSettings } from '@/database/settingsRepository';
+import { listAllWrongBookWords } from '@/database/wrongBookRepository';
+import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { shuffle } from '@/utils/shuffle';
 
 export default function WrongBookReviewStartScreen() {
   const db = useSQLiteContext();
+  const { startTask } = useDailyTask();
   const [wrongCount, setWrongCount] = useState<number | null>(null);
+  const [reviewWords, setReviewWords] = useState<
+    Awaited<ReturnType<typeof listAllWrongBookWords>>
+  >([]);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
 
-      countWrongBookWords(db)
-        .then((count) => {
-          if (active) {
-            setWrongCount(count);
+      async function loadWrongWords() {
+        try {
+          const [settings, words] = await Promise.all([
+            getDailyTaskSettings(db),
+            listAllWrongBookWords(db),
+          ]);
+          if (!active) {
+            return;
           }
-        })
-        .catch(() => {
+
+          const orderedWords = settings.wrongReviewRandom
+            ? shuffle(words)
+            : words;
+          const selectedWords = orderedWords.slice(
+            0,
+            settings.wrongReviewWordLimit,
+          );
+          setReviewWords(selectedWords);
+          setWrongCount(selectedWords.length);
+        } catch {
           if (active) {
             setWrongCount(0);
+            setReviewWords([]);
           }
-        });
+        }
+      }
+
+      void loadWrongWords();
 
       return () => {
         active = false;
@@ -46,7 +70,11 @@ export default function WrongBookReviewStartScreen() {
     if (!wrongCount) {
       return;
     }
-    router.push('/wrong-book/practice');
+
+    void getDailyTaskSettings(db).then((settings) => {
+      startTask(reviewWords, settings, 'wrongReview');
+      router.push('/daily-task/learn');
+    });
   }
 
   return (
@@ -81,7 +109,7 @@ export default function WrongBookReviewStartScreen() {
             <Text style={styles.description}>
               {wrongCount === 0
                 ? '暂无可回顾的错题'
-                : `共有 ${wrongCount} 个错题，开始回顾吧`}
+                : `本次将从错题本回顾 ${wrongCount} 个单词`}
             </Text>
             {wrongCount === 0 ? (
               <Text style={styles.emptyHint}>

@@ -8,3 +8,5 @@ export type DailyTaskQuestion = {
 export type FillAnswerMap = Record<number, number>;
 
 export type ListeningAnswerMap = Record<number, string>;
+
+export type DailyTaskMode = 'daily' | 'wrongReview' | 'wordReview';

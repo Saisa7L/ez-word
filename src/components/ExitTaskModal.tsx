@@ -5,12 +5,14 @@ import { colors, radii, spacing } from '@/constants/theme';
 type ExitTaskModalProps = {
   onCancel: () => void;
   onConfirm: () => void;
+  taskLabel?: string;
   visible: boolean;
 };
 
 export function ExitTaskModal({
   onCancel,
   onConfirm,
+  taskLabel = '每日任务',
   visible,
 }: ExitTaskModalProps) {
   return (
@@ -22,7 +24,7 @@ export function ExitTaskModal({
     >
       <View style={styles.overlay}>
         <View style={styles.dialog}>
-          <Text style={styles.title}>退出每日任务？</Text>
+          <Text style={styles.title}>退出{taskLabel}？</Text>
           <View style={styles.actions}>
             <Pressable
               accessibilityRole="button"

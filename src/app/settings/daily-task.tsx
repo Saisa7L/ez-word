@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 
+import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { colors, radii } from '@/constants/theme';
 import {
@@ -25,6 +26,12 @@ import {
   LISTENING_WORD_INTERVAL_STEP,
   normalizeDailyWordLimit,
   normalizeListeningWordInterval,
+  normalizeReviewReminderInterval,
+  normalizeReviewWordLimit,
+  REVIEW_REMINDER_INTERVAL_MAX,
+  REVIEW_REMINDER_INTERVAL_MIN,
+  REVIEW_WORD_LIMIT_MAX,
+  REVIEW_WORD_LIMIT_MIN,
   saveDailyTaskSettings,
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
@@ -67,6 +74,8 @@ export default function DailyTaskSettingsScreen() {
   const db = useSQLiteContext();
   const [settings, setSettings] = useState<DailyTaskSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccessVisible, setSaveSuccessVisible] = useState(false);
+  const [testReminderVisible, setTestReminderVisible] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -116,6 +125,45 @@ export default function DailyTaskSettingsScreen() {
     );
   }
 
+  function changeReviewReminderInterval(step: number) {
+    setSettings((current) =>
+      current
+        ? {
+            ...current,
+            reviewReminderIntervalDays: normalizeReviewReminderInterval(
+              current.reviewReminderIntervalDays + step,
+            ),
+          }
+        : current,
+    );
+  }
+
+  function changeWordReviewLimit(step: number) {
+    setSettings((current) =>
+      current
+        ? {
+            ...current,
+            wordReviewWordLimit: normalizeReviewWordLimit(
+              current.wordReviewWordLimit + step,
+            ),
+          }
+        : current,
+    );
+  }
+
+  function changeWrongReviewLimit(step: number) {
+    setSettings((current) =>
+      current
+        ? {
+            ...current,
+            wrongReviewWordLimit: normalizeReviewWordLimit(
+              current.wrongReviewWordLimit + step,
+            ),
+          }
+        : current,
+    );
+  }
+
   function selectListeningRate(rate: number) {
     setSettings((current) =>
       current ? { ...current, listeningDefaultRate: rate } : current,
@@ -134,6 +182,26 @@ export default function DailyTaskSettingsScreen() {
     );
   }
 
+  function setWrongReviewRandom(value: boolean) {
+    setSettings((current) =>
+      current ? { ...current, wrongReviewRandom: value } : current,
+    );
+  }
+
+  function setReviewReminderEnabled(value: boolean) {
+    setSettings((current) =>
+      current ? { ...current, reviewReminderEnabled: value } : current,
+    );
+  }
+
+  function setAutoRemoveCorrectWrongReview(value: boolean) {
+    setSettings((current) =>
+      current
+        ? { ...current, autoRemoveCorrectWrongReview: value }
+        : current,
+    );
+  }
+
   async function handleSave() {
     if (!settings || isSaving) {
       return;
@@ -142,7 +210,7 @@ export default function DailyTaskSettingsScreen() {
     setIsSaving(true);
     try {
       await saveDailyTaskSettings(db, settings);
-      Alert.alert('保存成功', '新的每日任务设置已经生效');
+      setSaveSuccessVisible(true);
     } catch {
       Alert.alert('保存失败', '无法保存每日任务设置，请稍后重试');
     } finally {
@@ -160,6 +228,24 @@ export default function DailyTaskSettingsScreen() {
   const canIncreaseInterval =
     settings !== null &&
     settings.listeningWordIntervalSeconds < LISTENING_WORD_INTERVAL_MAX;
+  const canDecreaseReminder =
+    settings !== null &&
+    settings.reviewReminderIntervalDays > REVIEW_REMINDER_INTERVAL_MIN;
+  const canIncreaseReminder =
+    settings !== null &&
+    settings.reviewReminderIntervalDays < REVIEW_REMINDER_INTERVAL_MAX;
+  const canDecreaseWordReview =
+    settings !== null &&
+    settings.wordReviewWordLimit > REVIEW_WORD_LIMIT_MIN;
+  const canIncreaseWordReview =
+    settings !== null &&
+    settings.wordReviewWordLimit < REVIEW_WORD_LIMIT_MAX;
+  const canDecreaseWrongReview =
+    settings !== null &&
+    settings.wrongReviewWordLimit > REVIEW_WORD_LIMIT_MIN;
+  const canIncreaseWrongReview =
+    settings !== null &&
+    settings.wrongReviewWordLimit < REVIEW_WORD_LIMIT_MAX;
   const decreaseDailyWords = useLongPressStep(
     () => changeDailyWordLimit(-1),
     canDecrease,
@@ -176,15 +262,40 @@ export default function DailyTaskSettingsScreen() {
     () => changeListeningWordInterval(1),
     canIncreaseInterval,
   );
+  const decreaseReminderInterval = useLongPressStep(
+    () => changeReviewReminderInterval(-1),
+    canDecreaseReminder,
+  );
+  const increaseReminderInterval = useLongPressStep(
+    () => changeReviewReminderInterval(1),
+    canIncreaseReminder,
+  );
+  const decreaseWordReview = useLongPressStep(
+    () => changeWordReviewLimit(-1),
+    canDecreaseWordReview,
+  );
+  const increaseWordReview = useLongPressStep(
+    () => changeWordReviewLimit(1),
+    canIncreaseWordReview,
+  );
+  const decreaseWrongReview = useLongPressStep(
+    () => changeWrongReviewLimit(-1),
+    canDecreaseWrongReview,
+  );
+  const increaseWrongReview = useLongPressStep(
+    () => changeWrongReviewLimit(1),
+    canIncreaseWrongReview,
+  );
 
   return (
-    <GreenSheetScreen
-      onBack={() => router.back()}
-      title="修改每日任务"
-    >
-      {settings ? (
-        <>
-          <View style={styles.settingsCard}>
+    <>
+      <GreenSheetScreen
+        onBack={() => router.back()}
+        title="通用设置"
+      >
+        {settings ? (
+          <>
+            <View style={styles.settingsCard}>
               <Text style={styles.sectionTitle}>每日学习数量</Text>
               <Text style={styles.sectionHint}>
                 每次任务从尚未学习的新单词中选择
@@ -242,6 +353,118 @@ export default function DailyTaskSettingsScreen() {
                 title="随机挑选每日单词"
                 value={settings.randomWordSelection}
               />
+
+              <View style={styles.divider} />
+
+              <Text style={styles.sectionTitle}>错题回顾数量</Text>
+              <Text style={styles.sectionHint}>
+                每次从错题本中抽取的单词数量
+              </Text>
+              <View style={styles.reminderStepper}>
+                <Pressable
+                  accessibilityLabel="减少错题回顾数量"
+                  accessibilityRole="button"
+                  disabled={!canDecreaseWrongReview}
+                  onPressIn={decreaseWrongReview.start}
+                  onPressOut={decreaseWrongReview.stop}
+                  style={({ pressed }) => [
+                    styles.stepButton,
+                    !canDecreaseWrongReview && styles.stepButtonDisabled,
+                    pressed && canDecreaseWrongReview && styles.pressed,
+                  ]}
+                >
+                  <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+                </Pressable>
+                <View style={styles.countValue}>
+                  <Text style={styles.countNumber}>
+                    {settings.wrongReviewWordLimit}
+                  </Text>
+                  <Text style={styles.countUnit}>个/次</Text>
+                </View>
+                <Pressable
+                  accessibilityLabel="增加错题回顾数量"
+                  accessibilityRole="button"
+                  disabled={!canIncreaseWrongReview}
+                  onPressIn={increaseWrongReview.start}
+                  onPressOut={increaseWrongReview.stop}
+                  style={({ pressed }) => [
+                    styles.stepButton,
+                    !canIncreaseWrongReview && styles.stepButtonDisabled,
+                    pressed && canIncreaseWrongReview && styles.pressed,
+                  ]}
+                >
+                  <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+                </Pressable>
+              </View>
+              <Text style={styles.rangeHint}>
+                {REVIEW_WORD_LIMIT_MIN}-{REVIEW_WORD_LIMIT_MAX} 个
+              </Text>
+
+              <View style={styles.divider} />
+
+              <ToggleRow
+                hint={
+                  settings.wrongReviewRandom
+                    ? '每次错题回顾从错题本中随机抽取'
+                    : '按错题加入时间顺序进行回顾'
+                }
+                onValueChange={setWrongReviewRandom}
+                title="随机挑选错题回顾单词"
+                value={settings.wrongReviewRandom}
+              />
+
+              <View style={styles.divider} />
+
+              <ToggleRow
+                hint="错题回顾中答对的单词会自动移出错题本并设为已学习"
+                onValueChange={setAutoRemoveCorrectWrongReview}
+                title="答对后自动移出错题本"
+                value={settings.autoRemoveCorrectWrongReview}
+              />
+
+              <View style={styles.divider} />
+
+              <Text style={styles.sectionTitle}>单词再练数量</Text>
+              <Text style={styles.sectionHint}>每次复习随机抽取的单词数量</Text>
+              <View style={styles.reminderStepper}>
+                <Pressable
+                  accessibilityLabel="减少单词再练数量"
+                  accessibilityRole="button"
+                  disabled={!canDecreaseWordReview}
+                  onPressIn={decreaseWordReview.start}
+                  onPressOut={decreaseWordReview.stop}
+                  style={({ pressed }) => [
+                    styles.stepButton,
+                    !canDecreaseWordReview && styles.stepButtonDisabled,
+                    pressed && canDecreaseWordReview && styles.pressed,
+                  ]}
+                >
+                  <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+                </Pressable>
+                <View style={styles.countValue}>
+                  <Text style={styles.countNumber}>
+                    {settings.wordReviewWordLimit}
+                  </Text>
+                  <Text style={styles.countUnit}>个/次</Text>
+                </View>
+                <Pressable
+                  accessibilityLabel="增加单词再练数量"
+                  accessibilityRole="button"
+                  disabled={!canIncreaseWordReview}
+                  onPressIn={increaseWordReview.start}
+                  onPressOut={increaseWordReview.stop}
+                  style={({ pressed }) => [
+                    styles.stepButton,
+                    !canIncreaseWordReview && styles.stepButtonDisabled,
+                    pressed && canIncreaseWordReview && styles.pressed,
+                  ]}
+                >
+                  <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+                </Pressable>
+              </View>
+              <Text style={styles.rangeHint}>
+                {REVIEW_WORD_LIMIT_MIN}-{REVIEW_WORD_LIMIT_MAX} 个
+              </Text>
 
               <View style={styles.divider} />
 
@@ -338,32 +561,138 @@ export default function DailyTaskSettingsScreen() {
                 {LISTENING_WORD_INTERVAL_MIN.toFixed(1)}-
                 {LISTENING_WORD_INTERVAL_MAX.toFixed(1)} 秒，每次调整 0.1 秒
               </Text>
-          </View>
 
-          <Pressable
-            accessibilityRole="button"
-            disabled={isSaving}
-            onPress={handleSave}
-            style={({ pressed }) => [
-              styles.saveButton,
-              isSaving && styles.saveButtonDisabled,
-              pressed && !isSaving && styles.pressed,
-            ]}
-          >
-            {isSaving ? (
-              <ActivityIndicator color={colors.surface} />
-            ) : (
-              <Text style={styles.saveText}>保存设置</Text>
-            )}
-          </Pressable>
-        </>
-      ) : (
-        <View style={styles.loading}>
-          <ActivityIndicator color={colors.primary} size="large" />
-          <Text style={styles.loadingText}>正在读取设置</Text>
-        </View>
-      )}
-    </GreenSheetScreen>
+              <View style={styles.divider} />
+
+              <ToggleRow
+                hint="达到设定的学习天数时，在首页弹出复习提醒"
+                onValueChange={setReviewReminderEnabled}
+                title="开启复习提醒"
+                value={settings.reviewReminderEnabled}
+              />
+
+              {settings.reviewReminderEnabled ? (
+                <>
+                  <View style={styles.reminderStepper}>
+                    <Pressable
+                      accessibilityLabel="减少复习提醒间隔"
+                      accessibilityRole="button"
+                      disabled={!canDecreaseReminder}
+                      onPressIn={decreaseReminderInterval.start}
+                      onPressOut={decreaseReminderInterval.stop}
+                      style={({ pressed }) => [
+                        styles.stepButton,
+                        !canDecreaseReminder && styles.stepButtonDisabled,
+                        pressed && canDecreaseReminder && styles.pressed,
+                      ]}
+                    >
+                      <Minus
+                        color={colors.primary}
+                        size={30}
+                        strokeWidth={2.4}
+                      />
+                    </Pressable>
+
+                    <View style={styles.countValue}>
+                      <Text style={styles.countNumber}>
+                        {settings.reviewReminderIntervalDays}
+                      </Text>
+                      <Text style={styles.countUnit}>天提醒一次</Text>
+                    </View>
+
+                    <Pressable
+                      accessibilityLabel="增加复习提醒间隔"
+                      accessibilityRole="button"
+                      disabled={!canIncreaseReminder}
+                      onPressIn={increaseReminderInterval.start}
+                      onPressOut={increaseReminderInterval.stop}
+                      style={({ pressed }) => [
+                        styles.stepButton,
+                        !canIncreaseReminder && styles.stepButtonDisabled,
+                        pressed && canIncreaseReminder && styles.pressed,
+                      ]}
+                    >
+                      <Plus
+                        color={colors.primary}
+                        size={30}
+                        strokeWidth={2.4}
+                      />
+                    </Pressable>
+                  </View>
+                  <Text style={styles.rangeHint}>
+                    可设置 {REVIEW_REMINDER_INTERVAL_MIN}-
+                    {REVIEW_REMINDER_INTERVAL_MAX} 天
+                  </Text>
+                </>
+              ) : null}
+
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setTestReminderVisible(true)}
+                style={({ pressed }) => [
+                  styles.testReminderButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.testReminderText}>测试复习提醒</Text>
+              </Pressable>
+            </View>
+
+            <Pressable
+              accessibilityRole="button"
+              disabled={isSaving}
+              onPress={handleSave}
+              style={({ pressed }) => [
+                styles.saveButton,
+                isSaving && styles.saveButtonDisabled,
+                pressed && !isSaving && styles.pressed,
+              ]}
+            >
+              {isSaving ? (
+                <ActivityIndicator color={colors.surface} />
+              ) : (
+                <Text style={styles.saveText}>保存设置</Text>
+              )}
+            </Pressable>
+          </>
+        ) : (
+          <View style={styles.loading}>
+            <ActivityIndicator color={colors.primary} size="large" />
+            <Text style={styles.loadingText}>正在读取设置</Text>
+          </View>
+        )}
+      </GreenSheetScreen>
+      <ActionOptionModal
+        message="已到达规定的复习时间，让我们开始复习吧！"
+        onClose={() => setTestReminderVisible(false)}
+        options={[
+          {
+            label: '去复习',
+            onPress: () => router.push('/review'),
+            tone: 'primary',
+          },
+          {
+            label: '知道了',
+            onPress: () => {},
+          },
+        ]}
+        title="该复习了"
+        visible={testReminderVisible}
+      />
+      <ActionOptionModal
+        message="通用设置已经保存并生效。"
+        onClose={() => setSaveSuccessVisible(false)}
+        options={[
+          {
+            label: '知道了',
+            onPress: () => {},
+            tone: 'primary',
+          },
+        ]}
+        title="保存成功"
+        visible={saveSuccessVisible}
+      />
+    </>
   );
 }
 
@@ -443,6 +772,12 @@ const styles = StyleSheet.create({
   rateTextSelected: {
     color: colors.surface,
   },
+  reminderStepper: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
   saveButton: {
     alignItems: 'center',
     backgroundColor: colors.primary,
@@ -492,6 +827,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 26,
+  },
+  testReminderButton: {
+    alignItems: 'center',
+    borderColor: colors.primary,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    height: 50,
+    justifyContent: 'center',
+    marginTop: 18,
+  },
+  testReminderText: {
+    color: colors.primary,
+    fontSize: 17,
+    fontWeight: '600',
   },
   toggleCopy: {
     flex: 1,

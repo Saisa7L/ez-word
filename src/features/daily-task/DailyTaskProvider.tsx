@@ -12,9 +12,14 @@ import {
   DEFAULT_DAILY_TASK_SETTINGS,
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
+import { shuffle } from '@/utils/shuffle';
 
 import { buildDailyTaskQuestions } from './sentenceTemplates';
-import type { FillAnswerMap, ListeningAnswerMap } from './types';
+import type {
+  DailyTaskMode,
+  FillAnswerMap,
+  ListeningAnswerMap,
+} from './types';
 
 type DailyTaskContextValue = {
   clearFillAnswer: (questionWordId: number) => void;
@@ -33,7 +38,12 @@ type DailyTaskContextValue = {
   setListeningAnswer: (wordId: number, answer: string) => void;
   setListeningWrongWordIds: (wordIds: number[]) => void;
   startedAt: number | null;
-  startTask: (words: WordRecord[], settings: DailyTaskSettings) => void;
+  startTask: (
+    words: WordRecord[],
+    settings: DailyTaskSettings,
+    mode?: DailyTaskMode,
+  ) => void;
+  taskMode: DailyTaskMode;
   taskSettings: DailyTaskSettings;
   wordBank: WordRecord[];
   words: WordRecord[];
@@ -41,15 +51,6 @@ type DailyTaskContextValue = {
 };
 
 const DailyTaskContext = createContext<DailyTaskContextValue | null>(null);
-
-function shuffle<T>(items: T[]): T[] {
-  const result = [...items];
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
-  }
-  return result;
-}
 
 type DailyTaskProviderProps = {
   children: ReactNode;
@@ -77,9 +78,14 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
   const [taskSettings, setTaskSettings] = useState<DailyTaskSettings>({
     ...DEFAULT_DAILY_TASK_SETTINGS,
   });
+  const [taskMode, setTaskMode] = useState<DailyTaskMode>('daily');
 
   const startTask = useCallback(
-    (nextWords: WordRecord[], settings: DailyTaskSettings) => {
+    (
+      nextWords: WordRecord[],
+      settings: DailyTaskSettings,
+      mode: DailyTaskMode = 'daily',
+    ) => {
       const limitedWords = [...nextWords];
       setWords(limitedWords);
       setFillWords(shuffle(limitedWords));
@@ -94,6 +100,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       setStartedAt(Date.now());
       setDurationSeconds(0);
       setTaskSettings(settings);
+      setTaskMode(mode);
     },
     [],
   );
@@ -118,6 +125,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
     setStartedAt(null);
     setDurationSeconds(0);
     setTaskSettings({ ...DEFAULT_DAILY_TASK_SETTINGS });
+    setTaskMode('daily');
   }, []);
 
   const setFillAnswer = useCallback(
@@ -213,6 +221,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       setListeningWrongWordIds,
       startedAt,
       startTask,
+      taskMode,
       taskSettings,
       wordBank,
       words,
@@ -236,6 +245,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
       setListeningWrongWordIds,
       startedAt,
       startTask,
+      taskMode,
       taskSettings,
       wordBank,
       words,

@@ -21,7 +21,10 @@ import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow } from '@/constants/theme';
 import { LISTENING_RATES } from '@/database/settingsRepository';
 import { recordTaskCompletion } from '@/database/studyRepository';
-import { recordWrongWords } from '@/database/wrongBookRepository';
+import {
+  recordWrongWords,
+  resolveWrongBookRemoval,
+} from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { playWordSequence } from '@/services/speech';
@@ -39,6 +42,7 @@ export default function ListeningScreen() {
     finishTask,
     setListeningAnswer,
     setListeningWrongWordIds,
+    taskMode,
     taskSettings,
     words,
     wrongWordIds,
@@ -88,6 +92,12 @@ export default function ListeningScreen() {
     listeningWords.length === 0
       ? 0
       : (currentWordIndex / listeningWords.length) * 100;
+  const taskTitle =
+    taskMode === 'wrongReview'
+      ? '错题回顾'
+      : taskMode === 'wordReview'
+        ? '单词再练'
+        : '每日任务';
 
   function stopPlayback() {
     stopPlaybackRef.current?.();
@@ -182,11 +192,21 @@ export default function ListeningScreen() {
     const combinedWrongIds = new Set([...wrongWordIds, ...wrongIds]);
 
     try {
-      await recordTaskCompletion(db, {
-        wordIds: words.map((word) => word.id),
-        wrongCount: combinedWrongIds.size,
-        wrongWordIds: [...combinedWrongIds],
-      });
+      if (taskMode === 'daily') {
+        await recordTaskCompletion(db, {
+          wordIds: words.map((word) => word.id),
+          wrongCount: combinedWrongIds.size,
+          wrongWordIds: [...combinedWrongIds],
+        });
+      } else if (
+        taskMode === 'wrongReview' &&
+        taskSettings.autoRemoveCorrectWrongReview
+      ) {
+        const correctWordIds = words
+          .filter((word) => !combinedWrongIds.has(word.id))
+          .map((word) => word.id);
+        await resolveWrongBookRemoval(db, correctWordIds, 'learned');
+      }
       finishTask();
       router.push('/daily-task/complete');
     } catch {
@@ -232,7 +252,7 @@ export default function ListeningScreen() {
         >
           <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
         </Pressable>
-        <Text style={styles.headerTitle}>每日任务-听力测试</Text>
+        <Text style={styles.headerTitle}>{taskTitle}-听力测试</Text>
         <View style={styles.headerPlaceholder} />
       </View>
 
@@ -343,6 +363,7 @@ export default function ListeningScreen() {
       <ExitTaskModal
         onCancel={exitGuard.cancelExit}
         onConfirm={exitGuard.confirmExit}
+        taskLabel={taskTitle}
         visible={exitGuard.visible}
       />
     </SafeAreaView>

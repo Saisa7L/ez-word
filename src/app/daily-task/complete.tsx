@@ -8,7 +8,6 @@ import { f3Assets } from '@/constants/f3Assets';
 import { colors, shadow } from '@/constants/theme';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import {
-  returnToDailyTaskStart,
   returnToHome,
   type AppNavigation,
 } from '@/utils/navigation';
@@ -20,8 +19,26 @@ function formatDuration(totalSeconds: number): string {
 }
 
 export default function DailyTaskCompleteScreen() {
-  const { durationSeconds, resetTask, words, wrongWordIds } = useDailyTask();
+  const {
+    durationSeconds,
+    resetTask,
+    taskMode,
+    words,
+    wrongWordIds,
+  } = useDailyTask();
   const navigation = useNavigation<AppNavigation>('/');
+  const taskTitle =
+    taskMode === 'wrongReview'
+      ? '错题回顾'
+      : taskMode === 'wordReview'
+        ? '单词再练'
+        : '每日任务';
+  const learnedLabel =
+    taskMode === 'daily'
+      ? '本次学习单词'
+      : taskMode === 'wrongReview'
+        ? '本次回顾单词'
+        : '本次练习单词';
 
   function handleHome() {
     resetTask();
@@ -29,8 +46,7 @@ export default function DailyTaskCompleteScreen() {
   }
 
   function handleBackToStart() {
-    resetTask();
-    returnToDailyTaskStart();
+    handleHome();
   }
 
   return (
@@ -45,7 +61,7 @@ export default function DailyTaskCompleteScreen() {
         >
           <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
         </Pressable>
-        <Text style={styles.headerTitle}>每日任务-完成</Text>
+        <Text style={styles.headerTitle}>{taskTitle}-完成</Text>
         <View style={styles.headerPlaceholder} />
       </View>
 
@@ -55,17 +71,19 @@ export default function DailyTaskCompleteScreen() {
 
         <SurfaceCard style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>本次学习单词</Text>
+            <Text style={styles.summaryLabel}>{learnedLabel}</Text>
             <Text style={styles.summaryValue}>
               {Math.max(0, words.length - wrongWordIds.size)}/{words.length}
             </Text>
           </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>错题本增加</Text>
-            <Text style={styles.summaryValue}>
-              {wrongWordIds.size}/{words.length}
-            </Text>
-          </View>
+          {taskMode === 'daily' ? (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>错题本增加</Text>
+              <Text style={styles.summaryValue}>
+                {wrongWordIds.size}/{words.length}
+              </Text>
+            </View>
+          ) : null}
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>学习时长</Text>
             <Text style={styles.summaryValue}>{formatDuration(durationSeconds)}</Text>

@@ -17,7 +17,7 @@ import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 
 export default function LearnWordsScreen() {
-  const { words } = useDailyTask();
+  const { taskMode, words } = useDailyTask();
   const [index, setIndex] = useState(0);
   const exitGuard = useDailyTaskExitGuard();
 
@@ -34,6 +34,8 @@ export default function LearnWordsScreen() {
   const word = words[index];
   const progress = ((index + 1) / words.length) * 100;
   const isLast = index === words.length - 1;
+  const taskTitle =
+    taskMode === 'wrongReview' ? '错题回顾' : '每日任务';
 
   function speakWord() {
     void Speech.stop();
@@ -63,7 +65,7 @@ export default function LearnWordsScreen() {
         >
           <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
         </Pressable>
-        <Text style={styles.headerTitle}>每日任务-认识单词</Text>
+        <Text style={styles.headerTitle}>{taskTitle}-认识单词</Text>
         <View style={styles.headerPlaceholder} />
       </View>
 
@@ -128,6 +130,7 @@ export default function LearnWordsScreen() {
       <ExitTaskModal
         onCancel={exitGuard.cancelExit}
         onConfirm={exitGuard.confirmExit}
+        taskLabel={taskTitle}
         visible={exitGuard.visible}
       />
     </SafeAreaView>

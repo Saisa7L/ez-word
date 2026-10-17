@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'vocabulary.db';
 
-const DATABASE_VERSION = 4;
+const DATABASE_VERSION = 7;
 
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync(`
@@ -126,6 +126,54 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     });
 
     currentVersion = 4;
+  }
+
+  if (currentVersion === 4) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE app_settings
+        ADD COLUMN last_review_prompt_checkin INTEGER NOT NULL DEFAULT 0;
+      `);
+    });
+
+    currentVersion = 5;
+  }
+
+  if (currentVersion === 5) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE app_settings
+        ADD COLUMN wrong_review_random INTEGER NOT NULL DEFAULT 0;
+
+        ALTER TABLE app_settings
+        ADD COLUMN review_reminder_enabled INTEGER NOT NULL DEFAULT 1;
+
+        ALTER TABLE app_settings
+        ADD COLUMN review_reminder_interval_days INTEGER NOT NULL DEFAULT 3;
+
+        ALTER TABLE app_settings
+        ADD COLUMN last_review_prompt_study_day INTEGER NOT NULL DEFAULT 0;
+      `);
+    });
+
+    currentVersion = 6;
+  }
+
+  if (currentVersion === 6) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE app_settings
+        ADD COLUMN word_review_word_limit INTEGER NOT NULL DEFAULT 10;
+
+        ALTER TABLE app_settings
+        ADD COLUMN wrong_review_word_limit INTEGER NOT NULL DEFAULT 10;
+
+        ALTER TABLE app_settings
+        ADD COLUMN auto_remove_correct_wrong_review INTEGER NOT NULL DEFAULT 0;
+      `);
+    });
+
+    currentVersion = 7;
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentVersion}`);

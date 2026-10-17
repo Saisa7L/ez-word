@@ -1,0 +1,78 @@
+import type { SQLiteDatabase } from 'expo-sqlite';
+
+export type HomeStats = {
+  checkinCount: number;
+  studyDays: number;
+  todayLearned: number;
+  totalLearned: number;
+  wrongBookCount: number;
+};
+
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export async function getHomeStats(db: SQLiteDatabase): Promise<HomeStats> {
+  const today = formatLocalDate(new Date());
+  const [
+    todayRow,
+    totalRow,
+    wrongBookRow,
+    studyDaysRow,
+    checkinRow,
+  ] = await Promise.all([
+    db.getFirstAsync<{ total: number }>(
+      `SELECT COALESCE(SUM(word_count), 0) AS total
+       FROM study_sessions
+       WHERE study_date = $today`,
+      { $today: today },
+    ),
+    db.getFirstAsync<{ total: number }>(
+      'SELECT COUNT(*) AS total FROM word_learning_state',
+    ),
+    db.getFirstAsync<{ total: number }>(
+      'SELECT COUNT(*) AS total FROM wrong_book_words',
+    ),
+    db.getFirstAsync<{ total: number }>(
+      'SELECT COUNT(DISTINCT study_date) AS total FROM study_sessions',
+    ),
+    db.getFirstAsync<{ total: number }>(
+      'SELECT COUNT(*) AS total FROM study_sessions',
+    ),
+  ]);
+
+  return {
+    checkinCount: checkinRow?.total ?? 0,
+    studyDays: studyDaysRow?.total ?? 0,
+    todayLearned: todayRow?.total ?? 0,
+    totalLearned: totalRow?.total ?? 0,
+    wrongBookCount: wrongBookRow?.total ?? 0,
+  };
+}
+
+export async function getLastReviewPromptStudyDay(
+  db: SQLiteDatabase,
+): Promise<number> {
+  const row = await db.getFirstAsync<{ last_review_prompt_study_day: number }>(
+    `SELECT last_review_prompt_study_day
+     FROM app_settings
+     WHERE id = 1`,
+  );
+  return row?.last_review_prompt_study_day ?? 0;
+}
+
+export async function markReviewPrompted(
+  db: SQLiteDatabase,
+  studyDay: number,
+): Promise<void> {
+  await db.runAsync(
+    `UPDATE app_settings
+     SET last_review_prompt_study_day = $studyDay
+     WHERE id = 1
+       AND last_review_prompt_study_day < $studyDay`,
+    { $studyDay: studyDay },
+  );
+}

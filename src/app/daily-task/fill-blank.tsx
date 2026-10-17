@@ -32,6 +32,7 @@ export default function FillBlankScreen() {
     questions,
     setFillAnswer,
     setFillWrongWordIds,
+    taskMode,
     taskSettings,
     wordBank,
     words,
@@ -66,6 +67,12 @@ export default function FillBlankScreen() {
 
   const allAnswered = words.every((word) => fillAnswers[word.id] !== undefined);
   const pageWords = wordPages[wordPageIndex] ?? [];
+  const taskTitle =
+    taskMode === 'wrongReview'
+      ? '错题回顾'
+      : taskMode === 'wordReview'
+        ? '单词再练'
+        : '每日任务';
 
   function handleBlankPress(questionWordId: number) {
     if (fillAnswers[questionWordId] !== undefined) {
@@ -133,7 +140,7 @@ export default function FillBlankScreen() {
         >
           <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
         </Pressable>
-        <Text style={styles.headerTitle}>每日任务-选词填空</Text>
+        <Text style={styles.headerTitle}>{taskTitle}-选词填空</Text>
         <View style={styles.headerPlaceholder} />
       </View>
 
@@ -264,6 +271,7 @@ export default function FillBlankScreen() {
       <ExitTaskModal
         onCancel={exitGuard.cancelExit}
         onConfirm={exitGuard.confirmExit}
+        taskLabel={taskTitle}
         visible={exitGuard.visible}
       />
     </SafeAreaView>

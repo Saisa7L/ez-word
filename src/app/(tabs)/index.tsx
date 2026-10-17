@@ -1,18 +1,74 @@
+import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { HomeActionCard } from '@/components/HomeActionCard';
 import { f1Assets } from '@/constants/f1Assets';
 import { colors, radii, shadow, spacing } from '@/constants/theme';
-
-const stats = [
-  { label: '今日已学', value: '10' },
-  { label: '总计已学', value: '50000' },
-  { label: '错题本', value: '70' },
-];
+import {
+  getHomeStats,
+  getLastReviewPromptStudyDay,
+  markReviewPrompted,
+  type HomeStats,
+} from '@/database/statsRepository';
+import { getDailyTaskSettings } from '@/database/settingsRepository';
 
 export default function HomeScreen() {
+  const db = useSQLiteContext();
+  const [homeStats, setHomeStats] = useState<HomeStats | null>(null);
+  const [reviewReminderVisible, setReviewReminderVisible] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+
+      async function loadStats() {
+        try {
+          const nextStats = await getHomeStats(db);
+          if (!active) {
+            return;
+          }
+
+          setHomeStats(nextStats);
+
+          const settings = await getDailyTaskSettings(db);
+          if (
+            settings.reviewReminderEnabled &&
+            nextStats.studyDays > 0 &&
+            nextStats.studyDays % settings.reviewReminderIntervalDays === 0
+          ) {
+            const lastPrompted = await getLastReviewPromptStudyDay(db);
+            if (active && lastPrompted < nextStats.studyDays) {
+              await markReviewPrompted(db, nextStats.studyDays);
+              if (active) {
+                setReviewReminderVisible(true);
+              }
+            }
+          }
+        } catch {
+          if (active) {
+            setHomeStats(null);
+          }
+        }
+      }
+
+      void loadStats();
+
+      return () => {
+        active = false;
+      };
+    }, [db]),
+  );
+
+  const stats = [
+    { label: '今日已学', value: String(homeStats?.todayLearned ?? '--') },
+    { label: '总计已学', value: String(homeStats?.totalLearned ?? '--') },
+    { label: '错题本', value: String(homeStats?.wrongBookCount ?? '--') },
+  ];
+
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView
@@ -26,7 +82,9 @@ export default function HomeScreen() {
             </View>
             <View style={styles.welcomeCopy}>
               <Text style={styles.welcomeTitle}>欢迎回来，憔悴样！</Text>
-              <Text style={styles.welcomeSubtitle}>您已经学习了 365 天</Text>
+              <Text style={styles.welcomeSubtitle}>
+                您已经学习了 {homeStats?.studyDays ?? 0} 天
+              </Text>
             </View>
           </View>
 
@@ -60,10 +118,29 @@ export default function HomeScreen() {
             backgroundColor={colors.blueSoft}
             icon={f1Assets.homeWordPractice}
             iconColor={colors.blue}
+            onPress={() => router.push('/review')}
             title="单词再练"
           />
         </View>
       </ScrollView>
+
+      <ActionOptionModal
+        message="已到达规定的复习时间，让我们开始复习吧！"
+        onClose={() => setReviewReminderVisible(false)}
+        options={[
+          {
+            label: '去复习',
+            onPress: () => router.push('/review'),
+            tone: 'primary',
+          },
+          {
+            label: '稍后',
+            onPress: () => {},
+          },
+        ]}
+        title="该复习了"
+        visible={reviewReminderVisible}
+      />
     </SafeAreaView>
   );
 }
