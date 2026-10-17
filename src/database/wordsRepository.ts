@@ -36,6 +36,7 @@ export async function upsertWords(
           `UPDATE words
            SET meaning = $meaning,
                phonetic = $phonetic,
+               is_active = 1,
                updated_at = $updatedAt
            WHERE id = $id`,
           {
@@ -76,6 +77,29 @@ export async function listWords(db: SQLiteDatabase, limit = 50): Promise<WordRec
     `SELECT id, word, meaning, phonetic, created_at, updated_at
      FROM words
      ORDER BY word COLLATE NOCASE ASC
+     LIMIT ?`,
+    limit,
+  );
+}
+
+export async function listUnlearnedActiveWords(
+  db: SQLiteDatabase,
+  limit: number,
+): Promise<WordRecord[]> {
+  return db.getAllAsync<WordRecord>(
+    `SELECT
+       words.id,
+       words.word,
+       words.meaning,
+       words.phonetic,
+       words.created_at,
+       words.updated_at
+     FROM words
+     LEFT JOIN word_learning_state
+       ON word_learning_state.word_id = words.id
+     WHERE words.is_active = 1
+       AND word_learning_state.word_id IS NULL
+     ORDER BY words.word COLLATE NOCASE ASC
      LIMIT ?`,
     limit,
   );

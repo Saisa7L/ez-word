@@ -61,7 +61,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
   const [durationSeconds, setDurationSeconds] = useState(0);
 
   const startTask = useCallback((nextWords: WordRecord[]) => {
-    const limitedWords = nextWords.slice(0, 10);
+    const limitedWords = [...nextWords];
     setWords(limitedWords);
     setWordBank(shuffle(limitedWords));
     setFillAnswers({});

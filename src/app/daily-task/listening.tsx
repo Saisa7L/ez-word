@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import * as Speech from 'expo-speech';
 import { ArrowLeft, Gauge, Play, RotateCcw, Square } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -18,17 +19,21 @@ import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow } from '@/constants/theme';
+import {
+  DEFAULT_DAILY_TASK_SETTINGS,
+  getDailyTaskSettings,
+  LISTENING_RATES,
+} from '@/database/settingsRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { playWordSequence } from '@/services/speech';
-
-const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 function formatSpeed(speed: number): string {
   return Number.isInteger(speed) ? `${speed.toFixed(1)}x` : `${speed}x`;
 }
 
 export default function ListeningScreen() {
+  const db = useSQLiteContext();
   const {
     listeningAnswers,
     listeningWrongWordIds,
@@ -39,9 +44,12 @@ export default function ListeningScreen() {
   } = useDailyTask();
   const exitGuard = useDailyTaskExitGuard();
   const stopPlaybackRef = useRef<(() => void) | null>(null);
+  const speedTouchedRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentRead, setCurrentRead] = useState(0);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState<number>(
+    DEFAULT_DAILY_TASK_SETTINGS.listeningDefaultRate,
+  );
   const [errorWordIds, setErrorWordIds] = useState<number[]>([]);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [answerViewportHeight, setAnswerViewportHeight] = useState(0);
@@ -53,6 +61,24 @@ export default function ListeningScreen() {
       router.replace('/daily-task');
     }
   }, [words.length]);
+
+  useEffect(() => {
+    let active = true;
+
+    getDailyTaskSettings(db)
+      .then((settings) => {
+        if (active && !speedTouchedRef.current) {
+          setSpeed(settings.listeningDefaultRate);
+        }
+      })
+      .catch(() => {
+        // Keep the app default when settings cannot be read.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [db]);
 
   useEffect(
     () => () => {
@@ -122,8 +148,12 @@ export default function ListeningScreen() {
   }
 
   function handleSpeedChange() {
-    const currentIndex = SPEEDS.indexOf(speed);
-    const nextSpeed = SPEEDS[(currentIndex + 1) % SPEEDS.length];
+    speedTouchedRef.current = true;
+    const currentIndex = LISTENING_RATES.indexOf(
+      speed as (typeof LISTENING_RATES)[number],
+    );
+    const nextSpeed =
+      LISTENING_RATES[(currentIndex + 1) % LISTENING_RATES.length];
     setSpeed(nextSpeed);
 
     if (isPlaying) {

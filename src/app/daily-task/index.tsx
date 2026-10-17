@@ -14,7 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { f3Assets } from '@/constants/f3Assets';
 import { colors, radii, spacing } from '@/constants/theme';
-import { listWords, type WordRecord } from '@/database/wordsRepository';
+import { getDailyTaskSettings } from '@/database/settingsRepository';
+import {
+  listUnlearnedActiveWords,
+  type WordRecord,
+} from '@/database/wordsRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { returnToHome, type AppNavigation } from '@/utils/navigation';
 
@@ -27,17 +31,25 @@ export default function DailyTaskStartScreen() {
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      listWords(db, 10)
-        .then((words) => {
+
+      async function loadAvailableWords() {
+        try {
+          const settings = await getDailyTaskSettings(db);
+          const words = await listUnlearnedActiveWords(
+            db,
+            settings.dailyWordLimit,
+          );
           if (active) {
             setAvailableWords(words);
           }
-        })
-        .catch(() => {
+        } catch {
           if (active) {
             setAvailableWords([]);
           }
-        });
+        }
+      }
+
+      void loadAvailableWords();
 
       return () => {
         active = false;
@@ -97,11 +109,13 @@ export default function DailyTaskStartScreen() {
           <>
             <Text style={styles.description}>
               {isEmpty
-                ? '请先导入单词'
-                : `今日 ${wordCount} 个单词，一起开始吧`}
+                ? '暂无可学习的新单词'
+                : `今日 ${wordCount} 个新单词，一起开始吧`}
             </Text>
             {isEmpty ? (
-              <Text style={styles.emptyHint}>导入 CSV 后就可以开始每日任务</Text>
+              <Text style={styles.emptyHint}>
+                请先导入单词，或等待已学单词进入复习
+              </Text>
             ) : null}
           </>
         )}

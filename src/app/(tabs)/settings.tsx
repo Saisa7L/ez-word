@@ -41,6 +41,7 @@ export default function SettingsScreen() {
             icon={f1Assets.settingsDailyGoal}
             iconColor={colors.orange}
             label="修改每日任务"
+            onPress={() => router.push('/settings/daily-task')}
           />
           <SettingsRow
             backgroundColor={colors.mint}
