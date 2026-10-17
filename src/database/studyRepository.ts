@@ -4,6 +4,7 @@ type RecordTaskCompletionOptions = {
   completedAt?: Date;
   wordIds: number[];
   wrongCount: number;
+  wrongWordIds: number[];
 };
 
 function formatLocalDate(date: Date): string {
@@ -15,11 +16,17 @@ function formatLocalDate(date: Date): string {
 
 export async function recordTaskCompletion(
   db: SQLiteDatabase,
-  { completedAt = new Date(), wordIds, wrongCount }: RecordTaskCompletionOptions,
+  {
+    completedAt = new Date(),
+    wordIds,
+    wrongCount,
+    wrongWordIds,
+  }: RecordTaskCompletionOptions,
 ): Promise<void> {
   const completedAtIso = completedAt.toISOString();
   const studyDate = formatLocalDate(completedAt);
   const uniqueWordIds = [...new Set(wordIds)];
+  const wrongWordIdSet = new Set(wrongWordIds);
 
   await db.withExclusiveTransactionAsync(async (transaction) => {
     for (const wordId of uniqueWordIds) {
@@ -37,6 +44,16 @@ export async function recordTaskCompletion(
         {
           $wordId: wordId,
           $completedAt: completedAtIso,
+        },
+      );
+
+      await transaction.runAsync(
+        `UPDATE words
+         SET learning_status = $learningStatus
+         WHERE id = $wordId`,
+        {
+          $learningStatus: wrongWordIdSet.has(wordId) ? 'wrong' : 'learned',
+          $wordId: wordId,
         },
       );
     }

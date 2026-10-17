@@ -21,6 +21,7 @@ import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow } from '@/constants/theme';
 import { LISTENING_RATES } from '@/database/settingsRepository';
 import { recordTaskCompletion } from '@/database/studyRepository';
+import { recordWrongWords } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { playWordSequence } from '@/services/speech';
@@ -44,6 +45,7 @@ export default function ListeningScreen() {
   } = useDailyTask();
   const exitGuard = useDailyTaskExitGuard();
   const stopPlaybackRef = useRef<(() => void) | null>(null);
+  const savingMistakesRef = useRef(false);
   const submittingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -183,6 +185,7 @@ export default function ListeningScreen() {
       await recordTaskCompletion(db, {
         wordIds: words.map((word) => word.id),
         wrongCount: combinedWrongIds.size,
+        wrongWordIds: [...combinedWrongIds],
       });
       finishTask();
       router.push('/daily-task/complete');
@@ -194,10 +197,26 @@ export default function ListeningScreen() {
   }
 
   function handleErrorConfirm() {
-    setListeningWrongWordIds(errorWordIds);
-    setErrorModalVisible(false);
-    if (taskSettings.advanceOnMistakes) {
-      void completeTask(errorWordIds);
+    void recordMistakesAndContinue();
+  }
+
+  async function recordMistakesAndContinue() {
+    if (savingMistakesRef.current) {
+      return;
+    }
+
+    savingMistakesRef.current = true;
+    try {
+      await recordWrongWords(db, errorWordIds, 'listening');
+      setListeningWrongWordIds(errorWordIds);
+      setErrorModalVisible(false);
+      if (taskSettings.advanceOnMistakes) {
+        void completeTask(errorWordIds);
+      }
+    } catch {
+      Alert.alert('保存失败', '无法将错题加入错题本，请稍后重试');
+    } finally {
+      savingMistakesRef.current = false;
     }
   }
 

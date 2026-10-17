@@ -1,7 +1,9 @@
 import { router } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   type LayoutChangeEvent,
   Pressable,
   ScrollView,
@@ -15,12 +17,14 @@ import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow, spacing } from '@/constants/theme';
+import { recordWrongWords } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 
 const WORD_PAGE_SIZE = 4;
 
 export default function FillBlankScreen() {
+  const db = useSQLiteContext();
   const {
     clearFillAnswer,
     fillAnswers,
@@ -33,6 +37,7 @@ export default function FillBlankScreen() {
     words,
   } = useDailyTask();
   const exitGuard = useDailyTaskExitGuard();
+  const savingMistakesRef = useRef(false);
   const [selectedWordId, setSelectedWordId] = useState<number | null>(null);
   const [errorWordIds, setErrorWordIds] = useState<number[]>([]);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
@@ -89,10 +94,26 @@ export default function FillBlankScreen() {
   }
 
   function handleErrorConfirm() {
-    setFillWrongWordIds(errorWordIds);
-    setErrorModalVisible(false);
-    if (taskSettings.advanceOnMistakes) {
-      router.push('/daily-task/listening');
+    void recordMistakesAndContinue();
+  }
+
+  async function recordMistakesAndContinue() {
+    if (savingMistakesRef.current) {
+      return;
+    }
+
+    savingMistakesRef.current = true;
+    try {
+      await recordWrongWords(db, errorWordIds, 'fill');
+      setFillWrongWordIds(errorWordIds);
+      setErrorModalVisible(false);
+      if (taskSettings.advanceOnMistakes) {
+        router.push('/daily-task/listening');
+      }
+    } catch {
+      Alert.alert('保存失败', '无法将错题加入错题本，请稍后重试');
+    } finally {
+      savingMistakesRef.current = false;
     }
   }
 

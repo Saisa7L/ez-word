@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'vocabulary.db';
 
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync(`
@@ -99,6 +99,33 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     });
 
     currentVersion = 3;
+  }
+
+  if (currentVersion === 3) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE words
+        ADD COLUMN learning_status TEXT NOT NULL DEFAULT 'unlearned'
+        CHECK (learning_status IN ('unlearned', 'learned', 'wrong'));
+
+        UPDATE words
+        SET learning_status = 'wrong'
+        WHERE id IN (
+          SELECT word_id
+          FROM wrong_book_words
+        );
+
+        UPDATE words
+        SET learning_status = 'learned'
+        WHERE learning_status = 'unlearned'
+          AND id IN (
+            SELECT word_id
+            FROM word_learning_state
+          );
+      `);
+    });
+
+    currentVersion = 4;
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentVersion}`);

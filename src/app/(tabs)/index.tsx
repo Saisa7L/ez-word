@@ -53,6 +53,7 @@ export default function HomeScreen() {
             backgroundColor={colors.orangeSoft}
             icon={f1Assets.homeWrongReview}
             iconColor={colors.orange}
+            onPress={() => router.push('/wrong-book/review')}
             title="错题回顾"
           />
           <HomeActionCard

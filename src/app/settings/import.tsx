@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   ArrowLeft,
+  BookOpen,
   FileSpreadsheet,
   Trash2,
   Upload,
@@ -246,6 +247,17 @@ export default function ImportWordsScreen() {
           </Text>
           <Pressable
             accessibilityRole="button"
+            onPress={() => router.push('/settings/word-library')}
+            style={({ pressed }) => [
+              styles.viewLibraryButton,
+              pressed && styles.pressed,
+            ]}
+          >
+            <BookOpen color={colors.primary} size={24} strokeWidth={2.2} />
+            <Text style={styles.viewLibraryText}>查看当前词库</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
             disabled={clearDisabled}
             onPress={requestClearWords}
             style={({ pressed }) => [
@@ -414,6 +426,22 @@ const styles = StyleSheet.create({
   importButtonText: {
     color: colors.surface,
     fontSize: 20,
+    fontWeight: '600',
+  },
+  viewLibraryButton: {
+    alignItems: 'center',
+    borderColor: colors.primary,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    gap: 10,
+    height: 56,
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  viewLibraryText: {
+    color: colors.primary,
+    fontSize: 19,
     fontWeight: '600',
   },
   importCard: {

@@ -1,23 +1,19 @@
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { ArrowLeft, Minus, Plus } from 'lucide-react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Minus, Plus } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
 } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
 
-import { colors, radii, shadow, spacing } from '@/constants/theme';
+import { GreenSheetScreen } from '@/components/GreenSheetScreen';
+import { colors, radii } from '@/constants/theme';
 import {
   DAILY_WORD_LIMIT_MAX,
   DAILY_WORD_LIMIT_MIN,
@@ -32,58 +28,10 @@ import {
   saveDailyTaskSettings,
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
-
-const HOLD_REPEAT_DELAY_MS = 450;
-const HOLD_REPEAT_INTERVAL_MS = 72;
+import { useLongPressStep } from '@/hooks/useLongPressStep';
 
 function formatRate(rate: number): string {
   return `${rate}x`;
-}
-
-function useLongPressStep(onStep: () => void, enabled: boolean) {
-  const delayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const repeatTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const enabledRef = useRef(enabled);
-
-  const stop = useCallback(() => {
-    if (delayTimerRef.current) {
-      clearTimeout(delayTimerRef.current);
-      delayTimerRef.current = null;
-    }
-    if (repeatTimerRef.current) {
-      clearInterval(repeatTimerRef.current);
-      repeatTimerRef.current = null;
-    }
-  }, []);
-
-  const start = useCallback(() => {
-    if (!enabledRef.current) {
-      return;
-    }
-
-    stop();
-    onStep();
-    delayTimerRef.current = setTimeout(() => {
-      repeatTimerRef.current = setInterval(() => {
-        if (!enabledRef.current) {
-          stop();
-          return;
-        }
-        onStep();
-      }, HOLD_REPEAT_INTERVAL_MS);
-    }, HOLD_REPEAT_DELAY_MS);
-  }, [onStep, stop]);
-
-  useEffect(() => {
-    enabledRef.current = enabled;
-    if (!enabled) {
-      stop();
-    }
-  }, [enabled, stop]);
-
-  useEffect(() => stop, [stop]);
-
-  return { start, stop };
 }
 
 type ToggleRowProps = {
@@ -117,7 +65,6 @@ function ToggleRow({
 
 export default function DailyTaskSettingsScreen() {
   const db = useSQLiteContext();
-  const insets = useSafeAreaInsets();
   const [settings, setSettings] = useState<DailyTaskSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -231,36 +178,13 @@ export default function DailyTaskSettingsScreen() {
   );
 
   return (
-    <View style={styles.screen}>
-      <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
-        <View style={styles.header}>
-          <Pressable
-            accessibilityLabel="返回"
-            accessibilityRole="button"
-            hitSlop={12}
-            onPress={() => router.back()}
-            style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-          >
-            <ArrowLeft color={colors.surface} size={34} strokeWidth={2.2} />
-          </Pressable>
-          <Text style={styles.headerTitle}>修改每日任务</Text>
-          <View style={styles.headerPlaceholder} />
-        </View>
-      </SafeAreaView>
-
-      <View style={styles.sheetArea}>
-        <View style={styles.sheet}>
-          <ScrollView
-            contentContainerStyle={[
-              styles.content,
-              { paddingBottom: Math.max(spacing.xl, insets.bottom + 24) },
-            ]}
-            showsVerticalScrollIndicator={false}
-            style={styles.scroll}
-          >
-            {settings ? (
-              <>
-                <View style={styles.settingsCard}>
+    <GreenSheetScreen
+      onBack={() => router.back()}
+      title="修改每日任务"
+    >
+      {settings ? (
+        <>
+          <View style={styles.settingsCard}>
               <Text style={styles.sectionTitle}>每日学习数量</Text>
               <Text style={styles.sectionHint}>
                 每次任务从尚未学习的新单词中选择
@@ -414,35 +338,32 @@ export default function DailyTaskSettingsScreen() {
                 {LISTENING_WORD_INTERVAL_MIN.toFixed(1)}-
                 {LISTENING_WORD_INTERVAL_MAX.toFixed(1)} 秒，每次调整 0.1 秒
               </Text>
-                </View>
+          </View>
 
-                <Pressable
-                  accessibilityRole="button"
-                  disabled={isSaving}
-                  onPress={handleSave}
-                  style={({ pressed }) => [
-                    styles.saveButton,
-                    isSaving && styles.saveButtonDisabled,
-                    pressed && !isSaving && styles.pressed,
-                  ]}
-                >
-                  {isSaving ? (
-                    <ActivityIndicator color={colors.surface} />
-                  ) : (
-                    <Text style={styles.saveText}>保存设置</Text>
-                  )}
-                </Pressable>
-              </>
+          <Pressable
+            accessibilityRole="button"
+            disabled={isSaving}
+            onPress={handleSave}
+            style={({ pressed }) => [
+              styles.saveButton,
+              isSaving && styles.saveButtonDisabled,
+              pressed && !isSaving && styles.pressed,
+            ]}
+          >
+            {isSaving ? (
+              <ActivityIndicator color={colors.surface} />
             ) : (
-              <View style={styles.loading}>
-                <ActivityIndicator color={colors.primary} size="large" />
-                <Text style={styles.loadingText}>正在读取设置</Text>
-              </View>
+              <Text style={styles.saveText}>保存设置</Text>
             )}
-          </ScrollView>
+          </Pressable>
+        </>
+      ) : (
+        <View style={styles.loading}>
+          <ActivityIndicator color={colors.primary} size="large" />
+          <Text style={styles.loadingText}>正在读取设置</Text>
         </View>
-      </View>
-    </View>
+      )}
+    </GreenSheetScreen>
   );
 }
 
@@ -452,9 +373,6 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: 'center',
     width: 48,
-  },
-  content: {
-    paddingHorizontal: 0,
   },
   countNumber: {
     color: colors.text,
@@ -474,24 +392,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
     height: StyleSheet.hairlineWidth,
     marginVertical: 28,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: 150,
-    justifyContent: 'space-between',
-    paddingHorizontal: 14,
-  },
-  headerPlaceholder: {
-    width: 48,
-  },
-  headerSafeArea: {
-    backgroundColor: colors.primary,
-  },
-  headerTitle: {
-    color: colors.surface,
-    fontSize: 25,
-    fontWeight: '700',
   },
   intervalNumber: {
     color: colors.text,
@@ -559,30 +459,6 @@ const styles = StyleSheet.create({
     color: colors.surface,
     fontSize: 22,
     fontWeight: '700',
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  scroll: {
-    flex: 1,
-    marginTop: 16,
-  },
-  sheet: {
-    ...shadow,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
-    bottom: 0,
-    left: spacing.lg,
-    overflow: 'hidden',
-    position: 'absolute',
-    right: spacing.lg,
-    top: -32,
-  },
-  sheetArea: {
-    flex: 1,
-    position: 'relative',
   },
   sectionHint: {
     color: colors.textSecondary,
