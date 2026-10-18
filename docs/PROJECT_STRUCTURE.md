@@ -40,9 +40,11 @@
 | `docs/F7_STATUS.md` | F7 完成状态、单词状态模型和错题闭环 |
 | `docs/F8_STATUS.md` | F8 完成状态、首页统计和复习提醒规则 |
 | `docs/F9_STATUS.md` | F9 完成状态、CSV 例句和离线 AI 策略 |
+| `docs/F10_STATUS.md` | F10 完成状态、自定义反馈和错误边界 |
 | `docs/F3_STATUS.md` | F3 完成状态、修复记录和真机验收结果 |
 | `docs/evidence/f3/` | F3 验收过程的手机截图证据 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
+| `assets/f3/wrong-review-start.png` | 错题回顾开始页专属素材 |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
 | `eslint.config.js` | ESLint 代码检查规则 |
 | `package.json` | 项目依赖和可执行命令 |
