@@ -8,7 +8,7 @@ import {
   type WordImportRow,
 } from './types';
 
-type RequiredColumn = keyof CsvColumns;
+type RequiredColumn = 'word' | 'meaning' | 'phonetic';
 
 const REQUIRED_COLUMNS: RequiredColumn[] = ['word', 'meaning', 'phonetic'];
 
@@ -17,6 +17,8 @@ const HEADER_ALIASES: Record<RequiredColumn, string[]> = {
   meaning: ['meaning', '释义', '中文释义'],
   phonetic: ['phonetic', '音标'],
 };
+
+const EXAMPLE_HEADER_ALIASES = ['example', 'sentence', '例句'];
 
 function normalizeHeader(header: string): string {
   return header.replace(/^\uFEFF/, '').trim().toLowerCase();
@@ -46,6 +48,9 @@ export function parseWordCsv(content: string): WordCsvPreview {
 
   const fields = parsed.meta.fields ?? [];
   const columns = {
+    example: fields.find((field) =>
+      EXAMPLE_HEADER_ALIASES.includes(field),
+    ),
     word: resolveColumn(fields, 'word'),
     meaning: resolveColumn(fields, 'meaning'),
     phonetic: resolveColumn(fields, 'phonetic'),
@@ -58,6 +63,7 @@ export function parseWordCsv(content: string): WordCsvPreview {
   }
 
   const resolvedColumns: CsvColumns = {
+    example: columns.example,
     word: columns.word!,
     meaning: columns.meaning!,
     phonetic: columns.phonetic!,
@@ -72,6 +78,9 @@ export function parseWordCsv(content: string): WordCsvPreview {
     const word = cleanCell(row[resolvedColumns.word]);
     const meaning = cleanCell(row[resolvedColumns.meaning]);
     const phonetic = cleanCell(row[resolvedColumns.phonetic]);
+    const example = resolvedColumns.example
+      ? cleanCell(row[resolvedColumns.example])
+      : '';
 
     if (!word && !meaning && !phonetic) {
       return;
@@ -94,7 +103,12 @@ export function parseWordCsv(content: string): WordCsvPreview {
     }
 
     seenWords.add(normalizedWord);
-    validRows.push({ word, meaning, phonetic });
+    validRows.push({
+      example_sentence: example,
+      word,
+      meaning,
+      phonetic,
+    });
   });
 
   return {

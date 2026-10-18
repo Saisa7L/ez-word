@@ -20,9 +20,31 @@ const SENTENCE_TEMPLATES: Record<string, string> = {
   solution: 'We finally found a practical ______.',
 };
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function buildClozeSentence(
+  sentence: string,
+  word: string,
+): string | null {
+  const trimmedSentence = sentence.trim();
+  if (!trimmedSentence) {
+    return null;
+  }
+
+  const pattern = new RegExp(`\\b${escapeRegExp(word.trim())}\\b`, 'i');
+  if (!pattern.test(trimmedSentence)) {
+    return null;
+  }
+
+  return trimmedSentence.replace(pattern, '______');
+}
+
 export function buildDailyTaskQuestions(words: WordRecord[]): DailyTaskQuestion[] {
   return words.map((word) => ({
     sentence:
+      buildClozeSentence(word.example_sentence, word.word) ??
       SENTENCE_TEMPLATES[word.word.toLocaleLowerCase('en-US')] ??
       'Complete the sentence with the correct word: ______.',
     word,

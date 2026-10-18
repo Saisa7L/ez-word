@@ -1,4 +1,5 @@
 export type WordImportRow = {
+  example_sentence?: string;
   word: string;
   meaning: string;
   phonetic: string;
@@ -10,6 +11,7 @@ export type RejectedImportRow = {
 };
 
 export type CsvColumns = {
+  example?: string;
   word: string;
   meaning: string;
   phonetic: string;

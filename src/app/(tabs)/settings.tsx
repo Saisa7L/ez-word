@@ -55,6 +55,7 @@ export default function SettingsScreen() {
             icon={f1Assets.settingsAi}
             iconColor={colors.blue}
             label="AI 设置"
+            onPress={() => router.push('/settings/ai')}
           />
           <SettingsRow
             backgroundColor={colors.graySoft}
