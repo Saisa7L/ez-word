@@ -9,13 +9,15 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
+import type { ReactNode } from 'react';
 
 import { colors } from '@/constants/theme';
 
 type SettingsRowProps = {
   backgroundColor: string;
-  icon: ImageSourcePropType;
+  icon?: ImageSourcePropType;
   iconColor: string;
+  iconElement?: ReactNode;
   label: string;
   last?: boolean;
   hideChevron?: boolean;
@@ -27,6 +29,7 @@ export function SettingsRow({
   backgroundColor,
   icon,
   iconColor,
+  iconElement,
   label,
   last = false,
   hideChevron = false,
@@ -37,7 +40,13 @@ export function SettingsRow({
     <>
       <View style={styles.left}>
         <View style={[styles.iconBox, { backgroundColor }]}>
-          <Image source={icon} style={[styles.icon, { tintColor: iconColor }]} />
+          {iconElement ??
+            (icon ? (
+              <Image
+                source={icon}
+                style={[styles.icon, { tintColor: iconColor }]}
+              />
+            ) : null)}
         </View>
         <Text style={styles.label}>{label}</Text>
       </View>

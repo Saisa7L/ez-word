@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'vocabulary.db';
 
-const DATABASE_VERSION = 8;
+export const DATABASE_VERSION = 10;
 
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync(`
@@ -194,6 +194,44 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     });
 
     currentVersion = 8;
+  }
+
+  if (currentVersion === 8) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        CREATE TABLE IF NOT EXISTS user_profile (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          display_name TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        INSERT OR IGNORE INTO user_profile (
+          id,
+          display_name,
+          updated_at
+        )
+        VALUES (
+          1,
+          'User',
+          '${new Date().toISOString()}'
+        );
+      `);
+    });
+
+    currentVersion = 9;
+  }
+
+  if (currentVersion === 9) {
+    await db.runAsync(
+      `UPDATE user_profile
+       SET display_name = 'User',
+           updated_at = $updatedAt
+       WHERE id = 1
+         AND display_name = '憔悴样'`,
+      { $updatedAt: new Date().toISOString() },
+    );
+
+    currentVersion = 10;
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentVersion}`);

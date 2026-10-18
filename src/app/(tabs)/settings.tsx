@@ -1,33 +1,23 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { SettingsRow } from '@/components/SettingsRow';
-import { SurfaceCard } from '@/components/SurfaceCard';
+import { ArchiveIcon } from '@/components/icons/ArchiveIcon';
 import { f1Assets } from '@/constants/f1Assets';
-import { colors, shadow, spacing } from '@/constants/theme';
+import { colors } from '@/constants/theme';
 
 export default function SettingsScreen() {
   return (
-    <View style={styles.screen}>
-      <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>我的</Text>
-        </View>
-      </SafeAreaView>
-
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        style={styles.scroll}
-      >
-        <SurfaceCard style={styles.menuCard}>
+    <GreenSheetScreen title="我的">
+      <View style={styles.content}>
+        <View style={styles.menuCard}>
           <View style={styles.avatarRow}>
             <SettingsRow
               backgroundColor={colors.pinkSoft}
               icon={f1Assets.settingsAvatar}
               iconColor="#E765B8"
-              label="更换头像"
+              label="个人资料"
               hideChevron
               style={styles.avatarRowContent}
             />
@@ -51,6 +41,13 @@ export default function SettingsScreen() {
             onPress={() => router.push('/settings/import')}
           />
           <SettingsRow
+            backgroundColor={colors.orangeSoft}
+            iconColor={colors.orange}
+            iconElement={<ArchiveIcon color={colors.orange} />}
+            label="本地存档"
+            onPress={() => router.push('/settings/archive')}
+          />
+          <SettingsRow
             backgroundColor={colors.blueSoft}
             icon={f1Assets.settingsAi}
             iconColor={colors.blue}
@@ -64,9 +61,9 @@ export default function SettingsScreen() {
             label="关于"
             last
           />
-        </SurfaceCard>
-      </ScrollView>
-    </View>
+        </View>
+      </View>
+    </GreenSheetScreen>
   );
 }
 
@@ -96,34 +93,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   content: {
-    paddingBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
-  },
-  header: {
-    alignItems: 'center',
-    height: 150,
-    justifyContent: 'center',
-  },
-  headerSafeArea: {
-    backgroundColor: colors.primary,
-  },
-  headerTitle: {
-    color: colors.surface,
-    fontSize: 25,
-    fontWeight: '700',
+    paddingHorizontal: 0,
   },
   menuCard: {
-    ...shadow,
-    marginTop: 24,
-    paddingHorizontal: 22,
+    marginTop: 8,
+    paddingHorizontal: 26,
     paddingVertical: 10,
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  scroll: {
-    flex: 1,
-    marginTop: -72,
   },
 });

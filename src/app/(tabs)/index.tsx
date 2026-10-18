@@ -15,10 +15,12 @@ import {
   type HomeStats,
 } from '@/database/statsRepository';
 import { getDailyTaskSettings } from '@/database/settingsRepository';
+import { getUserProfile } from '@/database/userProfileRepository';
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
   const [homeStats, setHomeStats] = useState<HomeStats | null>(null);
+  const [displayName, setDisplayName] = useState('User');
   const [reviewReminderVisible, setReviewReminderVisible] = useState(false);
 
   useFocusEffect(
@@ -27,12 +29,16 @@ export default function HomeScreen() {
 
       async function loadStats() {
         try {
-          const nextStats = await getHomeStats(db);
+          const [nextStats, profile] = await Promise.all([
+            getHomeStats(db),
+            getUserProfile(db),
+          ]);
           if (!active) {
             return;
           }
 
           setHomeStats(nextStats);
+          setDisplayName(profile.displayName);
 
           const settings = await getDailyTaskSettings(db);
           if (
@@ -81,7 +87,9 @@ export default function HomeScreen() {
               <Image source={f1Assets.avatarDinosaur} style={styles.avatar} />
             </View>
             <View style={styles.welcomeCopy}>
-              <Text style={styles.welcomeTitle}>欢迎回来，憔悴样！</Text>
+              <Text style={styles.welcomeTitle}>
+                欢迎回来，{displayName}！
+              </Text>
               <Text style={styles.welcomeSubtitle}>
                 您已经学习了 {homeStats?.studyDays ?? 0} 天
               </Text>
