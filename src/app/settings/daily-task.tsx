@@ -4,7 +4,6 @@ import { Minus, Plus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   Switch,
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { colors, radii } from '@/constants/theme';
 import {
@@ -72,6 +72,7 @@ function ToggleRow({
 
 export default function DailyTaskSettingsScreen() {
   const db = useSQLiteContext();
+  const { showNotice } = useAppFeedback();
   const [settings, setSettings] = useState<DailyTaskSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccessVisible, setSaveSuccessVisible] = useState(false);
@@ -88,7 +89,7 @@ export default function DailyTaskSettingsScreen() {
       })
       .catch(() => {
         if (active) {
-          Alert.alert('加载失败', '无法读取每日任务设置，请稍后重试');
+          showNotice('加载失败', '无法读取每日任务设置，请稍后重试');
           router.back();
         }
       });
@@ -96,7 +97,7 @@ export default function DailyTaskSettingsScreen() {
     return () => {
       active = false;
     };
-  }, [db]);
+  }, [db, showNotice]);
 
   function changeDailyWordLimit(step: number) {
     setSettings((current) =>
@@ -212,7 +213,7 @@ export default function DailyTaskSettingsScreen() {
       await saveDailyTaskSettings(db, settings);
       setSaveSuccessVisible(true);
     } catch {
-      Alert.alert('保存失败', '无法保存每日任务设置，请稍后重试');
+      showNotice('保存失败', '无法保存每日任务设置，请稍后重试');
     } finally {
       setIsSaving(false);
     }

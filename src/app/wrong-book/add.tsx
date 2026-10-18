@@ -4,7 +4,6 @@ import { Check } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { PaginationBar } from '@/components/PaginationBar';
 import { colors, radii } from '@/constants/theme';
 import type { WordRecord } from '@/database/wordsRepository';
@@ -30,6 +30,7 @@ type AddMode = 'existing' | 'manual';
 
 export default function AddWrongBookWordScreen() {
   const db = useSQLiteContext();
+  const { showNotice } = useAppFeedback();
   const [mode, setMode] = useState<AddMode>('existing');
   const [words, setWords] = useState<WordRecord[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -108,7 +109,7 @@ export default function AddWrongBookWordScreen() {
       await addWrongBookWords(db, [...selectedIds], 'manual');
       router.back();
     } catch {
-      Alert.alert('添加失败', '无法加入错题本，请稍后重试');
+      showNotice('添加失败', '无法加入错题本，请稍后重试');
     } finally {
       setIsSaving(false);
     }
@@ -118,7 +119,7 @@ export default function AddWrongBookWordScreen() {
     const word = manualWord.trim();
 
     if (!word) {
-      Alert.alert('请输入单词', '单词不能为空');
+      showNotice('请输入单词', '单词不能为空');
       return;
     }
 
@@ -130,13 +131,13 @@ export default function AddWrongBookWordScreen() {
     try {
       const existing = await findWordByWord(db, word);
       if (!existing) {
-        Alert.alert('单词不存在', `当前词库中没有“${word}”，请先导入该单词`);
+        showNotice('单词不存在', `当前词库中没有“${word}”，请先导入该单词`);
         return;
       }
       await addWrongBookWord(db, existing.id, 'manual');
       router.back();
     } catch {
-      Alert.alert('添加失败', '无法保存并加入错题本，请稍后重试');
+      showNotice('添加失败', '无法保存并加入错题本，请稍后重试');
     } finally {
       setIsSaving(false);
     }

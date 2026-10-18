@@ -8,7 +8,6 @@ import {
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { PaginationBar } from '@/components/PaginationBar';
 import { colors, radii } from '@/constants/theme';
@@ -38,6 +38,7 @@ const STATUS_LABELS: Record<LearningStatus, string> = {
 
 export default function WordLibraryScreen() {
   const db = useSQLiteContext();
+  const { showConfirm, showNotice } = useAppFeedback();
   const [words, setWords] = useState<WordRecord[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(0);
@@ -95,20 +96,15 @@ export default function WordLibraryScreen() {
       return;
     }
 
-    Alert.alert(
-      '从当前词库移除？',
-      `将选中的 ${selectedIds.size} 个单词移出当前词库。学习状态、学习历史和错题记录都会保留。`,
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '移除',
-          style: 'destructive',
-          onPress: () => {
-            void handleRemove();
-          },
-        },
-      ],
-    );
+    showConfirm({
+      confirmLabel: '移除',
+      danger: true,
+      message: `将选中的 ${selectedIds.size} 个单词移出当前词库。学习状态、学习历史和错题记录都会保留。`,
+      onConfirm: () => {
+        void handleRemove();
+      },
+      title: '从当前词库移除？',
+    });
   }
 
   async function handleRemove() {
@@ -118,7 +114,7 @@ export default function WordLibraryScreen() {
       setSelectedIds(new Set());
       await loadCurrentPage();
     } catch {
-      Alert.alert('移除失败', '无法从当前词库移除单词，请稍后重试');
+      showNotice('移除失败', '无法从当前词库移除单词，请稍后重试');
     } finally {
       setIsRemoving(false);
     }
@@ -139,7 +135,7 @@ export default function WordLibraryScreen() {
       setSelectedIds(new Set());
       await loadCurrentPage();
     } catch {
-      Alert.alert('修改失败', '无法修改单词状态，请稍后重试');
+      showNotice('修改失败', '无法修改单词状态，请稍后重试');
     } finally {
       setIsUpdatingStatus(false);
     }

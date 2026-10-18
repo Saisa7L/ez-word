@@ -3,7 +3,6 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Alert,
   type LayoutChangeEvent,
   Pressable,
   ScrollView,
@@ -14,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow, spacing } from '@/constants/theme';
@@ -25,6 +25,7 @@ const WORD_PAGE_SIZE = 4;
 
 export default function FillBlankScreen() {
   const db = useSQLiteContext();
+  const { showNotice } = useAppFeedback();
   const {
     clearFillAnswer,
     fillAnswers,
@@ -118,7 +119,7 @@ export default function FillBlankScreen() {
         router.push('/daily-task/listening');
       }
     } catch {
-      Alert.alert('保存失败', '无法将错题加入错题本，请稍后重试');
+      showNotice('保存失败', '无法将错题加入错题本，请稍后重试');
     } finally {
       savingMistakesRef.current = false;
     }

@@ -8,7 +8,6 @@ import {
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { PaginationBar } from '@/components/PaginationBar';
 import { colors, radii } from '@/constants/theme';
@@ -43,6 +43,7 @@ function formatSources(sources: string): string {
 
 export default function WrongBookScreen() {
   const db = useSQLiteContext();
+  const { showNotice } = useAppFeedback();
   const [entries, setEntries] = useState<WrongBookEntry[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(0);
@@ -109,7 +110,7 @@ export default function WrongBookScreen() {
       setSelectedIds(new Set());
       await loadCurrentPage();
     } catch {
-      Alert.alert('移除失败', '无法移出错题本，请稍后重试');
+      showNotice('移除失败', '无法移出错题本，请稍后重试');
     } finally {
       setIsRemoving(false);
     }

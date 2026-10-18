@@ -99,7 +99,7 @@ export default function WrongBookReviewStartScreen() {
       <View style={styles.content}>
         <Image
           resizeMode="contain"
-          source={f3Assets.taskStart}
+          source={f3Assets.wrongReviewStart}
           style={styles.illustration}
         />
         {wrongCount === null ? (

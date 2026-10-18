@@ -3,7 +3,6 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { colors, radii } from '@/constants/theme';
 import {
   findWordByWord,
@@ -20,6 +20,7 @@ import {
 
 export default function AddLibraryWordScreen() {
   const db = useSQLiteContext();
+  const { showNotice } = useAppFeedback();
   const [word, setWord] = useState('');
   const [meaning, setMeaning] = useState('');
   const [phonetic, setPhonetic] = useState('');
@@ -31,7 +32,7 @@ export default function AddLibraryWordScreen() {
     const cleanPhonetic = phonetic.trim();
 
     if (!cleanWord || !cleanMeaning || !cleanPhonetic) {
-      Alert.alert('信息不完整', '单词、释义和音标都必须填写');
+      showNotice('信息不完整', '单词、释义和音标都必须填写');
       return;
     }
 
@@ -43,7 +44,7 @@ export default function AddLibraryWordScreen() {
     try {
       const existing = await findWordByWord(db, cleanWord);
       if (existing?.is_active === 1) {
-        Alert.alert('单词已存在', `“${cleanWord}”已经在当前词库中`);
+        showNotice('单词已存在', `“${cleanWord}”已经在当前词库中`);
         return;
       }
 
@@ -54,7 +55,7 @@ export default function AddLibraryWordScreen() {
       });
       router.back();
     } catch {
-      Alert.alert('添加失败', '无法添加单词，请稍后重试');
+      showNotice('添加失败', '无法添加单词，请稍后重试');
     } finally {
       setIsSaving(false);
     }

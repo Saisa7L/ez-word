@@ -10,7 +10,6 @@ import {
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -20,6 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ImportResultModal } from '@/components/ImportResultModal';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { SurfaceCard } from '@/components/SurfaceCard';
 import { colors, shadow, spacing } from '@/constants/theme';
 import {
@@ -38,6 +38,7 @@ import { formatBytes } from '@/utils/formatBytes';
 
 export default function ImportWordsScreen() {
   const db = useSQLiteContext();
+  const { showConfirm, showNotice } = useAppFeedback();
   const [file, setFile] = useState<PickedCsvFile | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -78,7 +79,7 @@ export default function ImportWordsScreen() {
       setFile(selectedFile);
       setSummary(null);
     } catch (error) {
-      Alert.alert(
+      showNotice(
         '选择文件失败',
         error instanceof Error ? error.message : '无法读取所选文件',
       );
@@ -100,7 +101,7 @@ export default function ImportWordsScreen() {
         setActiveWordCount(null);
       }
     } catch (error) {
-      Alert.alert(
+      showNotice(
         '导入失败',
         error instanceof Error ? error.message : '导入过程中发生未知错误',
       );
@@ -114,20 +115,16 @@ export default function ImportWordsScreen() {
       return;
     }
 
-    Alert.alert(
-      '清空已导入单词？',
-      '学习记录、学习天数、打卡和错题本记录会保留。清空后可以重新导入 CSV。',
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '清空',
-          style: 'destructive',
-          onPress: () => {
-            void handleClearWords();
-          },
-        },
-      ],
-    );
+    showConfirm({
+      confirmLabel: '清空',
+      danger: true,
+      message:
+        '学习记录、学习天数、打卡和错题本记录会保留。清空后可以重新导入 CSV。',
+      onConfirm: () => {
+        void handleClearWords();
+      },
+      title: '清空已导入单词？',
+    });
   }
 
   async function handleClearWords() {
@@ -140,12 +137,12 @@ export default function ImportWordsScreen() {
       const clearedCount = await deactivateAllWords(db);
       setActiveWordCount(0);
       setSummary(null);
-      Alert.alert(
+      showNotice(
         '清空完成',
         `已清空 ${clearedCount} 个单词，学习记录和错题记录仍然保留`,
       );
     } catch {
-      Alert.alert('清空失败', '无法清空已导入单词，请稍后重试');
+      showNotice('清空失败', '无法清空已导入单词，请稍后重试');
     } finally {
       setIsClearing(false);
     }

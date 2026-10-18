@@ -4,7 +4,6 @@ import * as Speech from 'expo-speech';
 import { ArrowLeft, Gauge, Play, RotateCcw, Square } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { colors, radii, shadow } from '@/constants/theme';
@@ -35,6 +35,7 @@ function formatSpeed(speed: number): string {
 
 export default function ListeningScreen() {
   const db = useSQLiteContext();
+  const { showNotice } = useAppFeedback();
   const {
     listeningAnswers,
     listeningWords,
@@ -112,7 +113,7 @@ export default function ListeningScreen() {
     stopPlaybackRef.current = playWordSequence({
       onError: (error) => {
         setIsPlaying(false);
-        Alert.alert('朗读失败', error.message);
+        showNotice('朗读失败', error.message);
       },
       onFinished: () => {
         setIsPlaying(false);
@@ -212,7 +213,7 @@ export default function ListeningScreen() {
     } catch {
       submittingRef.current = false;
       setIsSubmitting(false);
-      Alert.alert('保存失败', '无法保存本次学习记录，请稍后重试');
+      showNotice('保存失败', '无法保存本次学习记录，请稍后重试');
     }
   }
 
@@ -234,7 +235,7 @@ export default function ListeningScreen() {
         void completeTask(errorWordIds);
       }
     } catch {
-      Alert.alert('保存失败', '无法将错题加入错题本，请稍后重试');
+      showNotice('保存失败', '无法将错题加入错题本，请稍后重试');
     } finally {
       savingMistakesRef.current = false;
     }
