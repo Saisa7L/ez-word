@@ -21,6 +21,7 @@ export default function HomeScreen() {
   const db = useSQLiteContext();
   const [homeStats, setHomeStats] = useState<HomeStats | null>(null);
   const [displayName, setDisplayName] = useState('User');
+  const [avatarData, setAvatarData] = useState('');
   const [reviewReminderVisible, setReviewReminderVisible] = useState(false);
 
   useFocusEffect(
@@ -39,6 +40,7 @@ export default function HomeScreen() {
 
           setHomeStats(nextStats);
           setDisplayName(profile.displayName);
+          setAvatarData(profile.avatarData);
 
           const settings = await getDailyTaskSettings(db);
           if (
@@ -74,6 +76,9 @@ export default function HomeScreen() {
     { label: '总计已学', value: String(homeStats?.totalLearned ?? '--') },
     { label: '错题本', value: String(homeStats?.wrongBookCount ?? '--') },
   ];
+  const avatarSource = avatarData
+    ? { uri: avatarData }
+    : f1Assets.avatarDinosaur;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
@@ -84,7 +89,11 @@ export default function HomeScreen() {
         <View style={styles.welcomeCard}>
           <View style={styles.welcomeHeader}>
             <View style={styles.avatarRing}>
-              <Image source={f1Assets.avatarDinosaur} style={styles.avatar} />
+              <Image
+                resizeMode="cover"
+                source={avatarSource}
+                style={styles.avatar}
+              />
             </View>
             <View style={styles.welcomeCopy}>
               <Text style={styles.welcomeTitle}>
@@ -159,8 +168,8 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   avatar: {
-    height: 54,
-    width: 54,
+    height: '100%',
+    width: '100%',
   },
   avatarRing: {
     alignItems: 'center',
@@ -170,6 +179,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     height: 68,
     justifyContent: 'center',
+    overflow: 'hidden',
     width: 68,
   },
   content: {

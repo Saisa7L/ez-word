@@ -1,8 +1,15 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import {
+  DEFAULT_PROFILE_CARD_CONTENT_COLOR,
+  DEFAULT_PROFILE_TEXT_STROKE_COLOR,
+  DEFAULT_PROFILE_TEXT_STROKE_WIDTH,
+  PROFILE_USERNAME_MAX_LENGTH,
+} from '@/constants/profile';
+
 export const DATABASE_NAME = 'vocabulary.db';
 
-export const DATABASE_VERSION = 10;
+export const DATABASE_VERSION = 14;
 
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync(`
@@ -232,6 +239,58 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     );
 
     currentVersion = 10;
+  }
+
+  if (currentVersion === 10) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE user_profile
+        ADD COLUMN bio TEXT NOT NULL DEFAULT '';
+
+        ALTER TABLE user_profile
+        ADD COLUMN avatar_data TEXT NOT NULL DEFAULT '';
+
+        ALTER TABLE user_profile
+        ADD COLUMN background_data TEXT NOT NULL DEFAULT '';
+
+        UPDATE user_profile
+        SET display_name = substr(display_name, 1, ${PROFILE_USERNAME_MAX_LENGTH});
+      `);
+    });
+
+    currentVersion = 12;
+  }
+
+  if (currentVersion === 12) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE user_profile
+        ADD COLUMN card_content_color TEXT NOT NULL
+        DEFAULT '${DEFAULT_PROFILE_CARD_CONTENT_COLOR}';
+      `);
+    });
+
+    currentVersion = 13;
+  }
+
+  if (currentVersion === 13) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE user_profile
+        ADD COLUMN text_stroke_color TEXT NOT NULL
+        DEFAULT '${DEFAULT_PROFILE_TEXT_STROKE_COLOR}';
+
+        ALTER TABLE user_profile
+        ADD COLUMN text_stroke_width REAL NOT NULL
+        DEFAULT ${DEFAULT_PROFILE_TEXT_STROKE_WIDTH};
+
+        UPDATE user_profile
+        SET card_content_color = '${DEFAULT_PROFILE_CARD_CONTENT_COLOR}'
+        WHERE card_content_color = '#1D2430';
+      `);
+    });
+
+    currentVersion = 14;
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentVersion}`);

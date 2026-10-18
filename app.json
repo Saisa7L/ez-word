@@ -29,7 +29,15 @@
       "expo-router",
       "expo-status-bar",
       "expo-sqlite",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许 App 访问相册以选择头像和名片背景。",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ]
   }
 }

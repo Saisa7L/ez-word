@@ -1,18 +1,57 @@
-import { Image, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useState } from 'react';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { SettingsRow } from '@/components/SettingsRow';
 import { ArchiveIcon } from '@/components/icons/ArchiveIcon';
 import { f1Assets } from '@/constants/f1Assets';
 import { colors } from '@/constants/theme';
+import { getUserProfile } from '@/database/userProfileRepository';
 
 export default function SettingsScreen() {
+  const db = useSQLiteContext();
+  const [avatarData, setAvatarData] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+
+      getUserProfile(db)
+        .then((profile) => {
+          if (active) {
+            setAvatarData(profile.avatarData);
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setAvatarData('');
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [db]),
+  );
+
+  const avatarSource = avatarData
+    ? { uri: avatarData }
+    : f1Assets.avatarUser;
+
   return (
     <GreenSheetScreen title="我的">
       <View style={styles.content}>
         <View style={styles.menuCard}>
-          <View style={styles.avatarRow}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/settings/profile')}
+            style={({ pressed }) => [
+              styles.avatarRow,
+              pressed && styles.pressed,
+            ]}
+          >
             <SettingsRow
               backgroundColor={colors.pinkSoft}
               icon={f1Assets.settingsAvatar}
@@ -22,9 +61,13 @@ export default function SettingsScreen() {
               style={styles.avatarRowContent}
             />
             <View style={styles.avatarCircle}>
-              <Image source={f1Assets.avatarUser} style={styles.avatar} />
+              <Image
+                resizeMode="cover"
+                source={avatarSource}
+                style={styles.avatar}
+              />
             </View>
-          </View>
+          </Pressable>
 
           <SettingsRow
             backgroundColor={colors.orangeSoft}
@@ -69,8 +112,8 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   avatar: {
-    height: 48,
-    width: 48,
+    height: '100%',
+    width: '100%',
   },
   avatarCircle: {
     alignItems: 'center',
@@ -99,5 +142,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 26,
     paddingVertical: 10,
+  },
+  pressed: {
+    opacity: 0.68,
   },
 });

@@ -1,9 +1,15 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import {
+  DEFAULT_PROFILE_CARD_CONTENT_COLOR,
+  DEFAULT_PROFILE_TEXT_STROKE_COLOR,
+  DEFAULT_PROFILE_TEXT_STROKE_WIDTH,
+} from '@/constants/profile';
 import { DATABASE_VERSION } from '@/database/database';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
+const LEGACY_DATABASE_VERSIONS = [12, 13];
 
 type ArchiveValue = number | string | null;
 type ArchiveRow = Record<string, ArchiveValue>;
@@ -68,7 +74,17 @@ const ARCHIVE_TABLES: ArchiveTable[] = [
     name: 'app_settings',
   },
   {
-    columns: ['id', 'display_name', 'updated_at'],
+    columns: [
+      'id',
+      'display_name',
+      'bio',
+      'avatar_data',
+      'background_data',
+      'card_content_color',
+      'text_stroke_color',
+      'text_stroke_width',
+      'updated_at',
+    ],
     name: 'user_profile',
   },
   {
@@ -167,7 +183,10 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
   }
   if (
     typeof archive.databaseVersion !== 'number' ||
-    archive.databaseVersion !== DATABASE_VERSION
+    ![
+      ...LEGACY_DATABASE_VERSIONS,
+      DATABASE_VERSION,
+    ].includes(archive.databaseVersion)
   ) {
     throw new Error('存档数据库版本与当前 App 不匹配');
   }
@@ -190,7 +209,13 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
       const source = row as Record<string, unknown>;
       const normalized: ArchiveRow = {};
       for (const column of table.columns) {
-        const value = source[column];
+        const legacyDefault = getLegacyProfileDefault(column);
+        const value =
+          source[column] === undefined &&
+          table.name === 'user_profile' &&
+          legacyDefault !== undefined
+            ? legacyDefault
+            : source[column];
         if (!isArchiveValue(value)) {
           throw new Error(
             `${table.name} 第 ${rowIndex + 1} 行缺少字段 ${column}`,
@@ -213,6 +238,21 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
     tables,
     version: ARCHIVE_VERSION,
   };
+}
+
+function getLegacyProfileDefault(
+  column: string,
+): ArchiveValue | undefined {
+  if (column === 'card_content_color') {
+    return DEFAULT_PROFILE_CARD_CONTENT_COLOR;
+  }
+  if (column === 'text_stroke_color') {
+    return DEFAULT_PROFILE_TEXT_STROKE_COLOR;
+  }
+  if (column === 'text_stroke_width') {
+    return DEFAULT_PROFILE_TEXT_STROKE_WIDTH;
+  }
+  return undefined;
 }
 
 export function stringifyArchive(snapshot: ArchiveSnapshot): string {
