@@ -42,11 +42,14 @@
 | `docs/F9_STATUS.md` | F9 完成状态、CSV 例句和离线 AI 策略 |
 | `docs/F10_STATUS.md` | F10 完成状态、自定义反馈和错误边界 |
 | `docs/P1_ARCHIVE_STATUS.md` | P1 本地存档、用户资料和我的页面状态 |
+| `docs/P2_PROGRESS.md` | P2 个人资料名片页当前实现、依赖和待验收项 |
 | `docs/F3_STATUS.md` | F3 完成状态、修复记录和真机验收结果 |
 | `docs/evidence/f3/` | F3 验收过程的手机截图证据 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
 | `assets/f3/wrong-review-start.png` | 错题回顾开始页专属素材 |
 | `assets/icons/settings-archive.svg` | 我的页面本地存档 SVG 图标 |
+| `assets/icons/calendar.svg` | 个人资料已学习天数 SVG |
+| `assets/icons/book.svg` | 个人资料已学习单词 SVG |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
 | `eslint.config.js` | ESLint 代码检查规则 |
 | `package.json` | 项目依赖和可执行命令 |
