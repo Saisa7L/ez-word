@@ -12,8 +12,8 @@
 | 测试手机 | 一加 Ace 2，Android 16 |
 | 项目路径 | `F:\English vocabulary app\Project\vocab-app` |
 | Git 分支 | `main` |
-| 最新功能提交 | `ab77f0e Complete F8 stats review and reminder flows` |
-| 当前阶段 | F8 已完成并通过真机验收，下一阶段为 F9 |
+| 最新功能提交 | `45d0fa0 Complete F9 offline AI example workflow` |
+| 当前阶段 | F9 已完成并通过真机验收，下一阶段为 F10 |
 
 ## 技术栈
 
@@ -74,10 +74,13 @@
 - F8 错题回顾和单词再练复用每日任务流程
 - F8 通用设置、复习数量和复习范围
 - F8 真机验收通过
+- F9 CSV 可选例句列和 SQLite 本地例句
+- F9 DeepSeek API Key 安全存储和批量例句生成
+- F9 学习任务完全离线读取本地例句
+- F9 真机验收通过
 
 ## 待办
 
-- AI 例句、翻译和问答入口
 - 加载、失败和空数据状态
 
 ## F1 资源决定

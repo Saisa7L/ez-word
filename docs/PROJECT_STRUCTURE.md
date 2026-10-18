@@ -33,11 +33,13 @@
 | `docs/samples/f2-import-test.csv` | F2 导入测试 CSV |
 | `docs/samples/f3-daily-task-test.csv` | F3 每日任务测试 CSV |
 | `docs/samples/f4-daily-task-100.csv` | F4 设置、按个位取词和防重复学习测试 CSV，共 100 个单词 |
+| `docs/samples/f9-ai-examples-test.csv` | F9 CSV 例句和 AI 补齐测试文件 |
 | `docs/F4_STATUS.md` | F4 完成状态、测试数据和当前例句缺口 |
 | `docs/F5_STATUS.md` | F5 完成状态、任务设置项和已知边界 |
 | `docs/F6_STATUS.md` | F6 完成状态、词库软清空和数据不变量 |
 | `docs/F7_STATUS.md` | F7 完成状态、单词状态模型和错题闭环 |
 | `docs/F8_STATUS.md` | F8 完成状态、首页统计和复习提醒规则 |
+| `docs/F9_STATUS.md` | F9 完成状态、CSV 例句和离线 AI 策略 |
 | `docs/F3_STATUS.md` | F3 完成状态、修复记录和真机验收结果 |
 | `docs/evidence/f3/` | F3 验收过程的手机截图证据 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
