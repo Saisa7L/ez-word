@@ -9,8 +9,8 @@ P2 个人资料名片页代码已实现，尚未提交，尚未通过真机验�
 交接时 Git：
 
 - 分支：`main`
-- HEAD：`cfbb36c Mark P1 archive foundation complete and start P2`
 - P2 代码位于工作区未提交修改中
+- 以新聊天中实际的 `git status --short --branch` 和 `git log -1` 为准
 
 ## 已实现内容
 
