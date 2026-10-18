@@ -12,8 +12,8 @@
 | 测试手机 | 一加 Ace 2，Android 16 |
 | 项目路径 | `F:\English vocabulary app\Project\vocab-app` |
 | Git 分支 | `main` |
-| 最新功能提交 | `1da768c Complete F10 feedback states and wrong review artwork` |
-| 当前阶段 | F1-F10 已完成，后续为独立存档功能 |
+| 最新功能提交 | `a0d77d3 Add local archive and user profile data` |
+| 当前阶段 | P1 本地存档基础已完成，P2 个人资料页开发中 |
 
 ## 技术栈
 
@@ -81,10 +81,14 @@
 - F10 全局自定义反馈、加载页和错误边界
 - F10 错题回顾专属开始页素材
 - F10 真机验收通过
+- P1 本地存档导入导出
+- P1 用户名和通用设置写入存档
+- P1 我的页面固定卷轴布局和存档 SVG
 
 ## 待办
 
-- 本地存档导入导出（后续独立阶段）
+- P2 个人资料页
+- P3 关于页
 
 ## F1 资源决定
 
