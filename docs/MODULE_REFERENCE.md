@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-19 17:33
+最后更新：2026-10-19 18:08
 
 ## 使用方式
 
@@ -167,6 +167,15 @@
 - `restoreArchiveSnapshot(db, snapshot)`：独占事务整体替换
 - `stringifyArchive(snapshot)`
 - 存档不包含 API Key
+
+### profile
+
+- `ProfileCard`：只负责名片显示和用户点击回调
+- `ProfileEditModal`：用户名和简介编辑弹窗
+- `ProfileColorModal`：名片字体颜色调色弹窗
+- `ProfileStrokeModal`：描边颜色和大小弹窗
+- `profileUtils`：文件名、体积估算、名字换行和弹窗类型
+- 页面保留数据读取、图片选择、保存、截图和业务回调
 
 ## Services
 

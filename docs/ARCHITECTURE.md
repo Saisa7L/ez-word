@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-19 17:33
+最后更新：2026-10-19 18:08
 
 ## 架构概览
 
@@ -49,6 +49,7 @@ RootLayout
 | `features/ai` | 批量生成并写入例句 | `generateWordExamples.ts` |
 | `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
 | `features/theme` | 运行时主题和动态样式 | `ThemeProvider.tsx` |
+| `features/profile` | 个人名片展示、编辑和外观弹窗 | `ProfileCard.tsx` |
 | `database/*Repository.ts` | 各数据域 SQL 访问 | 仓库文件导出的函数 |
 | `services/deepSeekService.ts` | DeepSeek 请求和返回解析 | `generateExampleSentences` |
 | `services/speech.ts` | 听力顺序播放 | `playWordSequence` |
