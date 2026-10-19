@@ -103,6 +103,7 @@ export default function SettingsScreen() {
             iconColor="#7C8798"
             label="关于"
             last
+            onPress={() => router.push('/settings/about')}
           />
         </View>
       </View>
