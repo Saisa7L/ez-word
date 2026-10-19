@@ -7,8 +7,12 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/constants/theme';
 import { f1Assets } from '@/constants/f1Assets';
+import type { ThemeColors } from '@/constants/theme';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 type TabIconProps = {
   color: ColorValue;
@@ -16,11 +20,14 @@ type TabIconProps = {
 };
 
 function TabIcon({ color, source }: TabIconProps) {
+  const styles = useThemedStyles(createStyles);
   return <Image source={source} style={[styles.icon, { tintColor: color }]} />;
 }
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const tabBarBottomPadding = Math.max(insets.bottom, 8);
 
   return (
@@ -28,7 +35,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: colors.background },
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.accentText,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: styles.label,
         tabBarStyle: [
@@ -65,7 +72,8 @@ export default function TabsLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   icon: {
     height: 25,
     width: 25,
@@ -79,7 +87,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingTop: 8,
-    shadowColor: '#A5AEC0',
+    shadowColor: colors.shadow,
     shadowOffset: { height: -3, width: 0 },
     shadowOpacity: 0.12,
     shadowRadius: 12,

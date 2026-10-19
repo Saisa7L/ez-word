@@ -18,7 +18,7 @@ import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { PaginationBar } from '@/components/PaginationBar';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import {
   deactivateWords,
   getActiveWordCount,
@@ -27,6 +27,10 @@ import {
   type WordRecord,
 } from '@/database/wordsRepository';
 import { setWordsLearningStatus } from '@/database/wrongBookRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 const PAGE_SIZE = 5;
 
@@ -38,6 +42,8 @@ const STATUS_LABELS: Record<LearningStatus, string> = {
 
 export default function WordLibraryScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
   const [words, setWords] = useState<WordRecord[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -158,7 +164,7 @@ export default function WordLibraryScreen() {
         <View style={styles.listPanel}>
           {isLoading ? (
             <View style={styles.loading}>
-              <ActivityIndicator color={colors.primary} size="large" />
+              <ActivityIndicator color={colors.accentText} size="large" />
             </View>
           ) : words.length === 0 ? (
             <View style={styles.emptyState}>
@@ -211,7 +217,7 @@ export default function WordLibraryScreen() {
                     ]}
                   >
                     {selected ? (
-                      <Check color={colors.surface} size={24} strokeWidth={3} />
+                      <Check color={colors.onPrimary} size={24} strokeWidth={3} />
                     ) : (
                       <Text style={styles.orderText}>{index + 1}</Text>
                     )}
@@ -241,7 +247,7 @@ export default function WordLibraryScreen() {
           ]}
         >
           {isUpdatingStatus ? (
-            <ActivityIndicator color={colors.surface} />
+            <ActivityIndicator color={colors.onPrimary} />
           ) : (
             <Text style={styles.statusButtonText}>修改单词状态</Text>
           )}
@@ -257,7 +263,7 @@ export default function WordLibraryScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Plus color={colors.surface} size={24} strokeWidth={2.4} />
+            <Plus color={colors.onPrimary} size={24} strokeWidth={2.4} />
             <Text style={styles.actionText}>添加单词</Text>
           </Pressable>
           <Pressable
@@ -273,10 +279,10 @@ export default function WordLibraryScreen() {
             ]}
           >
             {isRemoving ? (
-              <ActivityIndicator color={colors.surface} />
+              <ActivityIndicator color={colors.onPrimary} />
             ) : (
               <>
-                <Trash2 color={colors.surface} size={23} strokeWidth={2.3} />
+                <Trash2 color={colors.onPrimary} size={23} strokeWidth={2.3} />
                 <Text style={styles.actionText}>移除</Text>
               </>
             )}
@@ -313,7 +319,8 @@ export default function WordLibraryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     borderRadius: 28,
@@ -332,7 +339,7 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   actionText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 20,
     fontWeight: '700',
   },
@@ -394,7 +401,7 @@ const styles = StyleSheet.create({
   },
   selectCircle: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 22,
     borderWidth: 1.5,
     height: 44,
@@ -405,7 +412,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   selectedText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -418,10 +425,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   statusButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   statusButtonText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 20,
     fontWeight: '700',
   },

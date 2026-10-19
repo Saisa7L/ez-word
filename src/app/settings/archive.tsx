@@ -16,7 +16,7 @@ import {
 
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import {
   createArchiveSnapshot,
   parseArchiveSnapshot,
@@ -25,13 +25,20 @@ import {
   type ArchiveSummary,
 } from '@/features/archive/archiveSnapshot';
 import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
+import {
   exportArchiveFile,
   pickArchiveFile,
 } from '@/services/archiveFiles';
 
 export default function ArchiveSettingsScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
+  const { reloadTheme } = useAppTheme();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [lastSummary, setLastSummary] = useState<ArchiveSummary | null>(null);
@@ -101,6 +108,7 @@ export default function ArchiveSettingsScreen() {
     setIsImporting(true);
     try {
       await restoreArchiveSnapshot(db, snapshot);
+      await reloadTheme();
       setLastSummary(snapshot.summary);
       showNotice('导入成功', `已从“${fileName}”恢复本地数据`);
     } catch (error) {
@@ -123,7 +131,7 @@ export default function ArchiveSettingsScreen() {
       <View style={styles.content}>
         <View style={styles.intro}>
           <View style={styles.iconBox}>
-            <FileArchive color={colors.primary} size={32} strokeWidth={2} />
+            <FileArchive color={colors.accentText} size={32} strokeWidth={2} />
           </View>
           <Text style={styles.title}>离线迁移本地数据</Text>
           <Text style={styles.hint}>
@@ -145,10 +153,10 @@ export default function ArchiveSettingsScreen() {
           ]}
         >
           {isExporting ? (
-            <ActivityIndicator color={colors.surface} />
+            <ActivityIndicator color={colors.accentText} />
           ) : (
             <>
-              <Download color={colors.surface} size={24} strokeWidth={2.3} />
+              <Download color={colors.accentText} size={24} strokeWidth={2.3} />
               <Text style={styles.primaryText}>导出本地存档</Text>
             </>
           )}
@@ -167,10 +175,10 @@ export default function ArchiveSettingsScreen() {
           ]}
         >
           {isImporting ? (
-            <ActivityIndicator color={colors.primary} />
+            <ActivityIndicator color={colors.accentText} />
           ) : (
             <>
-              <Upload color={colors.primary} size={24} strokeWidth={2.3} />
+              <Upload color={colors.accentText} size={24} strokeWidth={2.3} />
               <Text style={styles.secondaryText}>导入本地存档</Text>
             </>
           )}
@@ -214,14 +222,15 @@ export default function ArchiveSettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   content: {
     paddingHorizontal: 22,
     paddingTop: 24,
   },
   disabledButton: {
-    backgroundColor: '#B9C0CA',
-    borderColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
+    borderColor: colors.disabled,
   },
   hint: {
     color: colors.textSecondary,
@@ -247,7 +256,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     flexDirection: 'row',
     gap: 9,
@@ -256,13 +265,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   primaryText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 20,
     fontWeight: '700',
   },
   secondaryButton: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 28,
     borderWidth: 1.5,
     flexDirection: 'row',
@@ -272,7 +281,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   secondaryText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 20,
     fontWeight: '700',
   },

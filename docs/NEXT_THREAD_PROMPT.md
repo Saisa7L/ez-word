@@ -16,6 +16,9 @@
 7. F:\English vocabulary app\Project\vocab-app\docs\WORKFLOW.md
 8. F:\English vocabulary app\Project\vocab-app\docs\ASSET_REQUIREMENTS.md
 9. F:\English vocabulary app\Project\vocab-app\docs\F3_STATUS.md
+10. F:\English vocabulary app\Project\vocab-app\docs\CURRENT_HANDOFF.md
+11. F:\English vocabulary app\Project\vocab-app\docs\P5_PROGRESS.md
+12. F:\English vocabulary app\Project\vocab-app\docs\P6_PROGRESS.md
 
 同时运行：
 
@@ -170,15 +173,22 @@ API Key 不得写入代码、GitHub、文档或聊天。
 2. A11 导入 UI 和 CSV、SQLite 核心接入已完成。
 3. F3 每日任务流程已完成并通过真机验收。
 
-当前 F1-F10 和本地化阶段 P1-P4 已全部完成。
+当前 F1-F10、本地化阶段 P1-P4 和 P5 已全部完成。
 
-P4 个人资料、关于页和本地存档联合验收已完成。接续时先检查 `git status` 并读取：
+P5 已按当前实现收口并提交。用户不再继续修正剩余视觉问题。接续时先检查 `git status` 并读取：
 
+docs/CURRENT_HANDOFF.md
 docs/P2_PROGRESS.md
 docs/P3_PROGRESS.md
 docs/P4_PROGRESS.md
+docs/P5_PROGRESS.md
+docs/THEME_COLOR_INVENTORY.md
+docs/VSCODE_SETUP.md
 
-后续阶段尚未确认，先不要自行新增功能。
+后续阶段：
+
+1. P6：整理代码和文档，梳理代码架构、页面数据流、SQLite 读写和模块职责。
+2. P6 不包含 EAS、APK、签名和发布工作。
 
 F3 的完成状态、修复记录和测试数据见：
 

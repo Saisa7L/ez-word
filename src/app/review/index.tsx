@@ -12,7 +12,7 @@ import {
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import { listReviewWords } from '@/database/reviewRepository';
 import {
   getDailyTaskSettings,
@@ -20,6 +20,10 @@ import {
 } from '@/database/settingsRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useLongPressStep } from '@/hooks/useLongPressStep';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 import { shuffle } from '@/utils/shuffle';
 
 const REVIEW_DAYS_MIN = 1;
@@ -27,6 +31,8 @@ const REVIEW_DAYS_MAX = 9999;
 
 export default function ReviewStartScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { startTask } = useDailyTask();
   const [selectedDays, setSelectedDays] = useState<number | null>(7);
   const selectedDaysRef = useRef<number | null>(7);
@@ -143,7 +149,7 @@ export default function ReviewStartScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+            <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
           </Pressable>
           <View style={styles.rangeValue}>
             <Text style={styles.rangeNumber}>
@@ -165,7 +171,7 @@ export default function ReviewStartScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+            <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
           </Pressable>
         </View>
         <Pressable
@@ -204,7 +210,7 @@ export default function ReviewStartScreen() {
               <Text style={styles.countLabel}>个单词/次，开始后可随机抽取</Text>
             </>
           ) : (
-            <ActivityIndicator color={colors.primary} size="large" />
+            <ActivityIndicator color={colors.accentText} size="large" />
           )}
         </View>
 
@@ -221,7 +227,7 @@ export default function ReviewStartScreen() {
           ]}
         >
           {isStarting ? (
-            <ActivityIndicator color={colors.surface} />
+            <ActivityIndicator color={colors.onPrimary} />
           ) : (
             <Text style={styles.startText}>开始复习</Text>
           )}
@@ -245,7 +251,8 @@ export default function ReviewStartScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   allButton: {
     alignItems: 'center',
     borderColor: colors.border,
@@ -257,7 +264,7 @@ const styles = StyleSheet.create({
   },
   allButtonActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
   },
   allButtonText: {
     color: colors.text,
@@ -265,7 +272,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   allButtonTextActive: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   content: {
     paddingHorizontal: 22,
@@ -324,10 +331,10 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   startButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   startText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
   },

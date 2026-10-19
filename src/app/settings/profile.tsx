@@ -35,12 +35,20 @@ import {
   PROFILE_USERNAME_MAX_LENGTH,
   PROFILE_TEXT_STROKE_MAX_WIDTH,
 } from '@/constants/profile';
-import { colors, radii, spacing } from '@/constants/theme';
+import {
+  radii,
+  spacing,
+  type ThemeColors,
+} from '@/constants/theme';
 import { getHomeStats, type HomeStats } from '@/database/statsRepository';
 import {
   getUserProfile,
   updateUserProfile,
 } from '@/database/userProfileRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 const BIO_MAX_LENGTH = 120;
 const AVATAR_MAX_BYTES = 3 * 1024 * 1024;
@@ -79,6 +87,8 @@ function splitDisplayName(displayName: string): string[] {
 
 export default function ProfileScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const cardRef = useRef<View>(null);
   const [displayName, setDisplayName] = useState('User');
@@ -101,6 +111,7 @@ export default function ProfileScreen() {
   const [cameraMenuVisible, setCameraMenuVisible] = useState(false);
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
   const [strokePickerVisible, setStrokePickerVisible] = useState(false);
+  const [paletteTouching, setPaletteTouching] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>(null);
   const [editValue, setEditValue] = useState('');
   const [editError, setEditError] = useState('');
@@ -287,7 +298,7 @@ export default function ProfileScreen() {
         <View style={styles.content}>
           {isLoading ? (
             <View style={styles.loading}>
-              <ActivityIndicator color={colors.primary} size="large" />
+              <ActivityIndicator color={colors.accentText} size="large" />
             </View>
           ) : (
             <>
@@ -514,7 +525,7 @@ export default function ProfileScreen() {
                 ]}
               >
                 {isSaving ? (
-                  <ActivityIndicator color={colors.surface} />
+                  <ActivityIndicator color={colors.accentText} />
                 ) : (
                   <Text style={styles.saveText}>保存资料</Text>
                 )}
@@ -623,6 +634,7 @@ export default function ProfileScreen() {
           <View style={styles.colorDialog}>
             <ScrollView
               contentContainerStyle={styles.colorDialogContent}
+              scrollEnabled={!paletteTouching}
               showsVerticalScrollIndicator={false}
             >
               <Text style={styles.editTitle}>更改名片字符颜色</Text>
@@ -630,6 +642,7 @@ export default function ProfileScreen() {
               {colorPickerVisible ? (
                 <ColorPalette
                   onChange={setCardContentColor}
+                  onInteractionChange={setPaletteTouching}
                   value={cardContentColor}
                 />
               ) : null}
@@ -658,6 +671,7 @@ export default function ProfileScreen() {
           <View style={styles.colorDialog}>
             <ScrollView
               contentContainerStyle={styles.colorDialogContent}
+              scrollEnabled={!paletteTouching}
               showsVerticalScrollIndicator={false}
             >
               <Text style={styles.editTitle}>文字描边设置</Text>
@@ -666,6 +680,7 @@ export default function ProfileScreen() {
               {strokePickerVisible ? (
                 <ColorPalette
                   onChange={setTextStrokeColor}
+                  onInteractionChange={setPaletteTouching}
                   value={textStrokeColor}
                 />
               ) : null}
@@ -719,7 +734,8 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   avatar: {
     height: '100%',
     width: '100%',
@@ -797,7 +813,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   confirmText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -822,7 +838,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   colorOptionSwatch: {
-    borderColor: '#A8AFBC',
+    borderColor: colors.border,
     borderRadius: 9,
     borderWidth: 1,
     height: 22,
@@ -884,7 +900,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.42)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
@@ -925,17 +941,17 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     height: 58,
     justifyContent: 'center',
     marginTop: 20,
   },
   saveButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   saveText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 21,
     fontWeight: '700',
   },
@@ -969,7 +985,7 @@ const styles = StyleSheet.create({
     marginTop: 34,
   },
   strokeColorSwatch: {
-    borderColor: '#A8AFBC',
+    borderColor: colors.border,
     borderRadius: 8,
     borderWidth: 1,
     height: 20,
@@ -1009,7 +1025,7 @@ const styles = StyleSheet.create({
   },
   strokeWidthButtonSelected: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
   },
   strokeWidthLabel: {
     color: colors.textSecondary,
@@ -1022,7 +1038,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   strokeWidthOptionTextSelected: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   strokeWidthOptions: {
     flexDirection: 'row',

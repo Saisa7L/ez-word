@@ -7,7 +7,8 @@ import {
   type ImageSourcePropType,
 } from 'react-native';
 
-import { colors, radii, shadow } from '@/constants/theme';
+import { radii, shadow, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type HomeActionCardProps = {
   backgroundColor: string;
@@ -24,6 +25,8 @@ export function HomeActionCard({
   onPress,
   title,
 }: HomeActionCardProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
@@ -39,7 +42,8 @@ export function HomeActionCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   card: {
     ...shadow,
     alignItems: 'center',

@@ -14,7 +14,7 @@ import {
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { PaginationBar } from '@/components/PaginationBar';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import type { WordRecord } from '@/database/wordsRepository';
 import { findWordByWord } from '@/database/wordsRepository';
 import {
@@ -23,6 +23,10 @@ import {
   countAvailableWordsForWrongBook,
   listAvailableWordsForWrongBook,
 } from '@/database/wrongBookRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 const PAGE_SIZE = 5;
 
@@ -30,6 +34,8 @@ type AddMode = 'existing' | 'manual';
 
 export default function AddWrongBookWordScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const [mode, setMode] = useState<AddMode>('existing');
   const [words, setWords] = useState<WordRecord[]>([]);
@@ -191,7 +197,7 @@ export default function AddWrongBookWordScreen() {
             <View style={styles.listPanel}>
               {isLoading ? (
                 <View style={styles.loading}>
-                  <ActivityIndicator color={colors.primary} size="large" />
+                  <ActivityIndicator color={colors.accentText} size="large" />
                 </View>
               ) : words.length === 0 ? (
                 <View style={styles.emptyState}>
@@ -229,7 +235,7 @@ export default function AddWrongBookWordScreen() {
                       >
                         {selected ? (
                           <Check
-                            color={colors.surface}
+                            color={colors.onPrimary}
                             size={23}
                             strokeWidth={3}
                           />
@@ -264,7 +270,7 @@ export default function AddWrongBookWordScreen() {
               ]}
             >
               {isSaving ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color={colors.accentText} />
               ) : (
                 <Text style={styles.addSelectedText}>
                   添加已选{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
@@ -298,7 +304,7 @@ export default function AddWrongBookWordScreen() {
               ]}
             >
               {isSaving ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color={colors.onPrimary} />
               ) : (
                 <Text style={styles.manualAddText}>查找并加入</Text>
               )}
@@ -310,24 +316,25 @@ export default function AddWrongBookWordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   content: {
     paddingHorizontal: 22,
     paddingTop: 22,
   },
   addSelectedButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     height: 58,
     justifyContent: 'center',
     marginTop: 20,
   },
   addSelectedButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   addSelectedText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 20,
     fontWeight: '700',
   },
@@ -387,10 +394,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   manualAddButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   manualAddText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 21,
     fontWeight: '700',
   },
@@ -413,7 +420,7 @@ const styles = StyleSheet.create({
   },
   selectCircle: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 22,
     borderWidth: 1.5,
     height: 44,
@@ -445,7 +452,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   segmentTextActive: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   word: {
     color: colors.text,

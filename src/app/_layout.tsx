@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,9 +12,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppFeedbackProvider } from '@/components/AppFeedbackProvider';
-import { colors } from '@/constants/theme';
+import {
+  colors as defaultColors,
+  type ThemeColors,
+} from '@/constants/theme';
 import { DATABASE_NAME, migrateDatabase } from '@/database/database';
 import { DailyTaskProvider } from '@/features/daily-task/DailyTaskProvider';
+import {
+  ThemeProvider,
+  useAppTheme,
+  useOptionalAppTheme,
+} from '@/features/theme/ThemeProvider';
 
 export default function RootLayout() {
   return (
@@ -24,21 +32,37 @@ export default function RootLayout() {
         onInit={migrateDatabase}
         useSuspense
       >
-        <DailyTaskProvider>
-          <StatusBar style="auto" />
-          <AppFeedbackProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </AppFeedbackProvider>
-        </DailyTaskProvider>
+        <ThemeProvider>
+          <DailyTaskProvider>
+            <ThemedApp />
+          </DailyTaskProvider>
+        </ThemeProvider>
       </SQLiteProvider>
     </Suspense>
   );
 }
 
+function ThemedApp() {
+  const { statusBarStyle } = useAppTheme();
+
+  return (
+    <>
+      <StatusBar style={statusBarStyle} />
+      <AppFeedbackProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </AppFeedbackProvider>
+    </>
+  );
+}
+
 function LoadingScreen() {
+  const theme = useOptionalAppTheme();
+  const colors = theme?.colors ?? defaultColors;
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View style={styles.loadingScreen}>
-      <ActivityIndicator color={colors.primary} size="large" />
+      <ActivityIndicator color={colors.accentText} size="large" />
       <Text style={styles.loadingText}>正在加载本地词库</Text>
     </View>
   );
@@ -50,6 +74,10 @@ type ErrorBoundaryProps = {
 };
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  const theme = useOptionalAppTheme();
+  const colors = theme?.colors ?? defaultColors;
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <SafeAreaView style={styles.errorScreen}>
       <View style={styles.errorCard}>
@@ -72,7 +100,8 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   errorCard: {
     backgroundColor: colors.surface,
     borderRadius: 24,
@@ -120,7 +149,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   retryText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 19,
     fontWeight: '700',
   },

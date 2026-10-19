@@ -5,8 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SurfaceCard } from '@/components/SurfaceCard';
 import { f3Assets } from '@/constants/f3Assets';
-import { colors, shadow } from '@/constants/theme';
+import { shadow, type ThemeColors } from '@/constants/theme';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 import {
   returnToHome,
   type AppNavigation,
@@ -19,6 +23,8 @@ function formatDuration(totalSeconds: number): string {
 }
 
 export default function DailyTaskCompleteScreen() {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const {
     durationSeconds,
     resetTask,
@@ -59,7 +65,7 @@ export default function DailyTaskCompleteScreen() {
           onPress={handleBackToStart}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
         >
-          <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
+          <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.2} />
         </Pressable>
         <Text style={styles.headerTitle}>{taskTitle}-完成</Text>
         <View style={styles.headerPlaceholder} />
@@ -102,7 +108,8 @@ export default function DailyTaskCompleteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -139,7 +146,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 28,
   },
   homeButtonText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
   },

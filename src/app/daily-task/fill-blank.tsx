@@ -16,15 +16,26 @@ import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
-import { colors, radii, shadow, spacing } from '@/constants/theme';
+import {
+  radii,
+  shadow,
+  spacing,
+  type ThemeColors,
+} from '@/constants/theme';
 import { recordWrongWords } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 const WORD_PAGE_SIZE = 4;
 
 export default function FillBlankScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const {
     clearFillAnswer,
@@ -139,7 +150,7 @@ export default function FillBlankScreen() {
           onPress={exitGuard.requestExit}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
         >
-          <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
+          <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.2} />
         </Pressable>
         <Text style={styles.headerTitle}>{taskTitle}-选词填空</Text>
         <View style={styles.headerPlaceholder} />
@@ -279,7 +290,8 @@ export default function FillBlankScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -287,8 +299,8 @@ const styles = StyleSheet.create({
     width: 48,
   },
   blankText: {
-    color: colors.primary,
-    textDecorationColor: colors.primary,
+    color: colors.accentText,
+    textDecorationColor: colors.accentText,
     textDecorationLine: 'underline',
   },
   blankTextFilled: {
@@ -325,7 +337,7 @@ const styles = StyleSheet.create({
   },
   numberChipActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderStyle: 'solid',
   },
   numberRow: {
@@ -342,7 +354,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   numberTextActive: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontWeight: '700',
   },
   pressed: {
@@ -386,7 +398,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     height: 60,
     justifyContent: 'center',
@@ -394,10 +406,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
   },
   submitButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   submitText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 22,
     fontWeight: '700',
   },
@@ -415,7 +427,7 @@ const styles = StyleSheet.create({
   wordOption: {
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderColor: '#D7DCE4',
+    borderColor: colors.border,
     borderRadius: 24,
     borderWidth: 1.5,
     justifyContent: 'center',
@@ -425,14 +437,14 @@ const styles = StyleSheet.create({
   },
   wordOptionSelected: {
     backgroundColor: colors.mint,
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
   },
   wordOptionText: {
     color: colors.text,
     fontSize: 18,
   },
   wordOptionTextSelected: {
-    color: colors.primary,
+    color: colors.accentText,
     fontWeight: '700',
   },
   wordOptionUsed: {

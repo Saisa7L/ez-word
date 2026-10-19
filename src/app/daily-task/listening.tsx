@@ -18,7 +18,7 @@ import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
-import { colors, radii, shadow } from '@/constants/theme';
+import { radii, shadow, type ThemeColors } from '@/constants/theme';
 import { LISTENING_RATES } from '@/database/settingsRepository';
 import { recordTaskCompletion } from '@/database/studyRepository';
 import {
@@ -27,6 +27,10 @@ import {
 } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 import { playWordSequence } from '@/services/speech';
 
 function formatSpeed(speed: number): string {
@@ -35,6 +39,8 @@ function formatSpeed(speed: number): string {
 
 export default function ListeningScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const {
     listeningAnswers,
@@ -251,7 +257,7 @@ export default function ListeningScreen() {
           onPress={exitGuard.requestExit}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
         >
-          <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
+          <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.2} />
         </Pressable>
         <Text style={styles.headerTitle}>{taskTitle}-听力测试</Text>
         <View style={styles.headerPlaceholder} />
@@ -265,7 +271,7 @@ export default function ListeningScreen() {
             onPress={handleRewind}
             style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}
           >
-            <RotateCcw color={colors.primary} size={28} strokeWidth={2.2} />
+            <RotateCcw color={colors.accentText} size={28} strokeWidth={2.2} />
           </Pressable>
           <Pressable
             accessibilityLabel={isPlaying ? '停止' : '播放'}
@@ -274,9 +280,17 @@ export default function ListeningScreen() {
             style={({ pressed }) => [styles.playButton, pressed && styles.pressed]}
           >
             {isPlaying ? (
-              <Square color={colors.surface} fill={colors.surface} size={32} />
+              <Square
+                color={colors.accentText}
+                fill={colors.accentText}
+                size={32}
+              />
             ) : (
-              <Play color={colors.surface} fill={colors.surface} size={44} />
+              <Play
+                color={colors.accentText}
+                fill={colors.accentText}
+                size={44}
+              />
             )}
           </Pressable>
           <Pressable
@@ -285,7 +299,7 @@ export default function ListeningScreen() {
             onPress={handleSpeedChange}
             style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}
           >
-            <Gauge color={colors.primary} size={25} strokeWidth={2.2} />
+            <Gauge color={colors.accentText} size={25} strokeWidth={2.2} />
             <Text style={styles.speedText}>{formatSpeed(speed)}</Text>
           </Pressable>
         </View>
@@ -371,7 +385,8 @@ export default function ListeningScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   answerCard: {
     ...shadow,
     backgroundColor: colors.surface,
@@ -421,7 +436,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: colors.graySoft,
-    borderBottomColor: colors.primary,
+    borderBottomColor: colors.accentText,
     borderBottomWidth: 1.5,
     borderRadius: 4,
     color: colors.text,
@@ -437,7 +452,7 @@ const styles = StyleSheet.create({
   },
   playButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 55,
     height: 110,
     justifyContent: 'center',
@@ -460,7 +475,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   progressFill: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.accentText,
     borderRadius: 5,
     height: 10,
   },
@@ -492,7 +507,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   speedText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 14,
     fontWeight: '700',
     marginTop: 2,
@@ -508,10 +523,10 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   submitButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   submitText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
   },

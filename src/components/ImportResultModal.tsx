@@ -1,8 +1,12 @@
 import { Check } from 'lucide-react-native';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, spacing } from '@/constants/theme';
+import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import type { WordImportSummary } from '@/features/word-import/types';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 type ImportResultModalProps = {
   onConfirm: () => void;
@@ -16,6 +20,8 @@ type ResultRowProps = {
 };
 
 function ResultRow({ label, value }: ResultRowProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.resultRow}>
       <Text style={styles.resultLabel}>{label}</Text>
@@ -29,6 +35,9 @@ export function ImportResultModal({
   summary,
   visible,
 }: ImportResultModalProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <Modal
       animationType="fade"
@@ -39,7 +48,7 @@ export function ImportResultModal({
       <View style={styles.overlay}>
         <View style={styles.dialog}>
           <View style={styles.checkCircle}>
-            <Check color={colors.primary} size={54} strokeWidth={4} />
+            <Check color={colors.accentText} size={54} strokeWidth={4} />
           </View>
           <Text style={styles.title}>导入成功</Text>
 
@@ -62,7 +71,8 @@ export function ImportResultModal({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   checkCircle: {
     alignItems: 'center',
     height: 70,
@@ -79,7 +89,7 @@ const styles = StyleSheet.create({
     marginTop: 28,
   },
   confirmText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 21,
     fontWeight: '700',
   },
@@ -93,7 +103,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.38)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { f3Assets } from '@/constants/f3Assets';
-import { colors, radii, spacing } from '@/constants/theme';
+import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import {
   getDailyTaskSettings,
   type DailyTaskSettings,
@@ -23,10 +23,16 @@ import {
   type WordRecord,
 } from '@/database/wordsRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 import { returnToHome, type AppNavigation } from '@/utils/navigation';
 
 export default function DailyTaskStartScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { startTask } = useDailyTask();
   const navigation = useNavigation<AppNavigation>('/');
   const [availableWords, setAvailableWords] = useState<WordRecord[] | null>(null);
@@ -98,7 +104,7 @@ export default function DailyTaskStartScreen() {
           onPress={handleBack}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
         >
-          <ArrowLeft color={colors.primary} size={34} strokeWidth={2.3} />
+          <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.3} />
         </Pressable>
         <Text style={styles.headerTitle}>每日任务</Text>
         <View style={styles.headerPlaceholder} />
@@ -111,7 +117,7 @@ export default function DailyTaskStartScreen() {
           style={styles.illustration}
         />
         {availableWords === null ? (
-          <ActivityIndicator color={colors.primary} size="large" />
+          <ActivityIndicator color={colors.accentText} size="large" />
         ) : (
           <>
             <Text style={styles.description}>
@@ -145,7 +151,8 @@ export default function DailyTaskStartScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -207,10 +214,10 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
   },
   startButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   startButtonText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 24,
     fontWeight: '700',
   },

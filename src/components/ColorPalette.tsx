@@ -1,18 +1,13 @@
 import {
-  useCallback,
-  useEffect,
   useId,
-  useMemo,
-  useRef,
   useState,
 } from 'react';
 import {
-  PanResponder,
   StyleSheet,
-  Text,
+  TextInput,
   View,
+  type GestureResponderEvent,
   type LayoutChangeEvent,
-  type PanResponderGestureState,
 } from 'react-native';
 import Svg, {
   Defs,
@@ -20,6 +15,9 @@ import Svg, {
   Rect,
   Stop,
 } from 'react-native-svg';
+
+import type { ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type HsvColor = {
   hue: number;
@@ -29,11 +27,50 @@ type HsvColor = {
 
 type ColorPaletteProps = {
   onChange: (color: string) => void;
+  onInteractionChange?: (active: boolean) => void;
   value: string;
 };
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
+}
+
+function roundComponent(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
+
+function getCursorPosition(
+  ratio: number,
+  size: number,
+  radius: number,
+): number {
+  if (size <= radius * 2) {
+    return size / 2;
+  }
+  return clamp(ratio * size, radius, size - radius);
+}
+
+function parseColorInput(value: string): string | null {
+  const trimmed = value.trim();
+  const hex = trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
+  if (/^#[0-9a-f]{6}$/i.test(hex)) {
+    return hex.toUpperCase();
+  }
+
+  const rgbMatch = trimmed.match(
+    /^(\d{1,3})\s*[,，\s]\s*(\d{1,3})\s*[,，\s]\s*(\d{1,3})$/,
+  );
+  if (!rgbMatch) {
+    return null;
+  }
+
+  const channels = rgbMatch.slice(1).map((channel) =>
+    Math.min(255, Number(channel)),
+  );
+  return `#${channels
+    .map((channel) => channel.toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase()}`;
 }
 
 function normalizeHex(value: string): string {
@@ -116,135 +153,80 @@ function hsvToHex({
 
 export function ColorPalette({
   onChange,
+  onInteractionChange,
   value,
 }: ColorPaletteProps) {
+  const styles = useThemedStyles(createStyles);
   const gradientId = useId().replace(/:/g, '');
   const [hsv, setHsv] = useState(() => hexToHsv(value));
-  const squareRef = useRef<View>(null);
-  const hueRef = useRef<View>(null);
+  const [colorInput, setColorInput] = useState(() => hsvToHex(hsv));
   const [squareLayout, setSquareLayout] = useState({
     height: 0,
     width: 0,
-    x: 0,
-    y: 0,
   });
   const [hueLayout, setHueLayout] = useState({
     width: 0,
-    x: 0,
   });
 
-  useEffect(() => {
-    onChange(hsvToHex(hsv));
-  }, [hsv, onChange]);
+  function handleColorInput(value: string) {
+    setColorInput(value);
+    const parsedColor = parseColorInput(value);
+    if (!parsedColor) {
+      return;
+    }
 
-  const updateSaturationValue = useCallback(
-    (pageX: number, pageY: number) => {
-      if (
-        !Number.isFinite(pageX) ||
-        !Number.isFinite(pageY) ||
-        squareLayout.width === 0 ||
-        squareLayout.height === 0
-      ) {
-        return;
-      }
+    const next = hexToHsv(parsedColor);
+    setHsv(next);
+    onChange(parsedColor);
+  }
 
-      setHsv((current) => ({
-        ...current,
-        saturation: clamp(
-          (pageX - squareLayout.x) / squareLayout.width,
-          0,
-          1,
-        ),
-        value:
-          1 -
-          clamp(
-            (pageY - squareLayout.y) / squareLayout.height,
-            0,
-            1,
-          ),
-      }));
-    },
-    [squareLayout],
-  );
+  function handleSquareTouch(event: GestureResponderEvent) {
+    const { locationX, locationY } = event.nativeEvent ?? {};
+    if (
+      !Number.isFinite(locationX) ||
+      !Number.isFinite(locationY) ||
+      squareLayout.width === 0 ||
+      squareLayout.height === 0
+    ) {
+      return;
+    }
 
-  const updateHue = useCallback(
-    (pageX: number) => {
-      if (!Number.isFinite(pageX) || hueLayout.width === 0) {
-        return;
-      }
+    const saturation = roundComponent(
+      clamp(locationX / squareLayout.width, 0, 1),
+    );
+    const value = roundComponent(
+      1 - clamp(locationY / squareLayout.height, 0, 1),
+    );
 
-      setHsv((current) => ({
-        ...current,
-        hue:
-          clamp((pageX - hueLayout.x) / hueLayout.width, 0, 1) * 359.9,
-      }));
-    },
-    [hueLayout],
-  );
+    if (hsv.saturation === saturation && hsv.value === value) {
+      return;
+    }
 
-  const handleSquareGrant = useCallback(
-    (
-      _event: unknown,
-      gestureState: PanResponderGestureState,
-    ) => {
-      updateSaturationValue(gestureState.x0, gestureState.y0);
-    },
-    [updateSaturationValue],
-  );
+    const next = { ...hsv, saturation, value };
+    setHsv(next);
+    setColorInput(hsvToHex(next));
+    onChange(hsvToHex(next));
+  }
 
-  const handleSquareMove = useCallback(
-    (
-      _event: unknown,
-      gestureState: PanResponderGestureState,
-    ) => {
-      updateSaturationValue(
-        gestureState.moveX,
-        gestureState.moveY,
-      );
-    },
-    [updateSaturationValue],
-  );
+  function handleHueTouch(event: GestureResponderEvent) {
+    const { locationX } = event.nativeEvent ?? {};
+    if (!Number.isFinite(locationX) || hueLayout.width === 0) {
+      return;
+    }
 
-  const handleHueGrant = useCallback(
-    (
-      _event: unknown,
-      gestureState: PanResponderGestureState,
-    ) => {
-      updateHue(gestureState.x0);
-    },
-    [updateHue],
-  );
+    const hue = roundComponent(
+      clamp(locationX / hueLayout.width, 0, 1) * 359.9,
+    );
 
-  const handleHueMove = useCallback(
-    (
-      _event: unknown,
-      gestureState: PanResponderGestureState,
-    ) => {
-      updateHue(gestureState.moveX);
-    },
-    [updateHue],
-  );
+    if (hsv.hue === hue) {
+      return;
+    }
 
-  const squareResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: () => true,
-        onPanResponderGrant: handleSquareGrant,
-        onPanResponderMove: handleSquareMove,
-        onStartShouldSetPanResponder: () => true,
-      }),
-    [handleSquareGrant, handleSquareMove],
-  );
-  const hueResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: () => true,
-        onPanResponderGrant: handleHueGrant,
-        onPanResponderMove: handleHueMove,
-        onStartShouldSetPanResponder: () => true,
-      }),
-    [handleHueGrant, handleHueMove],
-  );
+    const next = { ...hsv, hue };
+    setHsv(next);
+    setColorInput(hsvToHex(next));
+    onChange(hsvToHex(next));
+  }
 
   const currentColor = hsvToHex(hsv);
   const hueColor = hsvToHex({ hue: hsv.hue, saturation: 1, value: 1 });
@@ -254,24 +236,12 @@ export function ColorPalette({
 
   function handleSquareLayout(event: LayoutChangeEvent) {
     const { height, width } = event.nativeEvent.layout;
-    squareRef.current?.measureInWindow((x, y, measuredWidth, measuredHeight) => {
-      setSquareLayout({
-        height: measuredHeight || height,
-        width: measuredWidth || width,
-        x,
-        y,
-      });
-    });
+    setSquareLayout({ height, width });
   }
 
   function handleHueLayout(event: LayoutChangeEvent) {
     const { width } = event.nativeEvent.layout;
-    hueRef.current?.measureInWindow((x, _y, measuredWidth) => {
-      setHueLayout({
-        width: measuredWidth || width,
-        x,
-      });
-    });
+    setHueLayout({ width });
   }
 
   return (
@@ -283,14 +253,34 @@ export function ColorPalette({
             { backgroundColor: currentColor },
           ]}
         />
-        <Text style={styles.previewText}>{currentColor}</Text>
+        <TextInput
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={11}
+          onBlur={() => setColorInput(currentColor)}
+          onChangeText={handleColorInput}
+          onSubmitEditing={() => setColorInput(currentColor)}
+          selectTextOnFocus
+          style={styles.previewInput}
+          value={colorInput}
+        />
       </View>
 
       <View
-        {...squareResponder.panHandlers}
         accessibilityLabel="颜色饱和度与明度调色盘"
+        onMoveShouldSetResponderCapture={() => true}
         onLayout={handleSquareLayout}
-        ref={squareRef}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={(event) => {
+          onInteractionChange?.(true);
+          handleSquareTouch(event);
+        }}
+        onResponderMove={handleSquareTouch}
+        onResponderRelease={() => onInteractionChange?.(false)}
+        onResponderTerminate={() => onInteractionChange?.(false)}
+        onResponderTerminationRequest={() => false}
+        onStartShouldSetResponderCapture={() => true}
+        onStartShouldSetResponder={() => true}
         style={styles.square}
       >
         <Svg height="100%" width="100%">
@@ -335,18 +325,36 @@ export function ColorPalette({
             styles.squareCursor,
             {
               backgroundColor: currentColor,
-              left: hsv.saturation * squareLayout.width,
-              top: (1 - hsv.value) * squareLayout.height,
+              left: getCursorPosition(
+                hsv.saturation,
+                squareLayout.width,
+                10,
+              ),
+              top: getCursorPosition(
+                1 - hsv.value,
+                squareLayout.height,
+                10,
+              ),
             },
           ]}
         />
       </View>
 
       <View
-        {...hueResponder.panHandlers}
         accessibilityLabel="色相调色条"
+        onMoveShouldSetResponderCapture={() => true}
         onLayout={handleHueLayout}
-        ref={hueRef}
+        onMoveShouldSetResponder={() => true}
+        onResponderGrant={(event) => {
+          onInteractionChange?.(true);
+          handleHueTouch(event);
+        }}
+        onResponderMove={handleHueTouch}
+        onResponderRelease={() => onInteractionChange?.(false)}
+        onResponderTerminate={() => onInteractionChange?.(false)}
+        onResponderTerminationRequest={() => false}
+        onStartShouldSetResponderCapture={() => true}
+        onStartShouldSetResponder={() => true}
         style={styles.hueTrack}
       >
         <Svg height="100%" width="100%">
@@ -380,7 +388,11 @@ export function ColorPalette({
             styles.hueCursor,
             {
               backgroundColor: hueColor,
-              left: (hsv.hue / 360) * hueLayout.width,
+              left: getCursorPosition(
+                hsv.hue / 360,
+                hueLayout.width,
+                10,
+              ),
             },
           ]}
         />
@@ -389,7 +401,8 @@ export function ColorPalette({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   hueCursor: {
     borderColor: '#FFFFFF',
     borderRadius: 10,
@@ -402,7 +415,7 @@ const styles = StyleSheet.create({
     width: 20,
   },
   hueTrack: {
-    borderColor: '#CBD2DD',
+    borderColor: colors.border,
     borderRadius: 16,
     borderWidth: 1,
     height: 32,
@@ -417,20 +430,27 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   previewSwatch: {
-    borderColor: '#A8AFBC',
+    borderColor: colors.border,
     borderRadius: 12,
     borderWidth: 1,
     height: 34,
     width: 34,
   },
-  previewText: {
-    color: '#657080',
+  previewInput: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#000000',
+    borderRadius: 10,
+    borderWidth: 1,
+    color: '#000000',
+    flex: 1,
     fontSize: 15,
     fontWeight: '600',
+    height: 38,
+    paddingHorizontal: 12,
   },
   square: {
     aspectRatio: 1,
-    borderColor: '#CBD2DD',
+    borderColor: colors.border,
     borderRadius: 18,
     borderWidth: 1,
     overflow: 'hidden',

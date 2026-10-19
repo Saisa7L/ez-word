@@ -14,7 +14,10 @@ import {
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
-import { colors, radii } from '@/constants/theme';
+import {
+  radii,
+  type ThemeColors,
+} from '@/constants/theme';
 import {
   getAiOverwriteExamples,
   setAiOverwriteExamples,
@@ -29,6 +32,10 @@ import {
   saveDeepSeekApiKey,
 } from '@/services/aiKeyStore';
 import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
+import {
   DeepSeekError,
   testDeepSeekConnection,
 } from '@/services/deepSeekService';
@@ -40,6 +47,8 @@ type Notice = {
 
 export default function AiSettingsScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [storedKey, setStoredKey] = useState<string | null>(null);
   const [overwriteExamples, setOverwriteExamples] = useState(false);
@@ -222,7 +231,11 @@ export default function AiSettingsScreen() {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <View style={styles.sectionIcon}>
-                <KeyRound color={colors.primary} size={25} strokeWidth={2.2} />
+                <KeyRound
+                  color={colors.accentText}
+                  size={25}
+                  strokeWidth={2.2}
+                />
               </View>
               <View style={styles.sectionHeaderCopy}>
                 <Text style={styles.sectionTitle}>DeepSeek API Key</Text>
@@ -254,7 +267,7 @@ export default function AiSettingsScreen() {
                 ]}
               >
                 {isSavingKey ? (
-                  <ActivityIndicator color={colors.surface} />
+                  <ActivityIndicator color={colors.accentText} />
                 ) : (
                   <Text style={styles.primaryButtonText}>保存 Key</Text>
                 )}
@@ -271,7 +284,7 @@ export default function AiSettingsScreen() {
                 ]}
               >
                 {isTesting ? (
-                  <ActivityIndicator color={colors.primary} />
+                  <ActivityIndicator color={colors.accentText} />
                 ) : (
                   <Text style={styles.secondaryButtonText}>测试连接</Text>
                 )}
@@ -313,7 +326,7 @@ export default function AiSettingsScreen() {
                   void handleOverwriteChange(value);
                 }}
                 thumbColor={colors.surface}
-                trackColor={{ false: colors.border, true: colors.primary }}
+                trackColor={{ false: colors.border, true: colors.accentText }}
                 value={overwriteExamples}
               />
             </View>
@@ -355,11 +368,11 @@ export default function AiSettingsScreen() {
               ]}
             >
               {isGenerating ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color={colors.accentText} />
               ) : (
                 <>
                   <RefreshCw
-                    color={colors.surface}
+                    color={colors.accentText}
                     size={23}
                     strokeWidth={2.3}
                   />
@@ -411,7 +424,8 @@ export default function AiSettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   clearKeyButton: {
     alignItems: 'center',
     alignSelf: 'flex-start',
@@ -443,7 +457,7 @@ const styles = StyleSheet.create({
   },
   generateButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     flexDirection: 'row',
     gap: 9,
@@ -452,10 +466,10 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   generateButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   generateText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 20,
     fontWeight: '700',
   },
@@ -485,14 +499,14 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 22,
     flex: 1,
     height: 48,
     justifyContent: 'center',
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 17,
     fontWeight: '700',
   },
@@ -523,7 +537,7 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 22,
     borderWidth: 1.5,
     flex: 1,
@@ -531,7 +545,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   secondaryButtonText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 17,
     fontWeight: '700',
   },
@@ -554,7 +568,7 @@ const styles = StyleSheet.create({
   },
   sectionIcon: {
     alignItems: 'center',
-    backgroundColor: colors.mint,
+    backgroundColor: colors.graySoft,
     borderRadius: 16,
     height: 48,
     justifyContent: 'center',

@@ -1,8 +1,11 @@
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 export function SurfaceCard({ children, style, ...props }: ViewProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={[styles.card, style]} {...props}>
       {children}
@@ -10,7 +13,8 @@ export function SurfaceCard({ children, style, ...props }: ViewProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radii.lg,

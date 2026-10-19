@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,7 +22,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ImportResultModal } from '@/components/ImportResultModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { SurfaceCard } from '@/components/SurfaceCard';
-import { colors, shadow, spacing } from '@/constants/theme';
+import { ImportInfoIcon } from '@/components/icons/ImportInfoIcon';
+import {
+  DEFAULT_GREEN,
+  DEFAULT_GREEN_SOFT,
+  radii,
+  shadow,
+  spacing,
+  type ThemeColors,
+} from '@/constants/theme';
 import {
   importWordCsv,
   pickWordCsvFile,
@@ -35,15 +44,22 @@ import {
   getActiveWordCount,
 } from '@/database/wordsRepository';
 import { formatBytes } from '@/utils/formatBytes';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 export default function ImportWordsScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
   const [file, setFile] = useState<PickedCsvFile | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [activeWordCount, setActiveWordCount] = useState<number | null>(null);
   const [summary, setSummary] = useState<WordImportSummary | null>(null);
+  const [infoVisible, setInfoVisible] = useState(false);
 
   const importDisabled = !file || isImporting || isClearing;
   const clearDisabled =
@@ -159,10 +175,21 @@ export default function ImportWordsScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
           >
-            <ArrowLeft color={colors.surface} size={34} strokeWidth={2.2} />
+            <ArrowLeft color={colors.onPrimary} size={34} strokeWidth={2.2} />
           </Pressable>
           <Text style={styles.headerTitle}>导入单词</Text>
-          <View style={styles.headerPlaceholder} />
+          <Pressable
+            accessibilityLabel="查看导入说明"
+            accessibilityRole="button"
+            hitSlop={10}
+            onPress={() => setInfoVisible(true)}
+            style={({ pressed }) => [
+              styles.infoButton,
+              pressed && styles.pressed,
+            ]}
+          >
+            <ImportInfoIcon color={colors.onPrimary} size={30} />
+          </Pressable>
         </View>
       </SafeAreaView>
 
@@ -176,7 +203,7 @@ export default function ImportWordsScreen() {
 
           <View style={styles.fileRow}>
             <View style={styles.fileIconBox}>
-              <FileSpreadsheet color={colors.primary} size={42} strokeWidth={1.8} />
+              <FileSpreadsheet color={DEFAULT_GREEN} size={42} strokeWidth={1.8} />
               <Text style={styles.csvBadge}>CSV</Text>
             </View>
 
@@ -225,10 +252,10 @@ export default function ImportWordsScreen() {
               ]}
             >
               {isImporting ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
                 <View style={styles.importButtonContent}>
-                  <Upload color={colors.surface} size={25} strokeWidth={2.2} />
+                  <Upload color="#FFFFFF" size={25} strokeWidth={2.2} />
                   <Text style={styles.importButtonText}>开始导入</Text>
                 </View>
               )}
@@ -250,7 +277,7 @@ export default function ImportWordsScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <BookOpen color={colors.primary} size={24} strokeWidth={2.2} />
+            <BookOpen color={colors.accentText} size={24} strokeWidth={2.2} />
             <Text style={styles.viewLibraryText}>查看当前词库</Text>
           </Pressable>
           <Pressable
@@ -280,11 +307,79 @@ export default function ImportWordsScreen() {
         summary={summary}
         visible={summary !== null}
       />
+
+      <Modal
+        animationType="fade"
+        onRequestClose={() => setInfoVisible(false)}
+        transparent
+        visible={infoVisible}
+      >
+        <View style={styles.infoOverlay}>
+          <View style={styles.infoDialog}>
+            <ScrollView
+              contentContainerStyle={styles.infoContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles.infoTitle}>导入说明</Text>
+
+              <Text style={styles.infoSectionTitle}>导入步骤</Text>
+              <Text style={styles.infoText}>
+                1. 准备符合格式要求的 CSV 文件{'\n'}
+                2. 点击“选择文件”{'\n'}
+                3. 点击“开始导入”{'\n'}
+                4. 在结果弹窗中确认导入数量
+              </Text>
+
+              <Text style={styles.infoSectionTitle}>文件要求</Text>
+              <Text style={styles.infoText}>
+                • 文件扩展名必须为 .csv{'\n'}
+                • 文件编码使用 UTF-8{'\n'}
+                • 第一行必须是列名{'\n'}
+                • 每一行代表一个单词
+              </Text>
+
+              <Text style={styles.infoSectionTitle}>数据格式</Text>
+              <Text style={styles.infoText}>
+                必要列：word、meaning、phonetic{'\n'}
+                可选列：example{'\n'}
+                兼容中文列名：单词、释义、中文释义、音标、sentence、例句
+              </Text>
+              <View style={styles.codeBlock}>
+                <Text style={styles.codeText}>
+                  word,meaning,phonetic,example{'\n'}
+                  abandon,放弃；抛弃,/əˈbændən/,They had to abandon the plan.
+                </Text>
+              </View>
+
+              <Text style={styles.infoSectionTitle}>导入规则</Text>
+              <Text style={styles.infoText}>
+                • 单词和释义不能为空{'\n'}
+                • 音标列必须存在，但单元格可留空{'\n'}
+                • 同一个文件内重复单词会跳过{'\n'}
+                • 已存在的单词会更新释义和音标{'\n'}
+                • 有问题的行会跳过，不影响其他合法行
+              </Text>
+
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setInfoVisible(false)}
+                style={({ pressed }) => [
+                  styles.infoConfirmButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.infoConfirmText}>知道了</Text>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     borderRadius: 28,
@@ -309,7 +404,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   changeFileText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 18,
     textDecorationLine: 'underline',
   },
@@ -336,11 +431,11 @@ const styles = StyleSheet.create({
     marginTop: 28,
   },
   chooseButton: {
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderWidth: 1.5,
   },
   chooseButtonText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 20,
     fontWeight: '600',
   },
@@ -355,7 +450,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   csvBadge: {
-    color: colors.primary,
+    color: DEFAULT_GREEN,
     fontSize: 10,
     fontWeight: '800',
     position: 'absolute',
@@ -369,7 +464,7 @@ const styles = StyleSheet.create({
   },
   fileIconBox: {
     alignItems: 'center',
-    backgroundColor: colors.mint,
+    backgroundColor: DEFAULT_GREEN_SOFT,
     borderRadius: 14,
     height: 72,
     justifyContent: 'center',
@@ -405,12 +500,66 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   headerTitle: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 25,
     fontWeight: '700',
   },
-  importButton: {
+  infoButton: {
+    alignItems: 'center',
+    height: 48,
+    justifyContent: 'center',
+    width: 48,
+  },
+  infoConfirmButton: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
     backgroundColor: colors.primary,
+    borderRadius: 24,
+    height: 54,
+    justifyContent: 'center',
+    marginTop: 26,
+  },
+  infoConfirmText: {
+    color: colors.onPrimary,
+    fontSize: 19,
+    fontWeight: '700',
+  },
+  infoContent: {
+    padding: 24,
+  },
+  infoDialog: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    maxHeight: '84%',
+    overflow: 'hidden',
+    width: '88%',
+  },
+  infoOverlay: {
+    alignItems: 'center',
+    backgroundColor: colors.overlay,
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  infoSectionTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 22,
+  },
+  infoText: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 23,
+    marginTop: 9,
+  },
+  infoTitle: {
+    color: colors.text,
+    fontSize: 25,
+    fontWeight: '800',
+  },
+  importButton: {
+    backgroundColor: DEFAULT_GREEN,
   },
   importButtonContent: {
     alignItems: 'center',
@@ -418,16 +567,30 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   importButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   importButtonText: {
-    color: colors.surface,
+    color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '600',
   },
+  codeBlock: {
+    backgroundColor: colors.graySoft,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    marginTop: 12,
+    padding: 12,
+  },
+  codeText: {
+    color: colors.text,
+    fontFamily: 'monospace',
+    fontSize: 12,
+    lineHeight: 19,
+  },
   viewLibraryButton: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 24,
     borderWidth: 1.5,
     flexDirection: 'row',
@@ -437,7 +600,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   viewLibraryText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 19,
     fontWeight: '600',
   },

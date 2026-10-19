@@ -1,5 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Palette } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
@@ -7,11 +8,19 @@ import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { SettingsRow } from '@/components/SettingsRow';
 import { ArchiveIcon } from '@/components/icons/ArchiveIcon';
 import { f1Assets } from '@/constants/f1Assets';
-import { colors } from '@/constants/theme';
+import {
+  type ThemeColors,
+} from '@/constants/theme';
 import { getUserProfile } from '@/database/userProfileRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 export default function SettingsScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [avatarData, setAvatarData] = useState('');
 
   useFocusEffect(
@@ -55,7 +64,7 @@ export default function SettingsScreen() {
             <SettingsRow
               backgroundColor={colors.pinkSoft}
               icon={f1Assets.settingsAvatar}
-              iconColor="#E765B8"
+              iconColor={colors.pink}
               label="个人资料"
               hideChevron
               style={styles.avatarRowContent}
@@ -77,9 +86,16 @@ export default function SettingsScreen() {
             onPress={() => router.push('/settings/daily-task')}
           />
           <SettingsRow
-            backgroundColor={colors.mint}
+            backgroundColor={colors.blueSoft}
+            iconColor={colors.blue}
+            iconElement={<Palette color={colors.blue} size={25} strokeWidth={2.2} />}
+            label="主题外观"
+            onPress={() => router.push('/settings/theme')}
+          />
+          <SettingsRow
+            backgroundColor={colors.graySoft}
             icon={f1Assets.settingsImport}
-            iconColor={colors.primary}
+            iconColor={colors.accentText}
             label="导入单词"
             onPress={() => router.push('/settings/import')}
           />
@@ -100,7 +116,7 @@ export default function SettingsScreen() {
           <SettingsRow
             backgroundColor={colors.graySoft}
             icon={f1Assets.settingsAbout}
-            iconColor="#7C8798"
+            iconColor={colors.slate}
             label="关于"
             last
             onPress={() => router.push('/settings/about')}
@@ -111,14 +127,15 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   avatar: {
     height: '100%',
     width: '100%',
   },
   avatarCircle: {
     alignItems: 'center',
-    backgroundColor: '#F1F3F8',
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     height: 56,
     justifyContent: 'center',

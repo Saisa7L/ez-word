@@ -7,7 +7,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { HomeActionCard } from '@/components/HomeActionCard';
 import { f1Assets } from '@/constants/f1Assets';
-import { colors, radii, shadow, spacing } from '@/constants/theme';
+import {
+  radii,
+  shadow,
+  spacing,
+  type ThemeColors,
+} from '@/constants/theme';
 import {
   getHomeStats,
   getLastReviewPromptStudyDay,
@@ -16,9 +21,15 @@ import {
 } from '@/database/statsRepository';
 import { getDailyTaskSettings } from '@/database/settingsRepository';
 import { getUserProfile } from '@/database/userProfileRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [homeStats, setHomeStats] = useState<HomeStats | null>(null);
   const [displayName, setDisplayName] = useState('User');
   const [avatarData, setAvatarData] = useState('');
@@ -118,9 +129,9 @@ export default function HomeScreen() {
 
         <View style={styles.actions}>
           <HomeActionCard
-            backgroundColor={colors.mint}
+            backgroundColor={colors.graySoft}
             icon={f1Assets.homeCalendar}
-            iconColor={colors.primary}
+            iconColor={colors.accentText}
             onPress={() => router.push('/daily-task')}
             title="今日任务"
           />
@@ -162,7 +173,8 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   actions: {
     gap: 18,
     marginTop: 26,
@@ -174,7 +186,7 @@ const styles = StyleSheet.create({
   avatarRing: {
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderColor: '#9EE7DD',
+    borderColor: colors.mint,
     borderRadius: 40,
     borderWidth: 3,
     height: 68,
@@ -237,12 +249,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   welcomeSubtitle: {
-    color: '#D9F7F2',
+    color: colors.onPrimary,
     fontSize: 17,
     marginTop: 8,
+    opacity: 0.82,
   },
   welcomeTitle: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
     lineHeight: 30,

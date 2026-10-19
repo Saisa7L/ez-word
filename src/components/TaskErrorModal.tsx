@@ -1,6 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, spacing } from '@/constants/theme';
+import { radii, spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type TaskErrorModalProps = {
   errorCount: number;
@@ -13,6 +14,8 @@ export function TaskErrorModal({
   onConfirm,
   visible,
 }: TaskErrorModalProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <Modal
       animationType="fade"
@@ -39,7 +42,8 @@ export function TaskErrorModal({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   button: {
     alignItems: 'center',
     alignSelf: 'stretch',
@@ -50,7 +54,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   buttonText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 21,
     fontWeight: '700',
   },
@@ -70,7 +74,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,

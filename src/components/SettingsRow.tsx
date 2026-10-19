@@ -11,7 +11,11 @@ import {
 import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 
-import { colors } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 type SettingsRowProps = {
   backgroundColor: string;
@@ -36,6 +40,8 @@ export function SettingsRow({
   onPress,
   style,
 }: SettingsRowProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const content = (
     <>
       <View style={styles.left}>
@@ -51,7 +57,7 @@ export function SettingsRow({
         <Text style={styles.label}>{label}</Text>
       </View>
       {!hideChevron ? (
-        <ChevronRight color="#A8AFBC" size={28} strokeWidth={2} />
+        <ChevronRight color={colors.textMuted} size={28} strokeWidth={2} />
       ) : null}
     </>
   );
@@ -80,7 +86,8 @@ export function SettingsRow({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   icon: {
     height: 31,
     width: 31,

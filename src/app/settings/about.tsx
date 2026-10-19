@@ -30,7 +30,11 @@ import {
   GITHUB_REPOSITORY_URL,
   IS_GITHUB_CONFIGURED,
 } from '@/constants/appInfo';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 const APP_VERSION = Constants.expoConfig?.version ?? '1.0.0';
 const BUILD_NUMBER = Constants.expoConfig?.android?.versionCode ?? 1;
@@ -52,6 +56,8 @@ function AboutInfoRow({
   onPress,
   value,
 }: AboutInfoRowProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const content = (
     <>
       <View style={styles.rowLeft}>
@@ -99,6 +105,8 @@ function AboutInfoRow({
 }
 
 export default function AboutScreen() {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
 
   async function openLink(url: string) {
@@ -130,14 +138,20 @@ export default function AboutScreen() {
 
         <View style={styles.infoList}>
           <AboutInfoRow
-            icon={<Tag color="#E765B8" size={21} strokeWidth={2.2} />}
+            icon={<Tag color={colors.pink} size={21} strokeWidth={2.2} />}
             iconBackground={colors.pinkSoft}
             label="软件版本"
             value={`${APP_VERSION} (Build ${BUILD_NUMBER})`}
           />
           <AboutInfoRow
-            icon={<RefreshCw color={colors.primary} size={21} strokeWidth={2.2} />}
-            iconBackground={colors.mint}
+            icon={
+              <RefreshCw
+                color={colors.accentText}
+                size={21}
+                strokeWidth={2.2}
+              />
+            }
+            iconBackground={colors.graySoft}
             label="检查更新"
             value="暂未开放"
           />
@@ -174,7 +188,7 @@ export default function AboutScreen() {
             value={GITHUB_ISSUES_URL}
           />
           <AboutInfoRow
-            icon={<UserRound color="#7C8798" size={21} strokeWidth={2.2} />}
+            icon={<UserRound color={colors.slate} size={21} strokeWidth={2.2} />}
             iconBackground={colors.graySoft}
             label="软件制作者"
             last
@@ -184,7 +198,7 @@ export default function AboutScreen() {
 
         <View style={styles.privacy}>
           <View style={styles.privacyHeader}>
-            <ShieldCheck color={colors.primary} size={23} strokeWidth={2.2} />
+            <ShieldCheck color={colors.accentText} size={23} strokeWidth={2.2} />
             <Text style={styles.privacyTitle}>数据与隐私</Text>
           </View>
           <Text style={styles.privacyText}>
@@ -200,14 +214,15 @@ export default function AboutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   appIcon: {
     height: 68,
     width: 68,
   },
   appIconBox: {
     alignItems: 'center',
-    backgroundColor: colors.mint,
+    backgroundColor: colors.graySoft,
     borderRadius: 30,
     height: 92,
     justifyContent: 'center',
@@ -237,7 +252,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   englishName: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 18,
     fontWeight: '700',
     marginTop: 4,

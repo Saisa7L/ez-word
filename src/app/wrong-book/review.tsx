@@ -13,14 +13,20 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { f3Assets } from '@/constants/f3Assets';
-import { colors, radii, spacing } from '@/constants/theme';
+import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import { getDailyTaskSettings } from '@/database/settingsRepository';
 import { listAllWrongBookWords } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 import { shuffle } from '@/utils/shuffle';
 
 export default function WrongBookReviewStartScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { startTask } = useDailyTask();
   const [wrongCount, setWrongCount] = useState<number | null>(null);
   const [reviewWords, setReviewWords] = useState<
@@ -90,7 +96,7 @@ export default function WrongBookReviewStartScreen() {
             pressed && styles.pressed,
           ]}
         >
-          <ArrowLeft color={colors.primary} size={34} strokeWidth={2.3} />
+          <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.3} />
         </Pressable>
         <Text style={styles.headerTitle}>错题回顾</Text>
         <View style={styles.headerPlaceholder} />
@@ -103,7 +109,7 @@ export default function WrongBookReviewStartScreen() {
           style={styles.illustration}
         />
         {wrongCount === null ? (
-          <ActivityIndicator color={colors.primary} size="large" />
+          <ActivityIndicator color={colors.accentText} size="large" />
         ) : (
           <>
             <Text style={styles.description}>
@@ -137,7 +143,8 @@ export default function WrongBookReviewStartScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -179,7 +186,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   illustration: {
-    height: 250,
+    aspectRatio: 382 / 354,
+    maxHeight: 300,
     width: '100%',
   },
   pressed: {
@@ -199,10 +207,10 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
   },
   startButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   startButtonText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 24,
     fontWeight: '700',
   },

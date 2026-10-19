@@ -12,11 +12,21 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
-import { colors, radii, shadow } from '@/constants/theme';
+import {
+  radii,
+  shadow,
+  type ThemeColors,
+} from '@/constants/theme';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 export default function LearnWordsScreen() {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { taskMode, words } = useDailyTask();
   const [index, setIndex] = useState(0);
   const exitGuard = useDailyTaskExitGuard();
@@ -63,7 +73,7 @@ export default function LearnWordsScreen() {
           onPress={exitGuard.requestExit}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
         >
-          <ArrowLeft color={colors.primary} size={34} strokeWidth={2.2} />
+          <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.2} />
         </Pressable>
         <Text style={styles.headerTitle}>{taskTitle}-认识单词</Text>
         <View style={styles.headerPlaceholder} />
@@ -80,7 +90,7 @@ export default function LearnWordsScreen() {
             onPress={speakWord}
             style={({ pressed }) => [styles.speakerButton, pressed && styles.pressed]}
           >
-            <Volume2 color={colors.surface} size={42} strokeWidth={2.4} />
+            <Volume2 color={colors.onPrimary} size={42} strokeWidth={2.4} />
           </Pressable>
         </View>
 
@@ -137,7 +147,8 @@ export default function LearnWordsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -155,7 +166,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   actionButtonTextPrimary: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   actions: {
     flexDirection: 'row',

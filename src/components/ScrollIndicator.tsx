@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 
-import { colors } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type ScrollIndicatorProps = {
   contentHeight: number;
@@ -14,6 +15,7 @@ export function ScrollIndicator({
   scrollY,
   viewportHeight,
 }: ScrollIndicatorProps) {
+  const styles = useThemedStyles(createStyles);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [opacity] = useState(() => new Animated.Value(0));
 
@@ -68,16 +70,17 @@ export function ScrollIndicator({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   thumb: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.accentText,
     borderRadius: 2,
     position: 'absolute',
     right: 0,
     width: 4,
   },
   track: {
-    backgroundColor: '#E1E8E8',
+    backgroundColor: colors.border,
     borderRadius: 2,
     bottom: 8,
     position: 'absolute',

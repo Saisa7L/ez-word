@@ -13,13 +13,23 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import { colors, radii, shadow, spacing } from '@/constants/theme';
+import {
+  radii,
+  shadow,
+  spacing,
+  type ThemeColors,
+} from '@/constants/theme';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 type GreenSheetScreenProps = {
   children: React.ReactNode;
   contentContainerStyle?: StyleProp<ViewStyle>;
   onBack?: () => void;
   scrollable?: boolean;
+  scrollEnabled?: boolean;
   title: string;
 };
 
@@ -28,9 +38,12 @@ export function GreenSheetScreen({
   contentContainerStyle,
   onBack,
   scrollable = true,
+  scrollEnabled = true,
   title,
 }: GreenSheetScreenProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const contentStyle = [
     styles.content,
     { paddingBottom: Math.max(spacing.xl, insets.bottom + 24) },
@@ -52,7 +65,7 @@ export function GreenSheetScreen({
                 pressed && styles.pressed,
               ]}
             >
-              <ArrowLeft color={colors.surface} size={34} strokeWidth={2.2} />
+              <ArrowLeft color={colors.onPrimary} size={34} strokeWidth={2.2} />
             </Pressable>
           ) : (
             <View style={styles.headerPlaceholder} />
@@ -67,6 +80,7 @@ export function GreenSheetScreen({
           {scrollable ? (
             <ScrollView
               contentContainerStyle={contentStyle}
+              scrollEnabled={scrollEnabled}
               showsVerticalScrollIndicator={false}
               style={styles.scroll}
             >
@@ -89,7 +103,8 @@ export function GreenSheetScreen({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -113,7 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   headerTitle: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 25,
     fontWeight: '700',
   },

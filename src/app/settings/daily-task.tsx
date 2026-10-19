@@ -14,7 +14,7 @@ import {
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import {
   DAILY_WORD_LIMIT_MAX,
   DAILY_WORD_LIMIT_MIN,
@@ -36,6 +36,10 @@ import {
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
 import { useLongPressStep } from '@/hooks/useLongPressStep';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 function formatRate(rate: number): string {
   return `${rate}x`;
@@ -54,6 +58,9 @@ function ToggleRow({
   title,
   value,
 }: ToggleRowProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
     <View style={styles.toggleRow}>
       <View style={styles.toggleCopy}>
@@ -63,7 +70,7 @@ function ToggleRow({
       <Switch
         onValueChange={onValueChange}
         thumbColor={colors.surface}
-        trackColor={{ false: colors.border, true: colors.primary }}
+        trackColor={{ false: colors.border, true: colors.accentText }}
         value={value}
       />
     </View>
@@ -72,6 +79,8 @@ function ToggleRow({
 
 export default function DailyTaskSettingsScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const [settings, setSettings] = useState<DailyTaskSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -315,7 +324,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canDecrease && styles.pressed,
                   ]}
                 >
-                  <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
 
                 <View style={styles.countValue}>
@@ -335,7 +344,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canIncrease && styles.pressed,
                   ]}
                 >
-                  <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
               </View>
               <Text style={styles.rangeHint}>
@@ -374,7 +383,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canDecreaseWrongReview && styles.pressed,
                   ]}
                 >
-                  <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
                 <View style={styles.countValue}>
                   <Text style={styles.countNumber}>
@@ -394,7 +403,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canIncreaseWrongReview && styles.pressed,
                   ]}
                 >
-                  <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
               </View>
               <Text style={styles.rangeHint}>
@@ -440,7 +449,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canDecreaseWordReview && styles.pressed,
                   ]}
                 >
-                  <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
                 <View style={styles.countValue}>
                   <Text style={styles.countNumber}>
@@ -460,7 +469,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canIncreaseWordReview && styles.pressed,
                   ]}
                 >
-                  <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
               </View>
               <Text style={styles.rangeHint}>
@@ -533,7 +542,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canDecreaseInterval && styles.pressed,
                   ]}
                 >
-                  <Minus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
 
                 <View style={styles.countValue}>
@@ -555,7 +564,7 @@ export default function DailyTaskSettingsScreen() {
                     pressed && canIncreaseInterval && styles.pressed,
                   ]}
                 >
-                  <Plus color={colors.primary} size={30} strokeWidth={2.4} />
+                  <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
                 </Pressable>
               </View>
               <Text style={styles.rangeHint}>
@@ -588,7 +597,7 @@ export default function DailyTaskSettingsScreen() {
                       ]}
                     >
                       <Minus
-                        color={colors.primary}
+                        color={colors.accentText}
                         size={30}
                         strokeWidth={2.4}
                       />
@@ -614,7 +623,7 @@ export default function DailyTaskSettingsScreen() {
                       ]}
                     >
                       <Plus
-                        color={colors.primary}
+                        color={colors.accentText}
                         size={30}
                         strokeWidth={2.4}
                       />
@@ -650,7 +659,7 @@ export default function DailyTaskSettingsScreen() {
               ]}
             >
               {isSaving ? (
-                <ActivityIndicator color={colors.surface} />
+                <ActivityIndicator color={colors.accentText} />
               ) : (
                 <Text style={styles.saveText}>保存设置</Text>
               )}
@@ -658,7 +667,7 @@ export default function DailyTaskSettingsScreen() {
           </>
         ) : (
           <View style={styles.loading}>
-            <ActivityIndicator color={colors.primary} size="large" />
+            <ActivityIndicator color={colors.accentText} size="large" />
             <Text style={styles.loadingText}>正在读取设置</Text>
           </View>
         )}
@@ -697,7 +706,8 @@ export default function DailyTaskSettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -757,7 +767,7 @@ const styles = StyleSheet.create({
   },
   rateButtonSelected: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
   },
   rateOptions: {
     flexDirection: 'row',
@@ -771,7 +781,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   rateTextSelected: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   reminderStepper: {
     alignItems: 'center',
@@ -781,7 +791,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.graySoft,
     borderRadius: 28,
     height: 60,
     justifyContent: 'center',
@@ -789,10 +799,10 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   saveButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   saveText: {
-    color: colors.surface,
+    color: colors.accentText,
     fontSize: 22,
     fontWeight: '700',
   },
@@ -831,7 +841,7 @@ const styles = StyleSheet.create({
   },
   testReminderButton: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 22,
     borderWidth: 1.5,
     height: 50,
@@ -839,7 +849,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   testReminderText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 17,
     fontWeight: '600',
   },

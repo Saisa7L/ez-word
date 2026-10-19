@@ -1,6 +1,7 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, spacing } from '@/constants/theme';
+import { radii, spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 export type ActionOption = {
   label: string;
@@ -23,6 +24,8 @@ export function ActionOptionModal({
   title,
   visible,
 }: ActionOptionModalProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <Modal
       animationType="fade"
@@ -69,7 +72,8 @@ export function ActionOptionModal({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   dialog: {
     backgroundColor: colors.surface,
     borderRadius: radii.xl,
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
     color: colors.red,
   },
   optionTextPrimary: {
-    color: colors.primary,
+    color: colors.accentText,
   },
   options: {
     gap: 10,
@@ -114,7 +118,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.38)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,

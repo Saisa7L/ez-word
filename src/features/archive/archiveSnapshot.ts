@@ -5,11 +5,15 @@ import {
   DEFAULT_PROFILE_TEXT_STROKE_COLOR,
   DEFAULT_PROFILE_TEXT_STROKE_WIDTH,
 } from '@/constants/profile';
+import {
+  DEFAULT_THEME_PRIMARY_COLOR,
+  DEFAULT_THEME_MODE,
+} from '@/constants/theme';
 import { DATABASE_VERSION } from '@/database/database';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
-const LEGACY_DATABASE_VERSIONS = [10, 12, 13];
+const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16];
 
 type ArchiveValue = number | string | null;
 type ArchiveRow = Record<string, ArchiveValue>;
@@ -70,6 +74,8 @@ const ARCHIVE_TABLES: ArchiveTable[] = [
       'wrong_review_word_limit',
       'auto_remove_correct_wrong_review',
       'ai_overwrite_examples',
+      'theme_mode',
+      'theme_primary_color',
     ],
     name: 'app_settings',
   },
@@ -209,10 +215,9 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
       const source = row as Record<string, unknown>;
       const normalized: ArchiveRow = {};
       for (const column of table.columns) {
-        const legacyDefault = getLegacyProfileDefault(column);
+        const legacyDefault = getLegacyColumnDefault(table.name, column);
         const value =
           source[column] === undefined &&
-          table.name === 'user_profile' &&
           legacyDefault !== undefined
             ? legacyDefault
             : source[column];
@@ -240,23 +245,43 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
   };
 }
 
-function getLegacyProfileDefault(
+function getLegacyColumnDefault(
+  tableName: string,
   column: string,
 ): ArchiveValue | undefined {
+  if (tableName === 'app_settings') {
+    if (column === 'theme_mode') {
+      return DEFAULT_THEME_MODE;
+    }
+    if (column === 'theme_primary_color') {
+      return DEFAULT_THEME_PRIMARY_COLOR;
+    }
+  }
+
   if (
+    tableName === 'user_profile' &&
     column === 'bio' ||
-    column === 'avatar_data' ||
-    column === 'background_data'
+    (tableName === 'user_profile' && column === 'avatar_data') ||
+    (tableName === 'user_profile' && column === 'background_data')
   ) {
     return '';
   }
-  if (column === 'card_content_color') {
+  if (
+    tableName === 'user_profile' &&
+    column === 'card_content_color'
+  ) {
     return DEFAULT_PROFILE_CARD_CONTENT_COLOR;
   }
-  if (column === 'text_stroke_color') {
+  if (
+    tableName === 'user_profile' &&
+    column === 'text_stroke_color'
+  ) {
     return DEFAULT_PROFILE_TEXT_STROKE_COLOR;
   }
-  if (column === 'text_stroke_width') {
+  if (
+    tableName === 'user_profile' &&
+    column === 'text_stroke_width'
+  ) {
     return DEFAULT_PROFILE_TEXT_STROKE_WIDTH;
   }
   return undefined;

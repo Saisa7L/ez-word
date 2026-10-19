@@ -18,13 +18,17 @@ import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { PaginationBar } from '@/components/PaginationBar';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import {
   countWrongBookWords,
   listWrongBookWords,
   resolveWrongBookRemoval,
   type WrongBookEntry,
 } from '@/database/wrongBookRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 const PAGE_SIZE = 5;
 
@@ -43,6 +47,8 @@ function formatSources(sources: string): string {
 
 export default function WrongBookScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const [entries, setEntries] = useState<WrongBookEntry[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -130,7 +136,7 @@ export default function WrongBookScreen() {
         <View style={styles.listPanel}>
           {isLoading ? (
             <View style={styles.loading}>
-              <ActivityIndicator color={colors.primary} size="large" />
+              <ActivityIndicator color={colors.accentText} size="large" />
             </View>
           ) : entries.length === 0 ? (
             <View style={styles.emptyState}>
@@ -165,7 +171,7 @@ export default function WrongBookScreen() {
                   </View>
                   <View style={[styles.selectCircle, selected && styles.selectCircleActive]}>
                     {selected ? (
-                      <Check color={colors.surface} size={24} strokeWidth={3} />
+                      <Check color={colors.onPrimary} size={24} strokeWidth={3} />
                     ) : (
                       <Text style={styles.orderText}>{index + 1}</Text>
                     )}
@@ -193,7 +199,7 @@ export default function WrongBookScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Plus color={colors.surface} size={24} strokeWidth={2.4} />
+            <Plus color={colors.onPrimary} size={24} strokeWidth={2.4} />
             <Text style={styles.actionText}>添加</Text>
           </Pressable>
           <Pressable
@@ -209,10 +215,10 @@ export default function WrongBookScreen() {
             ]}
           >
             {isRemoving ? (
-              <ActivityIndicator color={colors.surface} />
+              <ActivityIndicator color={colors.onPrimary} />
             ) : (
               <>
-                <Trash2 color={colors.surface} size={23} strokeWidth={2.3} />
+                <Trash2 color={colors.onPrimary} size={23} strokeWidth={2.3} />
                 <Text style={styles.actionText}>移除</Text>
               </>
             )}
@@ -249,7 +255,8 @@ export default function WrongBookScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     borderRadius: 28,
@@ -268,7 +275,7 @@ const styles = StyleSheet.create({
     marginTop: 26,
   },
   actionText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 21,
     fontWeight: '700',
   },
@@ -332,7 +339,7 @@ const styles = StyleSheet.create({
   },
   selectCircle: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 22,
     borderWidth: 1.5,
     height: 44,
@@ -343,7 +350,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   selectedText: {
-    color: colors.primary,
+    color: colors.accentText,
     fontSize: 15,
     fontWeight: '600',
   },

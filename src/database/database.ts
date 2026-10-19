@@ -6,10 +6,16 @@ import {
   DEFAULT_PROFILE_TEXT_STROKE_WIDTH,
   PROFILE_USERNAME_MAX_LENGTH,
 } from '@/constants/profile';
+import {
+  DEFAULT_CUSTOM_BACKGROUND_COLOR,
+  DEFAULT_CUSTOM_SURFACE_COLOR,
+  DEFAULT_THEME_PRIMARY_COLOR,
+  DEFAULT_THEME_MODE,
+} from '@/constants/theme';
 
 export const DATABASE_NAME = 'vocabulary.db';
 
-export const DATABASE_VERSION = 14;
+export const DATABASE_VERSION = 17;
 
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync(`
@@ -291,6 +297,59 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     });
 
     currentVersion = 14;
+  }
+
+  if (currentVersion === 14) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE app_settings
+        ADD COLUMN theme_mode TEXT NOT NULL DEFAULT '${DEFAULT_THEME_MODE}';
+
+        ALTER TABLE app_settings
+        ADD COLUMN theme_accent_color TEXT NOT NULL
+        DEFAULT '${DEFAULT_CUSTOM_SURFACE_COLOR}';
+      `);
+    });
+
+    currentVersion = 15;
+  }
+
+  if (currentVersion === 15) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE app_settings
+        ADD COLUMN theme_surface_color TEXT NOT NULL
+        DEFAULT '${DEFAULT_CUSTOM_SURFACE_COLOR}';
+
+        ALTER TABLE app_settings
+        ADD COLUMN theme_background_color TEXT NOT NULL
+        DEFAULT '${DEFAULT_CUSTOM_BACKGROUND_COLOR}';
+
+        UPDATE app_settings
+        SET theme_surface_color = theme_accent_color
+        WHERE theme_mode = 'custom';
+      `);
+    });
+
+    currentVersion = 16;
+  }
+
+  if (currentVersion === 16) {
+    await db.withExclusiveTransactionAsync(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE app_settings
+        ADD COLUMN theme_primary_color TEXT NOT NULL
+        DEFAULT '${DEFAULT_THEME_PRIMARY_COLOR}';
+
+        UPDATE app_settings
+        SET theme_primary_color = CASE
+          WHEN theme_mode = 'custom' THEN theme_surface_color
+          ELSE '${DEFAULT_THEME_PRIMARY_COLOR}'
+        END;
+      `);
+    });
+
+    currentVersion = 17;
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentVersion}`);

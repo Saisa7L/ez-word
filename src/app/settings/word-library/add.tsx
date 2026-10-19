@@ -12,14 +12,20 @@ import {
 
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
-import { colors, radii } from '@/constants/theme';
+import { radii, type ThemeColors } from '@/constants/theme';
 import {
   findWordByWord,
   upsertSingleWord,
 } from '@/database/wordsRepository';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 export default function AddLibraryWordScreen() {
   const db = useSQLiteContext();
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const [word, setWord] = useState('');
   const [meaning, setMeaning] = useState('');
@@ -115,7 +121,7 @@ export default function AddLibraryWordScreen() {
           ]}
         >
           {isSaving ? (
-            <ActivityIndicator color={colors.surface} />
+            <ActivityIndicator color={colors.onPrimary} />
           ) : (
             <Text style={styles.addText}>加入当前词库</Text>
           )}
@@ -125,7 +131,8 @@ export default function AddLibraryWordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   addButton: {
     alignItems: 'center',
     backgroundColor: colors.primary,
@@ -135,10 +142,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   addButtonDisabled: {
-    backgroundColor: '#B9C0CA',
+    backgroundColor: colors.disabled,
   },
   addText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 21,
     fontWeight: '700',
   },

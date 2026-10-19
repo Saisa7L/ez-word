@@ -1,6 +1,12 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, spacing } from '@/constants/theme';
+import {
+  DEFAULT_GREEN,
+  radii,
+  spacing,
+  type ThemeColors,
+} from '@/constants/theme';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type ExitTaskModalProps = {
   onCancel: () => void;
@@ -15,6 +21,8 @@ export function ExitTaskModal({
   taskLabel = '每日任务',
   visible,
 }: ExitTaskModalProps) {
+  const styles = useThemedStyles(createStyles);
+
   return (
     <Modal
       animationType="fade"
@@ -35,7 +43,7 @@ export function ExitTaskModal({
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.buttonText}>是</Text>
+              <Text style={[styles.buttonText, styles.confirmText]}>是</Text>
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -55,7 +63,8 @@ export function ExitTaskModal({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: 20,
@@ -71,7 +80,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   buttonText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
   },
@@ -79,7 +88,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.red,
   },
   confirmButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: DEFAULT_GREEN,
+  },
+  confirmText: {
+    color: '#FFFFFF',
   },
   dialog: {
     alignItems: 'center',
@@ -92,7 +104,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,

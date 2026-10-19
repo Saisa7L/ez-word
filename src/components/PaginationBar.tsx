@@ -9,7 +9,11 @@ import {
   View,
 } from 'react-native';
 
-import { colors, radii, spacing } from '@/constants/theme';
+import { radii, spacing, type ThemeColors } from '@/constants/theme';
+import {
+  useAppTheme,
+  useThemedStyles,
+} from '@/features/theme/ThemeProvider';
 
 type PaginationBarProps = {
   disabled?: boolean;
@@ -24,6 +28,8 @@ export function PaginationBar({
   pageCount,
   pageIndex,
 }: PaginationBarProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(createStyles);
   const [modalVisible, setModalVisible] = useState(false);
   const [pageInput, setPageInput] = useState(String(pageIndex + 1));
   const [error, setError] = useState('');
@@ -66,7 +72,7 @@ export function PaginationBar({
             pressed && styles.pressed,
           ]}
         >
-          <ChevronLeft color={colors.primary} size={28} strokeWidth={2.2} />
+          <ChevronLeft color={colors.accentText} size={28} strokeWidth={2.2} />
         </Pressable>
 
         <Pressable
@@ -95,7 +101,7 @@ export function PaginationBar({
             pressed && styles.pressed,
           ]}
         >
-          <ChevronRight color={colors.primary} size={28} strokeWidth={2.2} />
+          <ChevronRight color={colors.accentText} size={28} strokeWidth={2.2} />
         </Pressable>
       </View>
 
@@ -153,10 +159,11 @@ export function PaginationBar({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   arrowButton: {
     alignItems: 'center',
-    borderColor: colors.primary,
+    borderColor: colors.accentText,
     borderRadius: 26,
     borderWidth: 1.2,
     height: 50,
@@ -175,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   confirmText: {
-    color: colors.surface,
+    color: colors.onPrimary,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -237,7 +244,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.38)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
