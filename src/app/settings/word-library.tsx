@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   Check,
@@ -31,7 +31,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
-import { getLastPageIndex, getPageCount } from '@/utils/pagination';
+import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 
 const PAGE_SIZE = 5;
 
@@ -46,57 +46,36 @@ export default function WordLibraryScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
-  const [words, setWords] = useState<WordRecord[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [isLoading, setIsLoading] = useState(true);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
 
-  const loadCurrentPage = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const [count, nextWords] = await Promise.all([
+  const loadPage = useCallback(
+    async (targetPageIndex: number) => {
+      const [totalCount, items] = await Promise.all([
         getActiveWordCount(db),
-        listActiveWords(db, PAGE_SIZE, pageIndex * PAGE_SIZE),
+        listActiveWords(db, PAGE_SIZE, targetPageIndex * PAGE_SIZE),
       ]);
-      const lastPage = getLastPageIndex(count, PAGE_SIZE);
-      if (pageIndex > lastPage) {
-        setPageIndex(lastPage);
-        return;
-      }
-
-      setWords(nextWords);
-      setTotalCount(count);
-    } catch {
-      setWords([]);
-      setTotalCount(0);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [db, pageIndex]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadCurrentPage();
-    }, [loadCurrentPage]),
+      return { items, totalCount };
+    },
+    [db],
   );
 
-  const pageCount = getPageCount(totalCount, PAGE_SIZE);
-
-  function toggleSelection(wordId: number) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(wordId)) {
-        next.delete(wordId);
-      } else {
-        next.add(wordId);
-      }
-      return next;
-    });
-  }
+  const {
+    clearSelection,
+    isLoading,
+    items: words,
+    pageCount,
+    pageIndex,
+    reload,
+    selectedIds,
+    setPageIndex,
+    toggleSelection,
+    totalCount,
+  } = usePaginatedSelection<WordRecord>({
+    loadPage,
+    pageSize: PAGE_SIZE,
+  });
 
   function requestRemove() {
     if (selectedIds.size === 0 || isRemoving) {
@@ -118,8 +97,8 @@ export default function WordLibraryScreen() {
     setIsRemoving(true);
     try {
       await deactivateWords(db, [...selectedIds]);
-      setSelectedIds(new Set());
-      await loadCurrentPage();
+      clearSelection();
+      await reload();
     } catch {
       showNotice('移除失败', '无法从当前词库移除单词，请稍后重试');
     } finally {
@@ -139,8 +118,8 @@ export default function WordLibraryScreen() {
     setIsUpdatingStatus(true);
     try {
       await setWordsLearningStatus(db, [...selectedIds], status);
-      setSelectedIds(new Set());
-      await loadCurrentPage();
+      clearSelection();
+      await reload();
     } catch {
       showNotice('修改失败', '无法修改单词状态，请稍后重试');
     } finally {

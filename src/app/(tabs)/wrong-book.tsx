@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   Check,
@@ -29,7 +29,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
-import { getLastPageIndex, getPageCount } from '@/utils/pagination';
+import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 
 const PAGE_SIZE = 5;
 
@@ -51,56 +51,35 @@ export default function WrongBookScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
-  const [entries, setEntries] = useState<WrongBookEntry[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [isLoading, setIsLoading] = useState(true);
   const [isRemoving, setIsRemoving] = useState(false);
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
 
-  const loadCurrentPage = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const [count, nextEntries] = await Promise.all([
+  const loadPage = useCallback(
+    async (targetPageIndex: number) => {
+      const [totalCount, items] = await Promise.all([
         countWrongBookWords(db),
-        listWrongBookWords(db, PAGE_SIZE, pageIndex * PAGE_SIZE),
+        listWrongBookWords(db, PAGE_SIZE, targetPageIndex * PAGE_SIZE),
       ]);
-          const lastPage = getLastPageIndex(count, PAGE_SIZE);
-      if (pageIndex > lastPage) {
-        setPageIndex(lastPage);
-        return;
-      }
-
-      setEntries(nextEntries);
-      setTotalCount(count);
-    } catch {
-      setEntries([]);
-      setTotalCount(0);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [db, pageIndex]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadCurrentPage();
-    }, [loadCurrentPage]),
+      return { items, totalCount };
+    },
+    [db],
   );
 
-  const pageCount = getPageCount(totalCount, PAGE_SIZE);
-
-  function toggleSelection(wordId: number) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(wordId)) {
-        next.delete(wordId);
-      } else {
-        next.add(wordId);
-      }
-      return next;
-    });
-  }
+  const {
+    clearSelection,
+    isLoading,
+    items: entries,
+    pageCount,
+    pageIndex,
+    reload,
+    selectedIds,
+    setPageIndex,
+    toggleSelection,
+    totalCount,
+  } = usePaginatedSelection<WrongBookEntry>({
+    loadPage,
+    pageSize: PAGE_SIZE,
+  });
 
   function requestRemove() {
     if (selectedIds.size === 0 || isRemoving) {
@@ -114,8 +93,8 @@ export default function WrongBookScreen() {
     setIsRemoving(true);
     try {
       await resolveWrongBookRemoval(db, [...selectedIds], targetStatus);
-      setSelectedIds(new Set());
-      await loadCurrentPage();
+      clearSelection();
+      await reload();
     } catch {
       showNotice('移除失败', '无法移出错题本，请稍后重试');
     } finally {

@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Check } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
@@ -27,7 +27,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
-import { getLastPageIndex, getPageCount } from '@/utils/pagination';
+import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 
 const PAGE_SIZE = 5;
 
@@ -39,72 +39,37 @@ export default function AddWrongBookWordScreen() {
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const [mode, setMode] = useState<AddMode>('existing');
-  const [words, setWords] = useState<WordRecord[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [manualWord, setManualWord] = useState('');
 
-  useFocusEffect(
-    useCallback(() => {
-      if (mode !== 'existing') {
-        return;
-      }
-
-      let active = true;
-      setIsLoading(true);
-
-      Promise.all([
+  const loadPage = useCallback(
+    async (targetPageIndex: number) => {
+      const [totalCount, items] = await Promise.all([
         countAvailableWordsForWrongBook(db),
-        listAvailableWordsForWrongBook(db, PAGE_SIZE, pageIndex * PAGE_SIZE),
-      ])
-        .then(([count, nextWords]) => {
-          if (!active) {
-            return;
-          }
-
-          const lastPage = getLastPageIndex(count, PAGE_SIZE);
-          if (pageIndex > lastPage) {
-            setPageIndex(lastPage);
-            return;
-          }
-
-          setWords(nextWords);
-          setTotalCount(count);
-        })
-        .catch(() => {
-          if (active) {
-            setWords([]);
-            setTotalCount(0);
-          }
-        })
-        .finally(() => {
-          if (active) {
-            setIsLoading(false);
-          }
-        });
-
-      return () => {
-        active = false;
-      };
-    }, [db, mode, pageIndex]),
+        listAvailableWordsForWrongBook(
+          db,
+          PAGE_SIZE,
+          targetPageIndex * PAGE_SIZE,
+        ),
+      ]);
+      return { items, totalCount };
+    },
+    [db],
   );
 
-  const pageCount = getPageCount(totalCount, PAGE_SIZE);
-
-  function toggleSelection(wordId: number) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
-      if (next.has(wordId)) {
-        next.delete(wordId);
-      } else {
-        next.add(wordId);
-      }
-      return next;
-    });
-  }
+  const {
+    isLoading,
+    items: words,
+    pageCount,
+    pageIndex,
+    selectedIds,
+    setPageIndex,
+    toggleSelection,
+  } = usePaginatedSelection<WordRecord>({
+    enabled: mode === 'existing',
+    loadPage,
+    pageSize: PAGE_SIZE,
+  });
 
   async function handleAddSelected() {
     if (selectedIds.size === 0 || isSaving) {
