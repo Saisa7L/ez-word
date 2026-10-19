@@ -35,7 +35,7 @@ const WORD_PAGE_SIZE = 4;
 
 export default function FillBlankScreen() {
   const db = useSQLiteContext();
-  const { colors, mode } = useAppTheme();
+  const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const {
@@ -264,21 +264,11 @@ export default function FillBlankScreen() {
         onPress={handleSubmit}
         style={({ pressed }) => [
           styles.submitButton,
-          mode === 'custom' && styles.submitButtonCustom,
           !allAnswered && styles.submitButtonDisabled,
           pressed && styles.pressed,
         ]}
       >
-        <Text
-          style={[
-            styles.submitText,
-            mode === 'custom' &&
-              allAnswered &&
-              styles.submitTextCustom,
-          ]}
-        >
-          提交
-        </Text>
+        <Text style={styles.submitText}>提交</Text>
       </Pressable>
 
       <TaskErrorModal
@@ -404,7 +394,7 @@ const createStyles = (colors: ThemeColors) =>
   },
   submitButton: {
     alignItems: 'center',
-    backgroundColor: colors.graySoft,
+    backgroundColor: colors.primary,
     borderRadius: 28,
     height: 60,
     justifyContent: 'center',
@@ -414,16 +404,10 @@ const createStyles = (colors: ThemeColors) =>
   submitButtonDisabled: {
     backgroundColor: colors.disabled,
   },
-  submitButtonCustom: {
-    backgroundColor: colors.primary,
-  },
   submitText: {
-    color: colors.accentText,
+    color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
-  },
-  submitTextCustom: {
-    color: colors.onPrimary,
   },
   wordBank: {
     alignItems: 'center',
