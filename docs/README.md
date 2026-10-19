@@ -1,6 +1,6 @@
 # 文档索引
 
-最后更新：2026-10-19 17:10
+最后更新：2026-10-19 17:33
 
 ## 主文档
 
@@ -10,8 +10,10 @@
 | `REQUIREMENTS.md` | 第一版范围、功能规则和 CSV 导入格式 |
 | `UI_MAP.md` | 页面、路由、导航和已确认 UI 行为 |
 | `ARCHITECTURE.md` | 分层职责、模块边界、目录和依赖方向 |
+| `MODULE_REFERENCE.md` | 模块、仓库、服务、Hook 和组件的接口与副作用 |
 | `DATA_FLOW.md` | 启动、任务、导入、主题、资料和存档数据流 |
 | `DATABASE.md` | SQLite 表、迁移、仓库映射和存档关系 |
+| `QUALITY_AND_TECH_DEBT.md` | 质量门槛、测试缺口、内聚耦合评估和技术债优先级 |
 | `ASSETS.md` | 资源目录、命名、格式和新增资源流程 |
 | `THEME_GUIDE.md` | 主题模式、颜色令牌和页面应用规则 |
 | `DEVELOPMENT_GUIDE.md` | 环境、启动、检查、Git、调试和协作流程 |

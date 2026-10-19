@@ -1,6 +1,6 @@
 # 当前交接
 
-最后更新：2026-10-19 17:10
+最后更新：2026-10-19 17:33
 
 ## 当前状态
 
@@ -24,9 +24,11 @@ git log --oneline --decorate -5
 1. `docs/README.md`
 2. `docs/PROJECT_CONTEXT.md`
 3. `docs/ARCHITECTURE.md`
-4. `docs/DATA_FLOW.md`
-5. `docs/DATABASE.md`
-6. `docs/P6_PROGRESS.md`
+4. `docs/MODULE_REFERENCE.md`
+5. `docs/DATA_FLOW.md`
+6. `docs/DATABASE.md`
+7. `docs/QUALITY_AND_TECH_DEBT.md`
+8. `docs/P6_PROGRESS.md`
 
 ## 当前规则
 
@@ -44,6 +46,25 @@ git log --oneline --decorate -5
 3. 评估存档表结构与数据库 schema 的共享方式。
 4. 完成文档和资源引用的最终一致性检查。
 
+## 给其他 AI 的推荐材料
+
+只分析架构时：
+
+1. `PROJECT_CONTEXT.md`
+2. `ARCHITECTURE.md`
+3. `MODULE_REFERENCE.md`
+4. `DATA_FLOW.md`
+5. `DATABASE.md`
+6. `QUALITY_AND_TECH_DEBT.md`
+
+要修改代码时再补充：
+
+1. `REQUIREMENTS.md`
+2. `UI_MAP.md`
+3. `THEME_GUIDE.md`
+4. `ASSETS.md`
+5. `DEVELOPMENT_GUIDE.md`
+
 ## 新窗口提示
 
 ```text
@@ -53,7 +74,8 @@ git log --oneline --decorate -5
 F:\English vocabulary app\Project\vocab-app
 
 请先读取 docs/README.md、CURRENT_HANDOFF.md、PROJECT_CONTEXT.md、
-ARCHITECTURE.md、DATA_FLOW.md、DATABASE.md 和 P6_PROGRESS.md。
+ARCHITECTURE.md、MODULE_REFERENCE.md、DATA_FLOW.md、DATABASE.md、
+QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 
 然后运行：
 git status --short --branch

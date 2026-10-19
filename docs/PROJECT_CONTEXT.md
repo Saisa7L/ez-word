@@ -1,6 +1,6 @@
 # 项目上下文
 
-最后更新：2026-10-19 17:10
+最后更新：2026-10-19 17:33
 
 ## 产品
 
@@ -42,8 +42,10 @@
 - 总索引：`docs/README.md`
 - 需求：`docs/REQUIREMENTS.md`
 - 架构：`docs/ARCHITECTURE.md`
+- 模块接口：`docs/MODULE_REFERENCE.md`
 - 数据流：`docs/DATA_FLOW.md`
 - 数据库：`docs/DATABASE.md`
+- 质量与技术债：`docs/QUALITY_AND_TECH_DEBT.md`
 - UI：`docs/UI_MAP.md`
 - 资源：`docs/ASSETS.md`
 - 主题：`docs/THEME_GUIDE.md`

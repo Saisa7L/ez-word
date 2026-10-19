@@ -1,6 +1,6 @@
 # 主要数据流
 
-最后更新：2026-10-19 17:10
+最后更新：2026-10-19 17:33
 
 ## 启动与初始化
 
@@ -15,6 +15,17 @@ RootLayout
 ```
 
 数据库初始化失败时由根级 `ErrorBoundary` 显示重新加载页面。
+
+## 状态分类
+
+| 状态 | 生命周期 | 所有者 | 示例 |
+|---|---|---|---|
+| 持久化业务状态 | App 生命周期之外仍存在 | SQLite | 单词、设置、资料、主题、错误次数 |
+| 全局运行态 | App 打开期间 | Provider | 当前任务、主题内存值、全局反馈弹层 |
+| 页面状态 | 页面挂载或获得焦点期间 | 页面/Hook | 分页、选择、表单草稿、弹层开关 |
+| 原生资源状态 | 页面或任务期间 | Service/Hook | TTS 播放、定时器、文件选择 |
+
+页面离开后不依赖临时选择状态；真正需要保留的数据必须显式写回 SQLite。
 
 ## 首页
 
@@ -69,6 +80,17 @@ RootLayout
 
 任务单词和答案不写入 SQLite，只有学习结果、错误记录、打卡和时长所需的完成记录会持久化。当前 `study_sessions` 不保存任务时长。
 
+完成任务的数据库事务：
+
+```text
+recordTaskCompletion
+→ 批量写 word_learning_state
+→ 批量更新 words.learning_status
+→ 写一条 study_sessions
+```
+
+错误记录发生在完成任务前，由 `recordWrongWords` 独立事务写入。
+
 ## 错题回顾
 
 ```text
@@ -116,6 +138,16 @@ RootLayout
 → deactivateWords 软移除
 → setWordsLearningStatus 修改 learned / unlearned / wrong
 → 操作后重新读取当前页
+```
+
+分页列表统一由 `usePaginatedSelection` 管理：
+
+```text
+页面提供 loadPage
+→ Hook 管理 pageIndex、总数、加载态和选择
+→ 请求序号丢弃过期响应
+→ 当前页超过末页时自动回退
+→ 操作完成后 reload 当前页
 ```
 
 ## AI 例句
@@ -191,3 +223,34 @@ archive.tsx
 | API Key | SecureStore | `aiKeyStore` | `aiKeyStore` |
 
 完整表结构见 `docs/DATABASE.md`。
+
+## 事务边界
+
+| 用例 | 事务范围 | 成功结果 |
+|---|---|---|
+| CSV 批量导入 | 整个批次 | 所有合法行提交 |
+| 单条添加单词 | 单条检查、更新或插入 | 返回原 ID 或新 ID |
+| 错题加入/答错 | 每个单词的来源、计数和状态更新 | 错题与 `words` 同步 |
+| 状态修改/错题移出 | 每个单词的错题和状态更新 | 状态一致 |
+| 每日任务完成 | 学习状态和完成记录 | 打卡与学习历史一致 |
+| 存档恢复 | 全表删除和重新插入 | 失败整体回滚 |
+
+## 导航与返回
+
+- 任务页返回键统一经过 `useDailyTaskExitGuard`。
+- 确认退出会 `resetTask` 并重置到首页。
+- 每日任务完成页返回首页并清空任务状态。
+- 普通设置页使用 `router.back()`。
+- 任务流程内不使用浏览器式历史堆叠作为业务状态来源。
+
+## 错误传递
+
+```text
+SQLite/Service 抛出错误
+→ repository/feature 保持原始或转换为业务错误
+→ 页面捕获
+→ AppFeedbackProvider 显示提示
+→ 页面恢复可操作状态
+```
+
+根级初始化错误由 `ErrorBoundary` 处理。页面级失败不应静默吞掉，除非明确展示空态或降级状态。
