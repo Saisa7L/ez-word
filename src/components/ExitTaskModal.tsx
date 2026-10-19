@@ -54,7 +54,7 @@ export function ExitTaskModal({
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.buttonText}>否</Text>
+              <Text style={[styles.buttonText, styles.cancelText]}>否</Text>
             </Pressable>
           </View>
         </View>
@@ -86,6 +86,9 @@ const createStyles = (colors: ThemeColors) =>
   },
   cancelButton: {
     backgroundColor: colors.red,
+  },
+  cancelText: {
+    color: '#FFFFFF',
   },
   confirmButton: {
     backgroundColor: DEFAULT_GREEN,
