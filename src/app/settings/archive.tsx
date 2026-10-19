@@ -80,7 +80,7 @@ export default function ArchiveSettingsScreen() {
       showConfirm({
         confirmLabel: '覆盖并导入',
         danger: true,
-        message: `存档包含 ${snapshot.summary.words} 个单词、${snapshot.summary.learnedWords} 条学习记录、${snapshot.summary.wrongWords} 个错题和 ${snapshot.summary.checkins} 条完成记录。导入会完整替换当前本地数据。`,
+        message: `存档包含 ${snapshot.summary.words} 个单词、${snapshot.summary.learnedWords} 条学习记录、${snapshot.summary.wrongWords} 个错题和 ${snapshot.summary.checkins} 条完成记录，并会恢复个人资料和通用设置。导入会完整替换当前本地数据。`,
         onConfirm: () => {
           void handleRestore(file.name, snapshot);
         },
@@ -127,8 +127,8 @@ export default function ArchiveSettingsScreen() {
           </View>
           <Text style={styles.title}>离线迁移本地数据</Text>
           <Text style={styles.hint}>
-            存档包含词库、例句、学习记录、错题本和通用设置。DeepSeek API Key
-            不会写入存档。
+            存档包含词库、例句、学习记录、错题本、个人资料和通用设置。
+            DeepSeek API Key 不会写入存档。
           </Text>
         </View>
 

@@ -9,7 +9,7 @@ import { DATABASE_VERSION } from '@/database/database';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
-const LEGACY_DATABASE_VERSIONS = [12, 13];
+const LEGACY_DATABASE_VERSIONS = [10, 12, 13];
 
 type ArchiveValue = number | string | null;
 type ArchiveRow = Record<string, ArchiveValue>;
@@ -243,6 +243,13 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
 function getLegacyProfileDefault(
   column: string,
 ): ArchiveValue | undefined {
+  if (
+    column === 'bio' ||
+    column === 'avatar_data' ||
+    column === 'background_data'
+  ) {
+    return '';
+  }
   if (column === 'card_content_color') {
     return DEFAULT_PROFILE_CARD_CONTENT_COLOR;
   }
