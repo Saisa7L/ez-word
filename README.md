@@ -1,6 +1,6 @@
 # English Vocabulary App
 
-最后更新：2026-10-19 18:20
+最后更新：2026-10-19 18:24
 
 面向大学生记忆英语单词的 Android App。
 
@@ -29,6 +29,7 @@ npx expo start --lan
 ```powershell
 npm run typecheck
 npm run lint
+npm test
 ```
 
 ## 目录说明

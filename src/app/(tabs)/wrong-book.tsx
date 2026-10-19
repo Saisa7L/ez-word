@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
-  Check,
   Plus,
   Trash2,
 } from 'lucide-react-native';
@@ -18,6 +17,7 @@ import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { PaginationBar } from '@/components/PaginationBar';
+import { SelectionMarker } from '@/components/SelectionMarker';
 import { radii, type ThemeColors } from '@/constants/theme';
 import {
   countWrongBookWords,
@@ -149,13 +149,7 @@ export default function WrongBookScreen() {
                       错误 {entry.wrong_count} 次 · {formatSources(entry.sources)}
                     </Text>
                   </View>
-                  <View style={[styles.selectCircle, selected && styles.selectCircleActive]}>
-                    {selected ? (
-                      <Check color={colors.onPrimary} size={24} strokeWidth={3} />
-                    ) : (
-                      <Text style={styles.orderText}>{index + 1}</Text>
-                    )}
-                  </View>
+                  <SelectionMarker index={index} selected={selected} />
                 </Pressable>
               );
             })
@@ -306,28 +300,11 @@ const createStyles = (colors: ThemeColors) =>
     fontSize: 13,
     marginTop: 8,
   },
-  orderText: {
-    color: colors.textSecondary,
-    fontSize: 17,
-    fontWeight: '600',
-  },
   pressed: {
     opacity: 0.68,
   },
   removeButton: {
     backgroundColor: colors.red,
-  },
-  selectCircle: {
-    alignItems: 'center',
-    borderColor: colors.accentText,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    height: 44,
-    justifyContent: 'center',
-    width: 44,
-  },
-  selectCircleActive: {
-    backgroundColor: colors.primary,
   },
   selectedText: {
     color: colors.accentText,

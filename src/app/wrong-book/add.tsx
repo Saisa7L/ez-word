@@ -1,6 +1,5 @@
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { Check } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
@@ -14,6 +13,7 @@ import {
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { PaginationBar } from '@/components/PaginationBar';
+import { SelectionMarker } from '@/components/SelectionMarker';
 import { radii, type ThemeColors } from '@/constants/theme';
 import type { WordRecord } from '@/database/wordsRepository';
 import { findWordByWord } from '@/database/wordsRepository';
@@ -193,22 +193,11 @@ export default function AddWrongBookWordScreen() {
                         {word.meaning}
                       </Text>
                     </View>
-                      <View
-                        style={[
-                          styles.selectCircle,
-                          selected && styles.selectCircleActive,
-                        ]}
-                      >
-                        {selected ? (
-                          <Check
-                            color={colors.onPrimary}
-                            size={23}
-                            strokeWidth={3}
-                          />
-                        ) : (
-                          <Text style={styles.orderText}>{index + 1}</Text>
-                        )}
-                      </View>
+                      <SelectionMarker
+                        checkSize={23}
+                        index={index}
+                        selected={selected}
+                      />
                     </Pressable>
                   );
                 })
@@ -378,23 +367,6 @@ const createStyles = (colors: ThemeColors) =>
   },
   pressed: {
     opacity: 0.68,
-  },
-  orderText: {
-    color: colors.textSecondary,
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  selectCircle: {
-    alignItems: 'center',
-    borderColor: colors.accentText,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    height: 44,
-    justifyContent: 'center',
-    width: 44,
-  },
-  selectCircleActive: {
-    backgroundColor: colors.primary,
   },
   segmentButton: {
     alignItems: 'center',

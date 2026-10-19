@@ -1,6 +1,6 @@
 # 质量与技术债
 
-最后更新：2026-10-19 18:20
+最后更新：2026-10-19 18:24
 
 ## 当前质量门槛
 
@@ -9,6 +9,7 @@
 ```powershell
 npm run typecheck
 npm run lint
+npm test
 npx expo export --platform android --output-dir .expo/check
 ```
 
@@ -26,11 +27,12 @@ npx expo-doctor
 - Expo 配置解析
 - Android Metro 打包和资源引用检查
 - 文档引用存在性检查
+- 数据层 schema 和存档 round-trip 测试
 
 ## 测试缺口
 
-- 没有统一单元测试框架和测试脚本。
-- 没有可重复执行的 SQLite 集成测试套件。
+- 已有 `tests/data.test.ts`，覆盖 schema 校验、字段漂移、存档 JSON round-trip 和格式拒绝。
+- 没有覆盖页面交互的单元测试。
 - 没有组件渲染测试。
 - 没有端到端 UI 测试。
 - 没有循环依赖和未使用导出的自动化检查。

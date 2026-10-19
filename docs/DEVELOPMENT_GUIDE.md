@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-19 18:20
+最后更新：2026-10-19 18:24
 
 ## 环境
 
@@ -25,6 +25,7 @@ npx expo start --lan --clear
 ```powershell
 npm run typecheck
 npm run lint
+npm test
 npx expo-doctor
 npx expo export --platform android --output-dir .expo/check
 ```
@@ -33,6 +34,12 @@ npx expo export --platform android --output-dir .expo/check
 
 ```powershell
 npx expo install <package>
+```
+
+数据层测试：
+
+```powershell
+npm run test:data
 ```
 
 禁止：
