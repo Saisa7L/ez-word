@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import { migrateDatabase } from '../src/database/database';
 import {
   DATABASE_TABLE_SCHEMAS,
   validateDatabaseSchema,
@@ -30,6 +31,15 @@ class NodeSqliteAdapter {
   ): Promise<T[]> {
     const statement = this.db.prepare(source);
     return (params ? statement.all(params) : statement.all()) as T[];
+  }
+
+  async getFirstAsync<T>(
+    source: string,
+    params?: SqlParams,
+  ): Promise<T | null> {
+    const statement = this.db.prepare(source);
+    const row = params ? statement.get(params) : statement.get();
+    return (row ?? null) as T | null;
   }
 
   async runAsync(
@@ -81,6 +91,31 @@ function asDatabase(adapter: NodeSqliteAdapter): SQLiteDatabase {
 test('validates the current database schema', async () => {
   const adapter = createAdapter();
   await validateDatabaseSchema(asDatabase(adapter));
+});
+
+test('migrates an empty database to v17 and matches schema', async () => {
+  const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
+
+  await migrateDatabase(asDatabase(adapter));
+  await validateDatabaseSchema(asDatabase(adapter));
+
+  const version = adapter.db
+    .prepare('PRAGMA user_version')
+    .get() as { user_version: number };
+  const settings = adapter.db
+    .prepare(
+      `SELECT daily_word_limit, listening_default_rate
+       FROM app_settings
+       WHERE id = 1`,
+    )
+    .get() as {
+    daily_word_limit: number;
+    listening_default_rate: number;
+  };
+
+  assert.equal(version.user_version, 17);
+  assert.equal(settings.daily_word_limit, 10);
+  assert.equal(settings.listening_default_rate, 1);
 });
 
 test('rejects a database whose table columns drifted', async () => {

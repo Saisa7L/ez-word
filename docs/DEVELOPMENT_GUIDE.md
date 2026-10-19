@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-19 18:24
+最后更新：2026-10-19 18:26
 
 ## 环境
 
@@ -41,6 +41,8 @@ npx expo install <package>
 ```powershell
 npm run test:data
 ```
+
+测试运行在 Node 内置 SQLite 上，出现 `ExperimentalWarning: SQLite` 属于运行环境提示，不代表测试失败。
 
 禁止：
 
