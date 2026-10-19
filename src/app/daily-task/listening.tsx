@@ -26,17 +26,16 @@ import {
   resolveWrongBookRemoval,
 } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
-import { getTaskTitle } from '@/features/daily-task/taskPresentation';
+import {
+  formatListeningRate,
+  getTaskTitle,
+} from '@/features/daily-task/taskPresentation';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
 import { playWordSequence } from '@/services/speech';
-
-function formatSpeed(speed: number): string {
-  return Number.isInteger(speed) ? `${speed.toFixed(1)}x` : `${speed}x`;
-}
 
 export default function ListeningScreen() {
   const db = useSQLiteContext();
@@ -296,7 +295,9 @@ export default function ListeningScreen() {
             style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}
           >
             <Gauge color={colors.accentText} size={25} strokeWidth={2.2} />
-            <Text style={styles.speedText}>{formatSpeed(speed)}</Text>
+            <Text style={styles.speedText}>
+              {formatListeningRate(speed, true)}
+            </Text>
           </Pressable>
         </View>
 

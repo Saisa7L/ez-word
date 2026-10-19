@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-19 18:12
+最后更新：2026-10-19 18:15
 
 ## 使用方式
 
@@ -146,12 +146,16 @@
 - `pickWordCsvFile()`：文件选择和文本读取
 - `importWordCsv(db, content)`：解析后调用 `upsertWords`
 - `CsvValidationError`：文件级格式错误
+- `ImportFileCard`：文件信息和选择/导入按钮
+- `WordLibraryActions`：当前词库数量、查看和清空
+- `ImportInfoModal`：导入说明弹窗
 
 ### daily-task
 
 - `buildClozeSentence(sentence, word)`：生成可填空句子
 - `buildDailyTaskQuestions(words)`：生成题目快照
 - `getTaskTitle(mode)`：统一任务标题
+- `formatListeningRate(rate, fixedInteger)`：统一听力速度显示
 - `DailyTaskProvider`：当前任务运行态
 
 ### ai

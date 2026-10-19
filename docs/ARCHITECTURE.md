@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-19 18:12
+最后更新：2026-10-19 18:15
 
 ## 架构概览
 
@@ -45,7 +45,7 @@ RootLayout
 | 模块 | 作用 | 主要入口 |
 |---|---|---|
 | `features/daily-task` | 每日任务内存状态、题目生成、任务标题 | `DailyTaskProvider.tsx` |
-| `features/word-import` | CSV 选择、解析、校验和导入 | `importWordCsv.ts`、`csv.ts` |
+| `features/word-import` | CSV 选择、解析、校验、导入和页面区块 | `importWordCsv.ts`、`csv.ts`、`components/` |
 | `features/ai` | 批量生成并写入例句 | `generateWordExamples.ts` |
 | `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
 | `features/theme` | 运行时主题和动态样式 | `ThemeProvider.tsx` |

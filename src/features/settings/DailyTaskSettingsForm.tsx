@@ -19,6 +19,7 @@ import {
   REVIEW_WORD_LIMIT_MIN,
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
+import { formatListeningRate } from '@/features/daily-task/taskPresentation';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 import { SettingStepper } from './components/SettingStepper';
@@ -31,10 +32,6 @@ type DailyTaskSettingsFormProps = {
   onTestReminder: () => void;
   settings: DailyTaskSettings;
 };
-
-function formatRate(rate: number): string {
-  return `${rate}x`;
-}
 
 export function DailyTaskSettingsForm({
   onChange,
@@ -225,7 +222,7 @@ export function DailyTaskSettingsForm({
                   selected && styles.rateTextSelected,
                 ]}
               >
-                {formatRate(rate)}
+                {formatListeningRate(rate)}
               </Text>
             </Pressable>
           );

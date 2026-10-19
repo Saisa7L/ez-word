@@ -9,3 +9,12 @@ const TASK_TITLES: Record<DailyTaskMode, string> = {
 export function getTaskTitle(mode: DailyTaskMode): string {
   return TASK_TITLES[mode];
 }
+
+export function formatListeningRate(
+  rate: number,
+  fixedInteger = false,
+): string {
+  return fixedInteger && Number.isInteger(rate)
+    ? `${rate.toFixed(1)}x`
+    : `${rate}x`;
+}
