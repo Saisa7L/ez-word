@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-19
+最后更新：2026-10-19 17:09
 
 ## 架构概览
 
@@ -83,7 +83,31 @@ components → constants / hooks / utils
 2. 页面可以直接调用仓库。简单读取可保留，复杂流程应进入 `features` 或自定义 Hook。
 3. `archiveSnapshot.ts` 直接维护完整表结构，数据库字段变化时必须同步修改。
 4. `word-import` 同时包含文件选择和数据库入库，边界略混合。
-5. 多个列表页仍有相似的“加载、分页、批量选择”状态，可在后续批次评估抽取。
+5. 错题本、当前词库和添加错题已通过 `usePaginatedSelection` 统一分页和选择状态。
+
+## 目录速查
+
+```text
+src/
+├─ app/                 页面和路由
+├─ components/          通用 UI
+├─ components/icons/    代码 SVG 图标
+├─ constants/           主题、资源映射和固定配置
+├─ database/            SQLite 迁移和仓库
+├─ features/            业务流程
+│  ├─ ai/
+│  ├─ archive/
+│  ├─ daily-task/
+│  ├─ theme/
+│  └─ word-import/
+├─ hooks/               复用交互状态
+├─ services/            外部 I/O
+└─ utils/               无状态工具
+```
+
+资源目录和命名以 `docs/ASSETS.md` 为准，资源统一从 `src/constants/uiAssets.ts` 引用。
+
+完整文档索引见 `docs/README.md`。目录说明已合并到本文件。
 
 ## 整理原则
 

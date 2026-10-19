@@ -1,17 +1,11 @@
-# UI 结构与页面地图
+# UI 与页面地图
 
-最后更新：2026-10-16
-
-图片来源：
-
-```text
-F:\English vocabulary app\ui\生成后的图片
-```
+最后更新：2026-10-19 17:09
 
 ## 导航结构
 
 ```text
-底部导航
+底部 Tab
 ├─ 首页
 │  ├─ 每日任务
 │  │  ├─ 任务开始
@@ -22,105 +16,74 @@ F:\English vocabulary app\ui\生成后的图片
 │  ├─ 错题回顾
 │  └─ 单词再练
 ├─ 错题本
+│  └─ 添加错题
 └─ 我的
-   ├─ 更换头像
-   ├─ 修改每日任务
+   ├─ 个人资料
+   ├─ 通用设置
+   ├─ 主题外观
    ├─ 导入单词
-   │  └─ 导入成功
+   │  └─ 当前词库
+   │     └─ 添加单词
+   ├─ 本地存档
    ├─ AI 设置
    └─ 关于
 ```
 
-## 已提供页面
+## 页面与路由
 
-| 编号 | 图片文件 | 建议路由 | 作用 | 状态 |
-|---|---|---|---|---|
-| A01 | `A01-home.png` | `src/app/(tabs)/index.tsx` | 首页、学习统计和三个快捷入口，绿色小恐龙是用户头像 | UI 已提供 |
-| A02 | `A02-settings.png` | `src/app/(tabs)/settings.tsx` | 我的、设置和子功能入口 | UI 已提供 |
-| A03 | `A03-wrong-book.png` | `src/app/(tabs)/wrong-book.tsx` | 错题本列表、分页、添加和移除 | UI 和交互已确认 |
-| A04 | `A04-daily-task-start.png` | `src/app/daily-task/index.tsx` | 每日任务开始页 | UI 已提供 |
-| A05 | `A05-daily-task-learn-word.png` | `src/app/daily-task/learn.tsx` | 认识单词，不显示例句 | UI 和内容位置已确认 |
-| A06 | `A06-daily-task-fill-in-blank.png` | `src/app/daily-task/fill-blank.tsx` | 使用 AI 例句做选词填空 | UI 已提供 |
-| A07 | `A07-daily-task-listening.png` | `src/app/daily-task/listening.tsx` | 一次播放全部单词并完成听写 | UI 已提供 |
-| A08 | `A08-daily-task-complete.png` | `src/app/daily-task/complete.tsx` | 每日任务完成和统计 | UI 已提供 |
-| M01 | `10-daily-task-exit-confirm.png` | 全局任务退出弹窗 | 退出每日任务确认 | UI 已提供 |
-| A11 | `A11-setting-import.png` | `src/app/settings/import.tsx` | 选择 CSV、开始导入 | UI 已提供 |
-| M02 | `A12-setting-import-confirm.png` | 导入成功弹窗 | 导入成功确认 | UI 已提供 |
-| 标注 | `A11-setting-import-explain.png` | 无独立路由 | A11 的交互标注图 | 不是新页面 |
-
-## 建议组件
-
-| 组件 | 使用位置 |
-|---|---|
-| 底部导航栏 | A01、A02、A03 |
-| 顶部标题栏 | A02、A03、A04 至 A08、A11 |
-| 统计卡片 | A01、A08 |
-| 功能入口卡片 | A01、A02 |
-| 单词卡片 | A05 |
-| 音频播放器 | A07 |
-| 主按钮和次按钮 | 全部页面 |
-| 确认弹窗 | 任务退出、导入成功 |
-| 分页控件 | A03 |
-| 进度条 | A05、A07 |
-
-## UI 缺口
-
-| 缺口 | 影响 |
-|---|---|
-| AI 设置页 | 无法填写 DeepSeek API Key |
-| 修改每日任务页 | 无法设置每天单词数量 |
-| 导入失败和导入中状态 | 导入过程反馈不完整 |
-| 定时复习页面 | 每三次打卡后的复习流程没有设计图 |
-| AI 单词问答入口 | 已确认不实现 |
-| 填空阶段的 AI 例句规则 | 在 A06 开发前确定生成和判分细节 |
-| 空数据状态 | 没有单词或错题时缺少页面 |
-| 加载和网络错误状态 | AI、导入和数据库失败时缺少页面 |
-| 关于页 | A02 有入口但没有页面 |
-| 头像更换流程 | 第一版为单机单用户，可能暂时不需要 |
-
-## 已确认的 UI 行为
-
-| 页面 | 已确认内容 |
-|---|---|
-| A01 今日任务 | 打开每日任务流程 |
-| A01 错题回顾 | 打开错题再练流程 |
-| A01 单词再练 | 打开复习流程 |
-| A05 认识单词 | 不显示例句；翻译显示在单词和音标之间 |
-| A07 听力测试 | 一次播放全部单词；播放细节在 A07 开发前确定 |
-| A03 添加 | 从 CSV 已有单词中选择并加入错题本 |
-| A03 移除 | 将选中的单词移出错题本 |
-| A03 手动添加 | 允许 |
-| A03 每页数量 | 设计图为 4 个，UI 开发时改为 5 个 |
-| A02 更换头像、修改每日任务、关于 | 第一版保留入口，基础页面阶段先做占位 |
-
-如果 UI 图片中有未识别清楚的元素，用户会在对应功能开发时提供带中文标注的图片。
-
-F1 所需头像、图标和字体清单见 `docs/ASSET_REQUIREMENTS.md`。
-
-## 修正后的 F 阶段顺序
-
-| 顺序 | 任务 | 原因 |
+| 页面 | 路由 | 主要职责 |
 |---|---|---|
-| F1 | 基础 UI、底部导航、A01、A02、A03 静态页面 | 已完成并通过真机验证 |
-| F2 | 导入页面 A11、成功弹窗 M02，连接已完成的 CSV 和 SQLite 核心 | 已完成并通过真机验证 |
-| F3 | 每日任务 A04 至 A08 和退出弹窗 M01 | 已完成并通过真机验收，见 `F3_STATUS.md` |
-| F4 | 数据基础、每日任务设置页和未学单词选择 | 已完成并通过真机验收，见 `F4_STATUS.md` |
-| F5 | 每日任务学习闭环 | 已完成并通过真机验收，见 `F5_STATUS.md` |
-| F6 | 词库清空与重新导入 | 已完成并通过真机验收，见 `F6_STATUS.md` |
-| F7 | 错题本真实数据、添加、移除和再练 | 已完成并通过真机验收，见 `F7_STATUS.md` |
-| F8 | 学习天数、首页真实统计、定时复习和本地提醒 | 已完成并通过真机验收，见 `F8_STATUS.md` |
-| F9 | AI 设置与本地例句生成 | 已完成并通过真机验收，见 `F9_STATUS.md` |
-| F10 | 视觉校正、加载、失败和空数据状态 | 已完成并通过真机验收，见 `F10_STATUS.md` |
+| 首页 | `src/app/(tabs)/index.tsx` | 统计、头像、复习提醒、三个任务入口 |
+| 错题本 | `src/app/(tabs)/wrong-book.tsx` | 错题分页、多选、移除 |
+| 我的 | `src/app/(tabs)/settings.tsx` | 资料和各设置入口 |
+| 每日任务开始 | `src/app/daily-task/index.tsx` | 读取设置和未学单词 |
+| 认识单词 | `src/app/daily-task/learn.tsx` | 单词、释义、音标、发音 |
+| 选词填空 | `src/app/daily-task/fill-blank.tsx` | 例句填空、错误记录 |
+| 听力测试 | `src/app/daily-task/listening.tsx` | TTS 播放、听写、完成记录 |
+| 任务完成 | `src/app/daily-task/complete.tsx` | 任务统计和返回首页 |
+| 错题回顾 | `src/app/wrong-book/review.tsx` | 错题开始页和任务初始化 |
+| 添加错题 | `src/app/wrong-book/add.tsx` | 词库选择、手动输入 |
+| 单词再练 | `src/app/review/index.tsx` | 复习范围和任务初始化 |
+| 个人资料 | `src/app/settings/profile.tsx` | 名片、头像、背景、字色和描边 |
+| 通用设置 | `src/app/settings/daily-task.tsx` | 学习、听力、复习和提醒配置 |
+| 主题外观 | `src/app/settings/theme.tsx` | 日间、夜间、自定义主题 |
+| 导入单词 | `src/app/settings/import.tsx` | CSV 导入、说明和词库清空 |
+| 当前词库 | `src/app/settings/word-library.tsx` | 分页、状态修改和软移除 |
+| 添加单词 | `src/app/settings/word-library/add.tsx` | 手动添加单词 |
+| 本地存档 | `src/app/settings/archive.tsx` | 导出和恢复 JSON 存档 |
+| AI 设置 | `src/app/settings/ai.tsx` | Key、连接测试和例句生成 |
+| 关于 | `src/app/settings/about.tsx` | 名称、版本、链接和隐私说明 |
 
-F1 核心数据层已经完成，不会被丢弃，只是从“第一个可见页面”改为在 F2 接入导入 UI。
+## 全局组件
 
-## 后续本地化阶段
+| 组件 | 作用 |
+|---|---|
+| `GreenSheetScreen` | 固定主题头部和页面滚动容器 |
+| `SurfaceCard` | 主题化卡片表面 |
+| `ActionOptionModal` | 通用操作/提示弹层 |
+| `AppFeedbackProvider` | 全局提示和确认 |
+| `ExitTaskModal` | 任务退出确认 |
+| `TaskErrorModal` | 任务错误确认 |
+| `PaginationBar` | 页码和前后页 |
+| `ScrollIndicator` | 自定义滚动条 |
+| `ColorPalette` | 全彩调色盘和 HEX/RGB 输入 |
+| `OutlinedText` | 个人名片描边文字 |
 
-| 阶段 | 内容 | 状态 |
-|---|---|---|
-| P1 | 本地存档导入导出、用户名数据结构、我的页面卷轴布局 | 已完成 |
-| P2 | 个人资料名片页、系统裁剪和名片图片保存 | 已完成并通过真机验收 |
-| P3 | 关于页 | 已完成并通过真机验收 |
-| P4 | 个人资料、关于页和存档联合验收 | 已完成并通过真机验收 |
-| P5 | 日间、夜间、自定义主题和错题素材修复 | 已按当前实现收口并提交 |
-| P6 | 代码与文档整理、架构和数据流梳理 | 下一阶段 |
+## 已确认行为
+
+- 首页绿色恐龙是用户头像，不是吉祥物。
+- 选词填空和听力分别随机排序，单次任务内顺序稳定。
+- 认识单词页不显示例句，翻译位于单词和音标之间。
+- 听力一次播放全部单词，每词朗读两遍。
+- 填空和听写出错都会进入错题本。
+- 错题本和当前词库每页 5 条，支持跨页多选。
+- 每日任务完成才增加学习天数和打卡。
+- 错题回顾复用完整任务流程；单词再练跳过认识单词。
+- 复习提醒为 App 内弹层，不使用系统通知。
+- 所有系统 `Alert` 已替换为 App 内反馈。
+
+## 资源和主题
+
+- 页面资源目录和命名见 `docs/ASSETS.md`。
+- 主题令牌和页面颜色规则见 `docs/THEME_GUIDE.md`。
+- 原 Figma 生成图位于 `F:\English vocabulary app\ui\生成后的图片`，仅作为设计参考。

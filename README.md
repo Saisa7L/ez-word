@@ -1,5 +1,7 @@
 # English Vocabulary App
 
+最后更新：2026-10-19 17:09
+
 面向大学生记忆英语单词的 Android App。
 
 ## 当前状态
@@ -31,7 +33,7 @@ npm run lint
 
 ## 目录说明
 
-详细说明见 `docs/PROJECT_STRUCTURE.md`。
+完整文档索引见 `docs/README.md`，代码结构和模块边界见 `docs/ARCHITECTURE.md`。
 
 ## 安全规则
 

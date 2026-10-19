@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { f3Assets } from '@/constants/f3Assets';
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import { getDailyTaskSettings } from '@/database/settingsRepository';
 import { listAllWrongBookWords } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
@@ -105,7 +105,7 @@ export default function WrongBookReviewStartScreen() {
       <View style={styles.content}>
         <Image
           resizeMode="contain"
-          source={f3Assets.wrongReviewStart}
+          source={uiAssets.wrongBook.reviewStart}
           style={styles.illustration}
         />
         {wrongCount === null ? (

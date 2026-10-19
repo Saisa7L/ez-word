@@ -7,10 +7,10 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { SettingsRow } from '@/components/SettingsRow';
 import { ArchiveIcon } from '@/components/icons/ArchiveIcon';
-import { f1Assets } from '@/constants/f1Assets';
 import {
   type ThemeColors,
 } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import { getUserProfile } from '@/database/userProfileRepository';
 import {
   useAppTheme,
@@ -47,7 +47,7 @@ export default function SettingsScreen() {
 
   const avatarSource = avatarData
     ? { uri: avatarData }
-    : f1Assets.avatarUser;
+    : uiAssets.avatars.user;
 
   return (
     <GreenSheetScreen title="我的">
@@ -63,7 +63,7 @@ export default function SettingsScreen() {
           >
             <SettingsRow
               backgroundColor={colors.pinkSoft}
-              icon={f1Assets.settingsAvatar}
+              icon={uiAssets.settings.camera}
               iconColor={colors.pink}
               label="个人资料"
               hideChevron
@@ -80,7 +80,7 @@ export default function SettingsScreen() {
 
           <SettingsRow
             backgroundColor={colors.orangeSoft}
-            icon={f1Assets.settingsDailyGoal}
+            icon={uiAssets.settings.dailyTask}
             iconColor={colors.orange}
             label="通用设置"
             onPress={() => router.push('/settings/daily-task')}
@@ -94,7 +94,7 @@ export default function SettingsScreen() {
           />
           <SettingsRow
             backgroundColor={colors.graySoft}
-            icon={f1Assets.settingsImport}
+            icon={uiAssets.settings.import}
             iconColor={colors.accentText}
             label="导入单词"
             onPress={() => router.push('/settings/import')}
@@ -108,14 +108,14 @@ export default function SettingsScreen() {
           />
           <SettingsRow
             backgroundColor={colors.blueSoft}
-            icon={f1Assets.settingsAi}
+            icon={uiAssets.settings.ai}
             iconColor={colors.blue}
             label="AI 设置"
             onPress={() => router.push('/settings/ai')}
           />
           <SettingsRow
             backgroundColor={colors.graySoft}
-            icon={f1Assets.settingsAbout}
+            icon={uiAssets.settings.about}
             iconColor={colors.slate}
             label="关于"
             last

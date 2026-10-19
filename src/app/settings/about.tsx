@@ -31,6 +31,7 @@ import {
   IS_GITHUB_CONFIGURED,
 } from '@/constants/appInfo';
 import { radii, type ThemeColors } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import {
   useAppTheme,
   useThemedStyles,
@@ -127,7 +128,7 @@ export default function AboutScreen() {
           <View style={styles.appIconBox}>
             <Image
               resizeMode="contain"
-              source={require('../../../assets/icon.png')}
+              source={uiAssets.app.icon}
               style={styles.appIcon}
             />
           </View>

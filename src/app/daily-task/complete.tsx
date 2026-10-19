@@ -4,8 +4,8 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SurfaceCard } from '@/components/SurfaceCard';
-import { f3Assets } from '@/constants/f3Assets';
 import { shadow, type ThemeColors } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
 import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import {
@@ -69,7 +69,7 @@ export default function DailyTaskCompleteScreen() {
 
       <View style={styles.content}>
         <Text style={styles.title}>完成</Text>
-        <Image source={f3Assets.taskComplete} style={styles.illustration} />
+        <Image source={uiAssets.dailyTask.complete} style={styles.illustration} />
 
         <SurfaceCard style={styles.summaryCard}>
           <View style={styles.summaryRow}>

@@ -1,107 +1,50 @@
-# 当前窗口交接文档
+# 当前交接
 
-最后更新：2026-10-19
+最后更新：2026-10-19 17:09
 
-## 项目
+## 当前状态
 
-- 名称：易词通（Ez Word）
-- 路径：`F:\English vocabulary app\Project\vocab-app`
 - 分支：`main`
-- 已提交基线：以 `git log -1` 为准
-- 当前阶段：P6 代码与文档整理正在进行，第一批架构和数据流文档已完成
+- 当前阶段：P6 代码与文档整理
+- P5：已按当前实现收口，不再返工视觉问题
+- P6：已完成架构、数据流、数据库文档和两批代码去重
+- 当前工作：已完成文档合并、UI 资源重组和列表状态复用，下一步拆分大页面
+- P6 不包含 EAS、APK、签名和发布
 
-## 重要 Git 状态
-
-P5 的全部代码、素材和文档已经提交。用户确认不再继续修正剩余视觉问题，按当前实现结束 P5。
-
-新窗口第一件事必须运行：
+## 接手先做
 
 ```powershell
+Set-Location 'F:\English vocabulary app\Project\vocab-app'
 git status --short --branch
 git log --oneline --decorate -5
 ```
 
-不要重新打开 P5 已收口的视觉问题，除非用户明确要求返工。
+然后读取：
 
-## P5 当前完成内容
+1. `docs/README.md`
+2. `docs/PROJECT_CONTEXT.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/DATA_FLOW.md`
+5. `docs/DATABASE.md`
+6. `docs/P6_PROGRESS.md`
 
-- 日间主题：纯白 `#FFFFFF` 主题色、白色卡片、灰色背景、黑色按钮文字
-- 夜间主题：`#3D3D3D` 主题色、灰色卡片、黑色背景、白色按钮文字
-- 自定义主题：在日间模式基础上只修改主题色
-- 全部页面、Tab、卷轴、卡片、弹窗、输入区和错误页接入动态主题
-- 主题设置保存到 SQLite v17，并纳入本地存档
-- 调色盘使用显示区域局部触摸，拖动时暂停页面滚动
-- 调色盘支持 `#RRGGBB` 和 `255,255,255` 输入
-- 导入页右上角新增 `信息.svg` 说明按钮和日夜适配弹窗
-- 错题回顾图片使用 `f3-wrong-answer-kids-question.png`
-- 新应用图标用于关于页、App 图标、自适应图标、启动页和 favicon
-- 日间灰色按钮、绿色导入/退出确认按钮和听力黑色进度条
-- VS Code 配置和调试说明已完成
+## 当前规则
 
-## 颜色规则
+- 不重新设计已收口的 P5 主题 UI。
+- 不新增业务功能。
+- 不进行打包、签名或发布。
+- 每次只整理一个明确边界。
+- 改完运行 `npm run typecheck`、`npm run lint` 和 Android 离线导出。
+- 稳定后按批次提交 Git。
 
-详细分类见：
+## P6 剩余重点
 
-```text
-docs/THEME_COLOR_INVENTORY.md
-```
+1. 拆分个人资料、通用设置和 AI 设置中的大页面。
+2. 整理剩余展示辅助函数和重复样式。
+3. 评估存档表结构与数据库 schema 的共享方式。
+4. 完成文档和资源引用的最终一致性检查。
 
-当前关键规则：
-
-- 普通控件前景使用 `colors.accentText`
-- 首页“今日任务”和“我的 → 导入单词”图标底板使用 `colors.graySoft`，不随自定义主题色推导
-- 关于页应用图标底板、检查更新、AI 密钥图标和底板使用 `colors.graySoft/accentText`
-- 导入页文件图标继续使用固定默认绿配色
-- 日间普通主操作按钮使用 `colors.graySoft` 底板和 `colors.accentText` 前景
-- “开始导入”和任务退出确认弹层的“是”使用 `DEFAULT_GREEN`
-- 听力测试进度条使用 `colors.accentText`，日间为黑色、夜间为白色
-- 个人名片颜色继续独立配置
-
-## 验证状态
-
-已通过：
-
-- `npm run typecheck`
-- `npm run lint`
-- `npx expo-doctor`，21/21
-- Android 离线导出
-- 数据库 v16 → v17 主题迁移
-- v10-v16 旧存档兼容
-- 主题存档恢复
-
-## 用户验收结论
-
-- 用户确认当前实现可以接受，不再继续处理剩余颜色和视觉问题
-- P5 按当前状态视为完成，不阻塞进入 P6
-- 若后续整理时改动主题代码，只要求不引入新的回归，不重新设计 UI
-
-## P6 计划
-
-已完成第一批：
-
-1. 建立 `docs/ARCHITECTURE.md`
-2. 建立 `docs/DATA_FLOW.md`
-3. 建立 `docs/DATABASE.md`
-4. 修正 `docs/PROJECT_STRUCTURE.md`
-5. 抽离日期、分页和任务标题的重复逻辑
-
-下一批优先处理：
-
-1. 超大设置页面的区块拆分
-2. 列表页加载、分页和选择状态复用
-3. 剩余展示辅助函数整理
-4. 存档表结构与数据库 schema 的关系
-5. 重复样式和未使用导出继续检查
-
-第二批已完成：
-
-- 单词批量导入和单条添加共用写入逻辑
-- 错题追加、答错记录和状态切换共用写库逻辑
-- 删除五个无引用仓库/导航导出
-
-P6 不包含打包、签名、APK 和发布工作。详细进度见 `docs/P6_PROGRESS.md`。
-
-## 可直接粘贴到新窗口
+## 新窗口提示
 
 ```text
 你现在接手《易词通（Ez Word）》项目。
@@ -109,25 +52,15 @@ P6 不包含打包、签名、APK 和发布工作。详细进度见 `docs/P6_PRO
 项目路径：
 F:\English vocabulary app\Project\vocab-app
 
-请先不要修改代码。先读取：
-1. docs/CURRENT_HANDOFF.md
-2. docs/PROJECT_CONTEXT.md
-3. docs/P5_PROGRESS.md
-4. docs/THEME_COLOR_INVENTORY.md
-5. docs/VSCODE_SETUP.md
-6. docs/UI_MAP.md
+请先读取 docs/README.md、CURRENT_HANDOFF.md、PROJECT_CONTEXT.md、
+ARCHITECTURE.md、DATA_FLOW.md、DATABASE.md 和 P6_PROGRESS.md。
 
 然后运行：
 git status --short --branch
 git log --oneline --decorate -5
 
-P5 已按当前实现收口并提交，进入 P6 代码与文档整理阶段。
+当前处于 P6 代码与文档整理阶段。不要重新设计 P5 主题 UI，
+不要进入 EAS、APK、签名和发布流程，不要回滚用户已有修改。
 
-请先用中文告诉我：
-1. 当前实际 Git 状态
-2. P5 已收口范围和当前代码结构
-3. P6 应优先整理哪些重复代码和文档
-4. 当前数据流是否还有未记录的入口
-
-不要重新设计已经收口的主题 UI，不要进入打包和发布流程。
+请先说明当前状态、P6 剩余任务和下一步最小改动。
 ```

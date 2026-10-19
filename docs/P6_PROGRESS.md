@@ -1,6 +1,6 @@
 # P6 代码与文档整理进度
 
-最后更新：2026-10-19
+最后更新：2026-10-19 17:09
 
 ## 当前状态
 
@@ -26,7 +26,7 @@ P6 不新增业务功能，也不进行打包和发布。目标是把现有代�
 | 2 | 梳理页面与状态数据流 | 已完成 | 主要流程能按“入口 → 状态 → 数据库 → 页面结果”追踪 |
 | 3 | 整理重复代码和命名 | 进行中 | 明显重复的样式、格式化函数和组件用法有统一方案 |
 | 4 | 整理数据库文档 | 已完成 | 表、迁移版本、读写仓库和存档关系可查 |
-| 5 | 整理项目文档 | 进行中 | 根目录文档与实际代码结构一致 |
+| 5 | 整理项目文档 | 已完成 | 根目录文档与实际代码结构一致 |
 | 6 | 完整回归检查 | 待最终执行 | `npm run typecheck`、`npm run lint` 和 Android 离线导出通过 |
 
 ## 第一批完成内容
@@ -34,7 +34,7 @@ P6 不新增业务功能，也不进行打包和发布。目标是把现有代�
 - 新增 `docs/ARCHITECTURE.md`，记录启动层级、分层职责、状态归属和依赖方向
 - 新增 `docs/DATA_FLOW.md`，记录首页、每日任务、错题回顾、单词再练、导入、AI、主题、资料和存档流程
 - 新增 `docs/DATABASE.md`，记录 v17 表结构、状态不变量、迁移历史、仓库和存档映射
-- 更新 `docs/PROJECT_STRUCTURE.md`，删除不存在的 `features/wrong-book`、`features/review` 和 `src/types`
+- 修正项目目录说明，删除不存在的 `features/wrong-book`、`features/review` 和 `src/types`
 - 抽离 `src/utils/date.ts`，合并两处本地日期格式化
 - 抽离 `src/utils/pagination.ts`，统一三个分页页面的总数和末页计算
 - 抽离 `features/daily-task/taskPresentation.ts`，统一三种任务标题
@@ -47,13 +47,33 @@ P6 不新增业务功能，也不进行打包和发布。目标是把现有代�
 - 保持错题首次加入、答错次数递增、来源合并和学习状态同步的原有语义
 - 删除确认无引用的 `getWordCount`、`listWords`、`updateDisplayName`、`countReviewWords` 和 `returnToDailyTaskStart`
 
+## 第三批完成内容
+
+- 将 26 份 Markdown 收敛为 13 份主文档和索引
+- 合并 CSV 导入格式到 `docs/REQUIREMENTS.md`
+- 合并资源规范到 `docs/ASSETS.md`
+- 合并主题清单到 `docs/THEME_GUIDE.md`
+- 合并 Git、VS Code 和工作流到 `docs/DEVELOPMENT_GUIDE.md`
+- 合并 F3-F10、P1-P6 状态到 `docs/PHASE_HISTORY.md`
+- 合并新窗口提示到 `docs/CURRENT_HANDOFF.md`
+- UI 资源按页面重组到 `assets/ui/*`
+- App 图标和启动资源移动到 `assets/app/*`
+- 新增统一资源映射 `src/constants/uiAssets.ts`
+- 删除重复错题图片和 4 个未引用 SVG
+
+## 第四批完成内容
+
+- 新增 `src/hooks/usePaginatedSelection.ts`
+- 错题本、当前词库和添加错题统一使用分页、总数、加载、交叉页选择和重新加载状态
+- 增加请求序号保护，避免快速翻页或离开页面后的旧请求覆盖新状态
+- 页面只保留各自的查询函数和业务操作
+
 ## 下一批候选
 
 1. 评估个人资料页、通用设置页和 AI 设置页的可拆分区块
-2. 统一列表页的分页、加载和选择状态模式
-3. 整理听力速度、任务模式文案等剩余展示辅助函数
-4. 评估 `archiveSnapshot.ts` 的表结构定义是否可以与数据库 schema 共享
-5. 继续检查未使用导出、重复样式和过长页面
+2. 整理听力速度和任务模式文案等剩余展示辅助函数
+3. 评估 `archiveSnapshot.ts` 的表结构定义是否可以与数据库 schema 共享
+4. 继续检查未使用导出、重复样式和过长页面
 
 ## 重点流程
 

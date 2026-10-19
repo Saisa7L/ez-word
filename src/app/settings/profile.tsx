@@ -27,7 +27,6 @@ import {
   BookStatIcon,
   CalendarStatIcon,
 } from '@/components/icons/ProfileStatIcons';
-import { f1Assets } from '@/constants/f1Assets';
 import {
   DEFAULT_PROFILE_CARD_CONTENT_COLOR,
   DEFAULT_PROFILE_TEXT_STROKE_COLOR,
@@ -40,6 +39,7 @@ import {
   spacing,
   type ThemeColors,
 } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import { getHomeStats, type HomeStats } from '@/database/statsRepository';
 import {
   getUserProfile,
@@ -286,7 +286,7 @@ export default function ProfileScreen() {
 
   const avatarSource = avatarData
     ? { uri: avatarData }
-    : f1Assets.avatarUser;
+    : uiAssets.avatars.user;
   const displayNameLines = splitDisplayName(displayName);
 
   return (
@@ -321,7 +321,7 @@ export default function ProfileScreen() {
                     ]}
                   >
                     <Image
-                      source={f1Assets.settingsAvatar}
+                      source={uiAssets.settings.camera}
                       style={[
                         styles.cameraIcon,
                         { tintColor: cardContentColor },

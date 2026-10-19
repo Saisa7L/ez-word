@@ -6,13 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { HomeActionCard } from '@/components/HomeActionCard';
-import { f1Assets } from '@/constants/f1Assets';
 import {
   radii,
   shadow,
   spacing,
   type ThemeColors,
 } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import {
   getHomeStats,
   getLastReviewPromptStudyDay,
@@ -89,7 +89,7 @@ export default function HomeScreen() {
   ];
   const avatarSource = avatarData
     ? { uri: avatarData }
-    : f1Assets.avatarDinosaur;
+    : uiAssets.avatars.dinosaur;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
@@ -130,21 +130,21 @@ export default function HomeScreen() {
         <View style={styles.actions}>
           <HomeActionCard
             backgroundColor={colors.graySoft}
-            icon={f1Assets.homeCalendar}
+            icon={uiAssets.home.task}
             iconColor={colors.accentText}
             onPress={() => router.push('/daily-task')}
             title="今日任务"
           />
           <HomeActionCard
             backgroundColor={colors.orangeSoft}
-            icon={f1Assets.homeWrongReview}
+            icon={uiAssets.home.wrongReview}
             iconColor={colors.orange}
             onPress={() => router.push('/wrong-book/review')}
             title="错题回顾"
           />
           <HomeActionCard
             backgroundColor={colors.blueSoft}
-            icon={f1Assets.homeWordPractice}
+            icon={uiAssets.home.wordPractice}
             iconColor={colors.blue}
             onPress={() => router.push('/review')}
             title="单词再练"

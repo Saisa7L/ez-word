@@ -7,8 +7,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { f1Assets } from '@/constants/f1Assets';
 import type { ThemeColors } from '@/constants/theme';
+import { uiAssets } from '@/constants/uiAssets';
 import {
   useAppTheme,
   useThemedStyles,
@@ -51,21 +51,27 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: '首页',
-          tabBarIcon: ({ color }) => <TabIcon color={color} source={f1Assets.tabHome} />,
+          tabBarIcon: ({ color }) => (
+            <TabIcon color={color} source={uiAssets.navigation.home} />
+          ),
         }}
       />
       <Tabs.Screen
         name="wrong-book"
         options={{
           title: '错题本',
-          tabBarIcon: ({ color }) => <TabIcon color={color} source={f1Assets.tabWrongBook} />,
+          tabBarIcon: ({ color }) => (
+            <TabIcon color={color} source={uiAssets.navigation.wrongBook} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: '我的',
-          tabBarIcon: ({ color }) => <TabIcon color={color} source={f1Assets.tabProfile} />,
+          tabBarIcon: ({ color }) => (
+            <TabIcon color={color} source={uiAssets.navigation.settings} />
+          ),
         }}
       />
     </Tabs>
