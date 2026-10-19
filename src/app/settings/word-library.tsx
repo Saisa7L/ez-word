@@ -31,6 +31,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { getLastPageIndex, getPageCount } from '@/utils/pagination';
 
 const PAGE_SIZE = 5;
 
@@ -61,7 +62,7 @@ export default function WordLibraryScreen() {
         getActiveWordCount(db),
         listActiveWords(db, PAGE_SIZE, pageIndex * PAGE_SIZE),
       ]);
-      const lastPage = Math.max(0, Math.ceil(count / PAGE_SIZE) - 1);
+      const lastPage = getLastPageIndex(count, PAGE_SIZE);
       if (pageIndex > lastPage) {
         setPageIndex(lastPage);
         return;
@@ -83,7 +84,7 @@ export default function WordLibraryScreen() {
     }, [loadCurrentPage]),
   );
 
-  const pageCount = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const pageCount = getPageCount(totalCount, PAGE_SIZE);
 
   function toggleSelection(wordId: number) {
     setSelectedIds((current) => {

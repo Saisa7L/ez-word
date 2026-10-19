@@ -18,6 +18,7 @@ import {
   type ThemeColors,
 } from '@/constants/theme';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import {
   useAppTheme,
@@ -44,8 +45,7 @@ export default function LearnWordsScreen() {
   const word = words[index];
   const progress = ((index + 1) / words.length) * 100;
   const isLast = index === words.length - 1;
-  const taskTitle =
-    taskMode === 'wrongReview' ? '错题回顾' : '每日任务';
+  const taskTitle = getTaskTitle(taskMode);
 
   function speakWord() {
     void Speech.stop();

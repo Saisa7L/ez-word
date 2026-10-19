@@ -8,7 +8,7 @@
 - 路径：`F:\English vocabulary app\Project\vocab-app`
 - 分支：`main`
 - 已提交基线：以 `git log -1` 为准
-- 当前阶段：P5 已按当前实现收口并提交，下一阶段为 P6 代码与文档整理
+- 当前阶段：P6 代码与文档整理正在进行，第一批架构和数据流文档已完成
 
 ## 重要 Git 状态
 
@@ -77,14 +77,23 @@ docs/THEME_COLOR_INVENTORY.md
 
 ## P6 计划
 
-1. 梳理 `src/app`、`src/components`、`src/features`、`src/database`、`src/services` 的职责边界
-2. 整理代码：去重、消除失效代码、统一命名、拆分过长页面和重复主题样式
-3. 梳理数据流：页面入口、状态来源、SQLite 读写、主题 Provider、存档导入导出
-4. 整理文档：项目结构、模块职责、数据流、数据库表、页面清单和交接说明
-5. 保持 `npm run typecheck` 和 `npm run lint` 通过
-6. P6 不包含打包、签名、APK 和发布工作
+已完成第一批：
 
-详细说明见 `docs/P6_PROGRESS.md`。
+1. 建立 `docs/ARCHITECTURE.md`
+2. 建立 `docs/DATA_FLOW.md`
+3. 建立 `docs/DATABASE.md`
+4. 修正 `docs/PROJECT_STRUCTURE.md`
+5. 抽离日期、分页和任务标题的重复逻辑
+
+下一批优先处理：
+
+1. 错题追加和学习状态中的重复事务代码
+2. 单词批量导入和单条添加中的重复写入代码
+3. 超大设置页面的区块拆分
+4. 列表页加载、分页和选择状态复用
+5. 未使用导出清理
+
+P6 不包含打包、签名、APK 和发布工作。详细进度见 `docs/P6_PROGRESS.md`。
 
 ## 可直接粘贴到新窗口
 

@@ -19,6 +19,9 @@
 10. F:\English vocabulary app\Project\vocab-app\docs\CURRENT_HANDOFF.md
 11. F:\English vocabulary app\Project\vocab-app\docs\P5_PROGRESS.md
 12. F:\English vocabulary app\Project\vocab-app\docs\P6_PROGRESS.md
+13. F:\English vocabulary app\Project\vocab-app\docs\ARCHITECTURE.md
+14. F:\English vocabulary app\Project\vocab-app\docs\DATA_FLOW.md
+15. F:\English vocabulary app\Project\vocab-app\docs\DATABASE.md
 
 同时运行：
 

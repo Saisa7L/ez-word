@@ -7,6 +7,7 @@ import { SurfaceCard } from '@/components/SurfaceCard';
 import { f3Assets } from '@/constants/f3Assets';
 import { shadow, type ThemeColors } from '@/constants/theme';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import {
   useAppTheme,
   useThemedStyles,
@@ -33,12 +34,7 @@ export default function DailyTaskCompleteScreen() {
     wrongWordIds,
   } = useDailyTask();
   const navigation = useNavigation<AppNavigation>('/');
-  const taskTitle =
-    taskMode === 'wrongReview'
-      ? '错题回顾'
-      : taskMode === 'wordReview'
-        ? '单词再练'
-        : '每日任务';
+  const taskTitle = getTaskTitle(taskMode);
   const learnedLabel =
     taskMode === 'daily'
       ? '本次学习单词'

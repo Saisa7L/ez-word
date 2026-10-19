@@ -24,6 +24,7 @@ import {
 } from '@/constants/theme';
 import { recordWrongWords } from '@/database/wrongBookRepository';
 import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import {
   useAppTheme,
@@ -79,12 +80,7 @@ export default function FillBlankScreen() {
 
   const allAnswered = words.every((word) => fillAnswers[word.id] !== undefined);
   const pageWords = wordPages[wordPageIndex] ?? [];
-  const taskTitle =
-    taskMode === 'wrongReview'
-      ? '错题回顾'
-      : taskMode === 'wordReview'
-        ? '单词再练'
-        : '每日任务';
+  const taskTitle = getTaskTitle(taskMode);
 
   function handleBlankPress(questionWordId: number) {
     if (fillAnswers[questionWordId] !== undefined) {

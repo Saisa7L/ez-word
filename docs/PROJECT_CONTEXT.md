@@ -13,7 +13,7 @@
 | 项目路径 | `F:\English vocabulary app\Project\vocab-app` |
 | Git 分支 | `main` |
 | 最新功能提交 | 以 `git log -1` 为准 |
-| 当前阶段 | P6 代码与文档整理、架构和数据流梳理 |
+| 当前阶段 | P6 代码与文档整理，第一批架构、数据流和数据库文档已完成 |
 
 ## 技术栈
 
@@ -111,6 +111,13 @@
 - P6 文档、项目结构和页面清单整理
 - P6 页面入口、状态来源、SQLite 读写、主题和存档数据流梳理
 - P6 不包含 EAS、APK、签名和发布工作
+
+P6 当前基准文档：
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATA_FLOW.md`
+- `docs/DATABASE.md`
+- `docs/P6_PROGRESS.md`
 
 ## F1 资源决定
 

@@ -260,9 +260,7 @@ function getLegacyColumnDefault(
 
   if (
     tableName === 'user_profile' &&
-    column === 'bio' ||
-    (tableName === 'user_profile' && column === 'avatar_data') ||
-    (tableName === 'user_profile' && column === 'background_data')
+    ['bio', 'avatar_data', 'background_data'].includes(column)
   ) {
     return '';
   }

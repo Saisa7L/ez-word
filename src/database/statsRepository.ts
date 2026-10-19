@@ -1,5 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import { formatLocalDate } from '@/utils/date';
+
 export type HomeStats = {
   checkinCount: number;
   studyDays: number;
@@ -7,13 +9,6 @@ export type HomeStats = {
   totalLearned: number;
   wrongBookCount: number;
 };
-
-function formatLocalDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
 
 export async function getHomeStats(db: SQLiteDatabase): Promise<HomeStats> {
   const today = formatLocalDate(new Date());

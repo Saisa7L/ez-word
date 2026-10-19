@@ -17,15 +17,23 @@
 | `src/database/database.ts` | 数据库名称和建表迁移 |
 | `src/database/wordsRepository.ts` | 单词查询、新增和更新 |
 | `src/features/daily-task/` | 每日任务相关代码 |
+| `src/features/ai/` | 批量生成并写入 AI 例句 |
+| `src/features/archive/` | 本地存档序列化、校验和恢复 |
+| `src/features/theme/` | 全局运行时主题和动态样式 |
 | `src/features/word-import/` | CSV 选择、解析、校验和导入 |
-| `src/features/wrong-book/` | 错题本和错题再练相关代码 |
-| `src/features/review/` | 定时复习相关代码 |
-| `src/services/` | DeepSeek、TTS、CSV 导入等外部服务 |
-| `src/types/` | 全项目共用的 TypeScript 数据类型 |
+| `src/hooks/` | 返回键拦截、长按步进等复用交互逻辑 |
+| `src/services/` | DeepSeek、TTS、安全存储和文件读写等外部服务 |
 | `src/utils/` | 通用的小工具函数 |
 | `src/utils/formatBytes.ts` | 文件大小格式化 |
+| `src/utils/date.ts` | 本地日期格式化 |
+| `src/utils/pagination.ts` | 分页总数和末页计算 |
+| `src/utils/navigation.ts` | 返回首页和每日任务起始页 |
+| `src/utils/shuffle.ts` | 数组随机排序 |
 | `assets/` | 图标、启动图和图片资源 |
 | `docs/` | 需求、结构、Git 和长期上下文文档 |
+| `docs/ARCHITECTURE.md` | 分层职责、模块边界和状态归属 |
+| `docs/DATA_FLOW.md` | 启动、任务、导入、主题和存档数据流 |
+| `docs/DATABASE.md` | 数据库表、迁移历史、不变量和存档关系 |
 | `docs/UI_MAP.md` | 页面编号、路由、组件和 UI 缺口 |
 | `docs/NEXT_THREAD_PROMPT.md` | 新窗口接续项目的完整提示词 |
 | `docs/WORKFLOW.md` | 阶段推进、细节确认和报错处理规则 |
@@ -42,12 +50,17 @@
 | `docs/F9_STATUS.md` | F9 完成状态、CSV 例句和离线 AI 策略 |
 | `docs/F10_STATUS.md` | F10 完成状态、自定义反馈和错误边界 |
 | `docs/P1_ARCHIVE_STATUS.md` | P1 本地存档、用户资料和我的页面状态 |
-| `docs/P2_PROGRESS.md` | P2 个人资料名片页当前实现、依赖和待验收项 |
-| `docs/F3_STATUS.md` | F3 完成状态、修复记录和真机验收结果 |
+| `docs/P2_PROGRESS.md` | P2 个人资料名片页实现、依赖和验收结果 |
+| `docs/P5_PROGRESS.md` | P5 主题、调色盘、素材和用户收口结果 |
+| `docs/P6_PROGRESS.md` | P6 代码、文档、架构和数据流整理计划 |
+| `docs/THEME_COLOR_INVENTORY.md` | 主题颜色令牌和页面颜色分类 |
+| `docs/VSCODE_SETUP.md` | VS Code 启动、调试和检查说明 |
 | `docs/evidence/f3/` | F3 验收过程的手机截图证据 |
 | `assets/templates/words-template.csv` | 可导入的 CSV 示例模板 |
+| `assets/f3/f3-wrong-answer-kids-question.png` | 错题回顾开始页当前素材 |
 | `assets/f3/wrong-review-start.png` | 错题回顾开始页专属素材 |
 | `assets/icons/settings-archive.svg` | 我的页面本地存档 SVG 图标 |
+| `assets/icons/import-info.svg` | 导入说明按钮 SVG |
 | `assets/icons/calendar.svg` | 个人资料已学习天数 SVG |
 | `assets/icons/book.svg` | 个人资料已学习单词 SVG |
 | `app.json` | Expo App 名称、图标、路由和 Android 配置 |
