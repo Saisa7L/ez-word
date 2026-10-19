@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-19 18:15
+最后更新：2026-10-19 18:18
 
 ## 使用方式
 
@@ -143,7 +143,6 @@
 ### word-import
 
 - `parseWordCsv(content)`：纯解析和逐行校验，无数据库副作用
-- `pickWordCsvFile()`：文件选择和文本读取
 - `importWordCsv(db, content)`：解析后调用 `upsertWords`
 - `CsvValidationError`：文件级格式错误
 - `ImportFileCard`：文件信息和选择/导入按钮
@@ -190,6 +189,15 @@
 - `AiExampleGenerationSection`：例句覆盖、进度和生成入口
 - 路由页保留数据加载、持久化、网络流程和全局弹层
 
+## Schema
+
+`src/database/schema.ts` 维护：
+
+- 当前六张业务表的完整字段顺序。
+- 存档实际读取的字段子集。
+- 存档恢复时的表顺序。
+- `validateDatabaseSchema(db)`：迁移后对比 `PRAGMA table_info`，发现字段漂移立即报错。
+
 ## Services
 
 | 服务 | 接口 | 副作用 |
@@ -198,6 +206,7 @@
 | `speech` | `playWordSequence` | TTS 播放和定时器 |
 | `archiveFiles` | `exportArchiveFile`、`pickArchiveFile` | Android 文件读写 |
 | `aiKeyStore` | `get/save/clearDeepSeekApiKey` | SecureStore |
+| `wordCsvFiles` | `pickWordCsvFile` | CSV 文件选择和读取 |
 
 ## Hooks
 
@@ -231,7 +240,7 @@
 
 - `archiveSnapshot.ts` 维护一份独立表结构。
 - 页面仍有大量本地表单状态和直接仓库调用。
-- `word-import` 同时包含文件 I/O、解析和入库编排。
+- `word-import` 已剥离文件 I/O，但解析和入库仍在一个 feature 中。
 - 个人资料、通用设置和 AI 设置页面过大。
 
 完整优先级见 `docs/QUALITY_AND_TECH_DEBT.md`。

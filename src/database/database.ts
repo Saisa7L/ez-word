@@ -13,6 +13,8 @@ import {
   DEFAULT_THEME_MODE,
 } from '@/constants/theme';
 
+import { validateDatabaseSchema } from './schema';
+
 export const DATABASE_NAME = 'vocabulary.db';
 
 export const DATABASE_VERSION = 17;
@@ -27,6 +29,7 @@ export async function migrateDatabase(db: SQLiteDatabase) {
   let currentVersion = versionRow?.user_version ?? 0;
 
   if (currentVersion >= DATABASE_VERSION) {
+    await validateDatabaseSchema(db);
     return;
   }
 
@@ -353,4 +356,5 @@ export async function migrateDatabase(db: SQLiteDatabase) {
   }
 
   await db.execAsync(`PRAGMA user_version = ${currentVersion}`);
+  await validateDatabaseSchema(db);
 }

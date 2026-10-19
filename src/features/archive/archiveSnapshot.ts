@@ -10,6 +10,10 @@ import {
   DEFAULT_THEME_MODE,
 } from '@/constants/theme';
 import { DATABASE_VERSION } from '@/database/database';
+import {
+  ARCHIVE_INSERT_ORDER as INSERT_ORDER,
+  ARCHIVE_TABLE_DEFINITIONS as ARCHIVE_TABLES,
+} from '@/database/schema';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
@@ -17,11 +21,6 @@ const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16];
 
 type ArchiveValue = number | string | null;
 type ArchiveRow = Record<string, ArchiveValue>;
-
-type ArchiveTable = {
-  columns: string[];
-  name: string;
-};
 
 type ArchiveSnapshot = {
   createdAt: string;
@@ -39,93 +38,6 @@ export type ArchiveSummary = {
   wrongWords: number;
   words: number;
 };
-
-const ARCHIVE_TABLES: ArchiveTable[] = [
-  {
-    columns: [
-      'id',
-      'word',
-      'meaning',
-      'phonetic',
-      'created_at',
-      'updated_at',
-      'is_active',
-      'learning_status',
-      'example_sentence',
-      'example_source',
-      'example_generated_at',
-    ],
-    name: 'words',
-  },
-  {
-    columns: [
-      'id',
-      'daily_word_limit',
-      'listening_default_rate',
-      'advance_on_mistakes',
-      'listening_word_interval_seconds',
-      'random_word_selection',
-      'last_review_prompt_checkin',
-      'wrong_review_random',
-      'review_reminder_enabled',
-      'review_reminder_interval_days',
-      'last_review_prompt_study_day',
-      'word_review_word_limit',
-      'wrong_review_word_limit',
-      'auto_remove_correct_wrong_review',
-      'ai_overwrite_examples',
-      'theme_mode',
-      'theme_primary_color',
-    ],
-    name: 'app_settings',
-  },
-  {
-    columns: [
-      'id',
-      'display_name',
-      'bio',
-      'avatar_data',
-      'background_data',
-      'card_content_color',
-      'text_stroke_color',
-      'text_stroke_width',
-      'updated_at',
-    ],
-    name: 'user_profile',
-  },
-  {
-    columns: [
-      'word_id',
-      'first_learned_at',
-      'last_learned_at',
-      'learned_count',
-    ],
-    name: 'word_learning_state',
-  },
-  {
-    columns: [
-      'word_id',
-      'added_at',
-      'last_wrong_at',
-      'wrong_count',
-      'sources',
-    ],
-    name: 'wrong_book_words',
-  },
-  {
-    columns: ['id', 'completed_at', 'study_date', 'word_count', 'wrong_count'],
-    name: 'study_sessions',
-  },
-];
-
-const INSERT_ORDER = [
-  'words',
-  'app_settings',
-  'user_profile',
-  'word_learning_state',
-  'wrong_book_words',
-  'study_sessions',
-];
 
 function buildSummary(
   tables: Record<string, ArchiveRow[]>,

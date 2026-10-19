@@ -1,14 +1,17 @@
 # 本地数据库说明
 
-最后更新：2026-10-19 18:15
+最后更新：2026-10-19 18:18
 
 ## 基本信息
 
 - 数据库文件：`vocabulary.db`
 - 当前版本：`17`
 - 初始化入口：`src/database/database.ts`
+- 当前 schema 定义：`src/database/schema.ts`
 - 迁移方式：读取 `PRAGMA user_version`，按版本顺序执行
 - 连接设置：WAL 日志模式、开启外键
+
+每次迁移完成后会使用 `PRAGMA table_info` 校验当前六张业务表的字段顺序；校验失败会阻止 App 继续启动。
 
 ## 数据表
 
@@ -123,6 +126,7 @@
 | 数据域 | 文件 |
 |---|---|
 | 建表和迁移 | `src/database/database.ts` |
+| 当前字段和结构校验 | `src/database/schema.ts` |
 | 单词 | `src/database/wordsRepository.ts` |
 | 错题与学习状态 | `src/database/wrongBookRepository.ts` |
 | 完成记录 | `src/database/studyRepository.ts` |
@@ -135,7 +139,7 @@
 
 ## 存档关系
 
-`features/archive/archiveSnapshot.ts` 保存以下表：
+`src/database/schema.ts` 统一定义存档字段和表顺序，`features/archive/archiveSnapshot.ts` 使用该定义保存以下表：
 
 - `words`
 - `app_settings`
@@ -146,7 +150,7 @@
 
 恢复时按上述依赖顺序删除和插入，并使用独占事务。任何表字段变化都必须同步：
 
-1. `ARCHIVE_TABLES`
+1. `src/database/schema.ts` 中的 `DATABASE_TABLE_SCHEMAS`
 2. 旧版本默认值
 3. `LEGACY_DATABASE_VERSIONS`
 4. 导入恢复测试

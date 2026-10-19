@@ -22,10 +22,7 @@ import {
 import { ImportFileCard } from '@/features/word-import/components/ImportFileCard';
 import { ImportInfoModal } from '@/features/word-import/components/ImportInfoModal';
 import { WordLibraryActions } from '@/features/word-import/components/WordLibraryActions';
-import {
-  importWordCsv,
-  pickWordCsvFile,
-} from '@/features/word-import/importWordCsv';
+import { importWordCsv } from '@/features/word-import/importWordCsv';
 import {
   type PickedCsvFile,
   type WordImportSummary,
@@ -34,6 +31,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pickWordCsvFile } from '@/services/wordCsvFiles';
 
 export default function ImportWordsScreen() {
   const db = useSQLiteContext();

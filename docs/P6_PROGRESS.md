@@ -1,6 +1,6 @@
 # P6 代码与文档整理进度
 
-最后更新：2026-10-19 18:15
+最后更新：2026-10-19 18:18
 
 ## 当前状态
 
@@ -93,6 +93,15 @@ P6 不新增业务功能，也不进行打包和发布。目标是把现有代�
 - 统一 `formatListeningRate`，兼容通用设置和听力页的不同显示格式
 - 页面保留文件选择、导入、清空和结果弹窗编排
 
+## 第八批完成内容
+
+- 将 CSV 文件选择和读取移动到 `services/wordCsvFiles.ts`
+- `features/word-import/importWordCsv.ts` 只保留解析后入库用例
+- 新增 `database/schema.ts`，统一定义当前表字段、存档字段和恢复顺序
+- `archiveSnapshot.ts` 改为使用共享 schema 定义
+- 数据库迁移完成后使用 `PRAGMA table_info` 校验真实表结构
+- 使用 Node 内置 SQLite 验证 schema 校验通过，并确认额外字段会被拒绝
+
 ## 文档补全
 
 - 新增 `docs/MODULE_REFERENCE.md`，记录 Provider、仓库、服务、Hook、组件和页面边界
@@ -102,10 +111,10 @@ P6 不新增业务功能，也不进行打包和发布。目标是把现有代�
 
 ## 下一批候选
 
-1. 评估 `archiveSnapshot.ts` 的表结构定义是否可以与数据库 schema 共享
-2. 拆分 word-import 的文件 I/O、解析和入库用例
-3. 整理 SQL 字段定义、重复样式和剩余展示辅助函数
-4. 检查未使用导出和最终一致性
+1. 整理 SQL 查询字段列表和重复样式
+2. 继续检查未使用导出和剩余展示辅助函数
+3. 评估数据库迁移 SQL 与 schema 定义的进一步单源化
+4. 增加可重复的数据库和存档自动测试
 
 ## 重点流程
 

@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-19 18:15
+最后更新：2026-10-19 18:18
 
 ## 架构概览
 
@@ -56,6 +56,8 @@ RootLayout
 | `services/speech.ts` | 听力顺序播放 | `playWordSequence` |
 | `services/archiveFiles.ts` | 存档文件读写 | `exportArchiveFile`、`pickArchiveFile` |
 | `services/aiKeyStore.ts` | API Key 安全存储 | `get/save/clearDeepSeekApiKey` |
+| `services/wordCsvFiles.ts` | CSV 文件选择和读取 | `pickWordCsvFile` |
+| `database/schema.ts` | 当前表字段、存档字段和结构校验 | `validateDatabaseSchema` |
 
 ## 状态归属
 
@@ -112,8 +114,8 @@ components → constants / hooks / utils
 
 1. 部分设置页同时承担表单、校验、数据库调用和复杂布局，文件超过 500 行。
 2. 页面可以直接调用仓库。简单读取可保留，复杂流程应进入 `features` 或自定义 Hook。
-3. `archiveSnapshot.ts` 直接维护完整表结构，数据库字段变化时必须同步修改。
-4. `word-import` 同时包含文件选择和数据库入库，边界略混合。
+3. 存档和运行时校验已共用 `database/schema.ts`，但迁移 SQL 仍手写，字段变化仍需人工同步。
+4. `word-import` 已剥离文件 I/O，保留纯解析和入库用例。
 5. 错题本、当前词库和添加错题已通过 `usePaginatedSelection` 统一分页和选择状态。
 
 ## 目录速查
