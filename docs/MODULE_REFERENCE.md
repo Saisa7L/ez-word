@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-19 18:08
+最后更新：2026-10-19 18:12
 
 ## 使用方式
 
@@ -176,6 +176,15 @@
 - `ProfileStrokeModal`：描边颜色和大小弹窗
 - `profileUtils`：文件名、体积估算、名字换行和弹窗类型
 - 页面保留数据读取、图片选择、保存、截图和业务回调
+
+### settings
+
+- `DailyTaskSettingsForm`：通用设置表单，不直接访问数据库
+- `SettingStepper`：长按步进和边界禁用
+- `SettingToggleRow`：统一开关行
+- `AiKeySection`：API Key 保存、测试和清除入口
+- `AiExampleGenerationSection`：例句覆盖、进度和生成入口
+- 路由页保留数据加载、持久化、网络流程和全局弹层
 
 ## Services
 
