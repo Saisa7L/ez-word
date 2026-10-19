@@ -17,6 +17,92 @@ function mergeSources(currentSources: string, source: WrongBookSource): string {
   );
 }
 
+async function saveWrongBookEntry(
+  db: SQLiteDatabase,
+  wordId: number,
+  source: WrongBookSource,
+  now: string,
+  countAsMistake: boolean,
+): Promise<void> {
+  const existing = await db.getFirstAsync<{ sources: string }>(
+    'SELECT sources FROM wrong_book_words WHERE word_id = $wordId',
+    { $wordId: wordId },
+  );
+  const sources = mergeSources(existing?.sources ?? '', source);
+
+  if (countAsMistake) {
+    await db.runAsync(
+      `INSERT INTO wrong_book_words (
+         word_id,
+         added_at,
+         last_wrong_at,
+         wrong_count,
+         sources
+       )
+       VALUES ($wordId, $now, $now, 1, $sources)
+       ON CONFLICT(word_id) DO UPDATE SET
+         last_wrong_at = excluded.last_wrong_at,
+         wrong_count = wrong_book_words.wrong_count + 1,
+         sources = excluded.sources`,
+      {
+        $now: now,
+        $sources: sources,
+        $wordId: wordId,
+      },
+    );
+    return;
+  }
+
+  await db.runAsync(
+    `INSERT INTO wrong_book_words (
+       word_id,
+       added_at,
+       last_wrong_at,
+       wrong_count,
+       sources
+     )
+     VALUES ($wordId, $now, $now, 0, $sources)
+     ON CONFLICT(word_id) DO UPDATE SET
+       sources = excluded.sources`,
+    {
+      $now: now,
+      $sources: sources,
+      $wordId: wordId,
+    },
+  );
+}
+
+async function saveWrongBookEntries(
+  db: SQLiteDatabase,
+  wordIds: number[],
+  source: WrongBookSource,
+  countAsMistake: boolean,
+): Promise<void> {
+  const uniqueWordIds = [...new Set(wordIds)];
+  if (uniqueWordIds.length === 0) {
+    return;
+  }
+
+  const now = new Date().toISOString();
+  await db.withExclusiveTransactionAsync(async (transaction) => {
+    for (const wordId of uniqueWordIds) {
+      await saveWrongBookEntry(
+        transaction,
+        wordId,
+        source,
+        now,
+        countAsMistake,
+      );
+      await transaction.runAsync(
+        `UPDATE words
+         SET learning_status = 'wrong'
+         WHERE id = $wordId`,
+        { $wordId: wordId },
+      );
+    }
+  });
+}
+
 export async function countWrongBookWords(db: SQLiteDatabase): Promise<number> {
   const result = await db.getFirstAsync<{ count: number }>(
     'SELECT COUNT(*) AS count FROM wrong_book_words',
@@ -140,47 +226,7 @@ export async function addWrongBookWords(
   wordIds: number[],
   source: WrongBookSource = 'manual',
 ): Promise<void> {
-  const uniqueWordIds = [...new Set(wordIds)];
-  if (uniqueWordIds.length === 0) {
-    return;
-  }
-
-  const now = new Date().toISOString();
-
-  await db.withExclusiveTransactionAsync(async (transaction) => {
-    for (const wordId of uniqueWordIds) {
-      const existing = await transaction.getFirstAsync<{ sources: string }>(
-        'SELECT sources FROM wrong_book_words WHERE word_id = $wordId',
-        { $wordId: wordId },
-      );
-      const sources = mergeSources(existing?.sources ?? '', source);
-
-      await transaction.runAsync(
-        `INSERT INTO wrong_book_words (
-           word_id,
-           added_at,
-           last_wrong_at,
-           wrong_count,
-           sources
-         )
-         VALUES ($wordId, $now, $now, 0, $sources)
-         ON CONFLICT(word_id) DO UPDATE SET
-           sources = excluded.sources`,
-        {
-          $wordId: wordId,
-          $now: now,
-          $sources: sources,
-        },
-      );
-
-      await transaction.runAsync(
-        `UPDATE words
-         SET learning_status = 'wrong'
-         WHERE id = $wordId`,
-        { $wordId: wordId },
-      );
-    }
-  });
+  await saveWrongBookEntries(db, wordIds, source, false);
 }
 
 export async function recordWrongWords(
@@ -188,49 +234,7 @@ export async function recordWrongWords(
   wordIds: number[],
   source: WrongBookSource,
 ): Promise<void> {
-  const uniqueWordIds = [...new Set(wordIds)];
-  if (uniqueWordIds.length === 0) {
-    return;
-  }
-
-  const now = new Date().toISOString();
-
-  await db.withExclusiveTransactionAsync(async (transaction) => {
-    for (const wordId of uniqueWordIds) {
-      const existing = await transaction.getFirstAsync<{ sources: string }>(
-        'SELECT sources FROM wrong_book_words WHERE word_id = $wordId',
-        { $wordId: wordId },
-      );
-      const sources = mergeSources(existing?.sources ?? '', source);
-
-      await transaction.runAsync(
-        `INSERT INTO wrong_book_words (
-           word_id,
-           added_at,
-           last_wrong_at,
-           wrong_count,
-           sources
-         )
-         VALUES ($wordId, $now, $now, 1, $sources)
-         ON CONFLICT(word_id) DO UPDATE SET
-           last_wrong_at = excluded.last_wrong_at,
-           wrong_count = wrong_book_words.wrong_count + 1,
-           sources = excluded.sources`,
-        {
-          $wordId: wordId,
-          $now: now,
-          $sources: sources,
-        },
-      );
-
-      await transaction.runAsync(
-        `UPDATE words
-         SET learning_status = 'wrong'
-         WHERE id = $wordId`,
-        { $wordId: wordId },
-      );
-    }
-  });
+  await saveWrongBookEntries(db, wordIds, source, true);
 }
 
 export async function resolveWrongBookRemoval(
@@ -256,28 +260,12 @@ export async function setWordsLearningStatus(
   await db.withExclusiveTransactionAsync(async (transaction) => {
     for (const wordId of uniqueWordIds) {
       if (targetStatus === 'wrong') {
-        const existing = await transaction.getFirstAsync<{ sources: string }>(
-          'SELECT sources FROM wrong_book_words WHERE word_id = $wordId',
-          { $wordId: wordId },
-        );
-        const sources = mergeSources(existing?.sources ?? '', 'manual');
-
-        await transaction.runAsync(
-          `INSERT INTO wrong_book_words (
-             word_id,
-             added_at,
-             last_wrong_at,
-             wrong_count,
-             sources
-           )
-           VALUES ($wordId, $now, $now, 0, $sources)
-           ON CONFLICT(word_id) DO UPDATE SET
-             sources = excluded.sources`,
-          {
-            $now: now,
-            $sources: sources,
-            $wordId: wordId,
-          },
+        await saveWrongBookEntry(
+          transaction,
+          wordId,
+          'manual',
+          now,
+          false,
         );
       } else {
         await transaction.runAsync(

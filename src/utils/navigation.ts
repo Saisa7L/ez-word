@@ -1,5 +1,3 @@
-import { router } from 'expo-router';
-
 export type AppNavigation = {
   reset: (state: {
     index: number;
@@ -12,12 +10,4 @@ export function returnToHome(navigation: AppNavigation) {
     index: 0,
     routes: [{ name: '(tabs)' }],
   });
-}
-
-export function returnToDailyTaskStart() {
-  if (router.canDismiss()) {
-    router.dismissTo('/daily-task');
-  } else {
-    router.replace('/daily-task');
-  }
 }

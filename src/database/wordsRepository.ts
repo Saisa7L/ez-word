@@ -23,6 +23,89 @@ export type UpsertWordsResult = {
   updated: number;
 };
 
+type UpsertWordResult = {
+  id: number;
+  inserted: boolean;
+};
+
+async function upsertWordRecord(
+  db: SQLiteDatabase,
+  row: WordImportRow,
+  now: string,
+): Promise<UpsertWordResult> {
+  const existing = await db.getFirstAsync<{ id: number }>(
+    'SELECT id FROM words WHERE word = $word COLLATE NOCASE',
+    { $word: row.word },
+  );
+  const exampleSentence = row.example_sentence?.trim() ?? '';
+
+  if (existing) {
+    await db.runAsync(
+      `UPDATE words
+       SET meaning = $meaning,
+           phonetic = $phonetic,
+           example_sentence = CASE
+             WHEN $exampleSentence <> '' THEN $exampleSentence
+             ELSE example_sentence
+           END,
+           example_source = CASE
+             WHEN $exampleSentence <> '' THEN 'csv'
+             ELSE example_source
+           END,
+           example_generated_at = CASE
+             WHEN $exampleSentence <> '' THEN $updatedAt
+             ELSE example_generated_at
+           END,
+           is_active = 1,
+           updated_at = $updatedAt
+       WHERE id = $id`,
+      {
+        $exampleSentence: exampleSentence,
+        $id: existing.id,
+        $meaning: row.meaning,
+        $phonetic: row.phonetic,
+        $updatedAt: now,
+      },
+    );
+    return { id: existing.id, inserted: false };
+  }
+
+  const result = await db.runAsync(
+    `INSERT INTO words (
+       word,
+       meaning,
+       phonetic,
+       example_sentence,
+       example_source,
+       example_generated_at,
+       created_at,
+       updated_at
+     )
+     VALUES (
+       $word,
+       $meaning,
+       $phonetic,
+       $exampleSentence,
+       $exampleSource,
+       $exampleGeneratedAt,
+       $createdAt,
+       $updatedAt
+     )`,
+    {
+      $createdAt: now,
+      $exampleGeneratedAt: exampleSentence ? now : null,
+      $exampleSentence: exampleSentence,
+      $exampleSource: exampleSentence ? 'csv' : '',
+      $meaning: row.meaning,
+      $phonetic: row.phonetic,
+      $updatedAt: now,
+      $word: row.word,
+    },
+  );
+
+  return { id: result.lastInsertRowId, inserted: true };
+}
+
 export async function upsertWords(
   db: SQLiteDatabase,
   rows: WordImportRow[],
@@ -33,75 +116,11 @@ export async function upsertWords(
 
   await db.withExclusiveTransactionAsync(async (transaction) => {
     for (const row of rows) {
-      const existing = await transaction.getFirstAsync<{ id: number }>(
-        'SELECT id FROM words WHERE word = $word COLLATE NOCASE',
-        { $word: row.word },
-      );
-
-      if (existing) {
-        const exampleSentence = row.example_sentence?.trim() ?? '';
-        await transaction.runAsync(
-          `UPDATE words
-           SET meaning = $meaning,
-               phonetic = $phonetic,
-               example_sentence = CASE
-                 WHEN $exampleSentence <> '' THEN $exampleSentence
-                 ELSE example_sentence
-               END,
-               example_source = CASE
-                 WHEN $exampleSentence <> '' THEN 'csv'
-                 ELSE example_source
-               END,
-               example_generated_at = CASE
-                 WHEN $exampleSentence <> '' THEN $updatedAt
-                 ELSE example_generated_at
-               END,
-               is_active = 1,
-               updated_at = $updatedAt
-           WHERE id = $id`,
-          {
-            $id: existing.id,
-            $meaning: row.meaning,
-            $phonetic: row.phonetic,
-            $exampleSentence: exampleSentence,
-            $updatedAt: now,
-          },
-        );
-        updated += 1;
-      } else {
-        await transaction.runAsync(
-          `INSERT INTO words (
-             word,
-             meaning,
-             phonetic,
-             example_sentence,
-             example_source,
-             example_generated_at,
-             created_at,
-             updated_at
-           )
-           VALUES (
-             $word,
-             $meaning,
-             $phonetic,
-             $exampleSentence,
-             $exampleSource,
-             $exampleGeneratedAt,
-             $createdAt,
-             $updatedAt
-           )`,
-          {
-            $word: row.word,
-            $meaning: row.meaning,
-            $phonetic: row.phonetic,
-            $exampleSentence: row.example_sentence?.trim() ?? '',
-            $exampleSource: row.example_sentence?.trim() ? 'csv' : '',
-            $exampleGeneratedAt: row.example_sentence?.trim() ? now : null,
-            $createdAt: now,
-            $updatedAt: now,
-          },
-        );
+      const result = await upsertWordRecord(transaction, row, now);
+      if (result.inserted) {
         inserted += 1;
+      } else {
+        updated += 1;
       }
     }
   });
@@ -117,85 +136,11 @@ export async function upsertSingleWord(
   let wordId = 0;
 
   await db.withExclusiveTransactionAsync(async (transaction) => {
-    const existing = await transaction.getFirstAsync<{ id: number }>(
-      'SELECT id FROM words WHERE word = $word COLLATE NOCASE',
-      { $word: row.word },
-    );
-
-    if (existing) {
-      wordId = existing.id;
-      const exampleSentence = row.example_sentence?.trim() ?? '';
-      await transaction.runAsync(
-        `UPDATE words
-         SET meaning = $meaning,
-             phonetic = $phonetic,
-             example_sentence = CASE
-               WHEN $exampleSentence <> '' THEN $exampleSentence
-               ELSE example_sentence
-             END,
-             example_source = CASE
-               WHEN $exampleSentence <> '' THEN 'csv'
-               ELSE example_source
-             END,
-             example_generated_at = CASE
-               WHEN $exampleSentence <> '' THEN $updatedAt
-               ELSE example_generated_at
-             END,
-             is_active = 1,
-             updated_at = $updatedAt
-         WHERE id = $id`,
-        {
-          $id: existing.id,
-          $meaning: row.meaning,
-          $phonetic: row.phonetic,
-          $exampleSentence: exampleSentence,
-          $updatedAt: now,
-        },
-      );
-      return;
-    }
-
-    const result = await transaction.runAsync(
-      `INSERT INTO words (
-         word,
-         meaning,
-         phonetic,
-         example_sentence,
-         example_source,
-         example_generated_at,
-         created_at,
-         updated_at
-       )
-       VALUES (
-         $word,
-         $meaning,
-         $phonetic,
-         $exampleSentence,
-         $exampleSource,
-         $exampleGeneratedAt,
-         $createdAt,
-         $updatedAt
-       )`,
-      {
-        $word: row.word,
-        $meaning: row.meaning,
-        $phonetic: row.phonetic,
-        $exampleSentence: row.example_sentence?.trim() ?? '',
-        $exampleSource: row.example_sentence?.trim() ? 'csv' : '',
-        $exampleGeneratedAt: row.example_sentence?.trim() ? now : null,
-        $createdAt: now,
-        $updatedAt: now,
-      },
-    );
-    wordId = result.lastInsertRowId;
+    const result = await upsertWordRecord(transaction, row, now);
+    wordId = result.id;
   });
 
   return wordId;
-}
-
-export async function getWordCount(db: SQLiteDatabase): Promise<number> {
-  const result = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) AS count FROM words');
-  return result?.count ?? 0;
 }
 
 export async function getActiveWordCount(db: SQLiteDatabase): Promise<number> {
@@ -354,27 +299,6 @@ export async function updateWordExample(
       $source: source,
       $wordId: wordId,
     },
-  );
-}
-
-export async function listWords(db: SQLiteDatabase, limit = 50): Promise<WordRecord[]> {
-  return db.getAllAsync<WordRecord>(
-    `SELECT
-       id,
-       word,
-       meaning,
-       phonetic,
-       example_sentence,
-       example_source,
-       example_generated_at,
-       is_active,
-       learning_status,
-       created_at,
-       updated_at
-     FROM words
-     ORDER BY word COLLATE NOCASE ASC
-     LIMIT ?`,
-    limit,
   );
 }
 

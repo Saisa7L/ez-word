@@ -40,14 +40,20 @@ P6 不新增业务功能，也不进行打包和发布。目标是把现有代�
 - 抽离 `features/daily-task/taskPresentation.ts`，统一三种任务标题
 - 简化存档旧字段兼容条件的布尔表达式
 
+## 第二批完成内容
+
+- 合并 `upsertWords` 和 `upsertSingleWord` 中重复的单词更新/插入逻辑
+- 合并错题追加、答错记录和状态切换中重复的写库逻辑
+- 保持错题首次加入、答错次数递增、来源合并和学习状态同步的原有语义
+- 删除确认无引用的 `getWordCount`、`listWords`、`updateDisplayName`、`countReviewWords` 和 `returnToDailyTaskStart`
+
 ## 下一批候选
 
-1. 整理 `addWrongBookWords`、`recordWrongWords` 和状态切换中的重复写库逻辑
-2. 整理 `upsertWords` 与 `upsertSingleWord` 的重复更新/插入逻辑
-3. 评估个人资料页、通用设置页和 AI 设置页的可拆分区块
-4. 统一列表页的分页、加载和选择状态模式
-5. 清理确认未使用的导出函数和常量
-6. 评估 `archiveSnapshot.ts` 的表结构定义是否可以与数据库 schema 共享
+1. 评估个人资料页、通用设置页和 AI 设置页的可拆分区块
+2. 统一列表页的分页、加载和选择状态模式
+3. 整理听力速度、任务模式文案等剩余展示辅助函数
+4. 评估 `archiveSnapshot.ts` 的表结构定义是否可以与数据库 schema 共享
+5. 继续检查未使用导出、重复样式和过长页面
 
 ## 重点流程
 

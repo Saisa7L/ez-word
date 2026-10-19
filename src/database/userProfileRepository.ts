@@ -128,11 +128,3 @@ export async function updateUserProfile(
     },
   );
 }
-
-export async function updateDisplayName(
-  db: SQLiteDatabase,
-  displayName: string,
-): Promise<void> {
-  const profile = await getUserProfile(db);
-  await updateUserProfile(db, { ...profile, displayName });
-}
