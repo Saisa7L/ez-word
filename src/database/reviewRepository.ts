@@ -1,6 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { WordRecord } from './wordsRepository';
+import { selectWordColumns } from './sqlFragments';
 
 export type ReviewWord = WordRecord & {
   last_learned_at: string;
@@ -18,18 +19,7 @@ export async function listReviewWords(
   days: number | null,
 ): Promise<ReviewWord[]> {
   return db.getAllAsync<ReviewWord>(
-    `SELECT
-       words.id,
-       words.word,
-       words.meaning,
-       words.phonetic,
-       words.example_sentence,
-       words.example_source,
-       words.example_generated_at,
-       words.is_active,
-       words.learning_status,
-       words.created_at,
-       words.updated_at,
+    `SELECT ${selectWordColumns('words')},
        word_learning_state.last_learned_at
      FROM word_learning_state
      JOIN words ON words.id = word_learning_state.word_id

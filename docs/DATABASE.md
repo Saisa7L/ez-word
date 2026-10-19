@@ -1,6 +1,6 @@
 # 本地数据库说明
 
-最后更新：2026-10-19 18:18
+最后更新：2026-10-19 18:20
 
 ## 基本信息
 
@@ -127,6 +127,7 @@
 |---|---|
 | 建表和迁移 | `src/database/database.ts` |
 | 当前字段和结构校验 | `src/database/schema.ts` |
+| 共享查询字段 | `src/database/sqlFragments.ts` |
 | 单词 | `src/database/wordsRepository.ts` |
 | 错题与学习状态 | `src/database/wrongBookRepository.ts` |
 | 完成记录 | `src/database/studyRepository.ts` |

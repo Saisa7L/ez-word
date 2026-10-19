@@ -1,6 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { WordRecord } from './wordsRepository';
+import { selectWordColumns } from './sqlFragments';
 
 export type WrongBookSource = 'fill' | 'listening' | 'manual';
 
@@ -116,18 +117,7 @@ export async function listWrongBookWords(
   offset: number,
 ): Promise<WrongBookEntry[]> {
   return db.getAllAsync<WrongBookEntry>(
-    `SELECT
-       words.id,
-       words.word,
-       words.meaning,
-       words.phonetic,
-       words.example_sentence,
-       words.example_source,
-       words.example_generated_at,
-       words.is_active,
-       words.learning_status,
-       words.created_at,
-       words.updated_at,
+    `SELECT ${selectWordColumns('words')},
        wrong_book_words.added_at,
        wrong_book_words.last_wrong_at,
        wrong_book_words.sources,
@@ -145,18 +135,7 @@ export async function listAllWrongBookWords(
   db: SQLiteDatabase,
 ): Promise<WrongBookEntry[]> {
   return db.getAllAsync<WrongBookEntry>(
-    `SELECT
-       words.id,
-       words.word,
-       words.meaning,
-       words.phonetic,
-       words.example_sentence,
-       words.example_source,
-       words.example_generated_at,
-       words.is_active,
-       words.learning_status,
-       words.created_at,
-       words.updated_at,
+    `SELECT ${selectWordColumns('words')},
        wrong_book_words.added_at,
        wrong_book_words.last_wrong_at,
        wrong_book_words.sources,
@@ -188,18 +167,7 @@ export async function listAvailableWordsForWrongBook(
   offset: number,
 ): Promise<WordRecord[]> {
   return db.getAllAsync<WordRecord>(
-    `SELECT
-       words.id,
-       words.word,
-       words.meaning,
-       words.phonetic,
-       words.example_sentence,
-       words.example_source,
-       words.example_generated_at,
-       words.is_active,
-       words.learning_status,
-       words.created_at,
-       words.updated_at
+    `SELECT ${selectWordColumns('words')}
      FROM words
      WHERE NOT EXISTS (
        SELECT 1

@@ -2,6 +2,8 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { WordImportRow } from '@/features/word-import/types';
 
+import { selectWordColumns } from './sqlFragments';
+
 export type WordRecord = {
   example_generated_at: string | null;
   example_sentence: string;
@@ -180,18 +182,7 @@ export async function listActiveWords(
   offset: number,
 ): Promise<WordRecord[]> {
   return db.getAllAsync<WordRecord>(
-    `SELECT
-       id,
-       word,
-       meaning,
-       phonetic,
-       example_sentence,
-       example_source,
-       example_generated_at,
-       is_active,
-       learning_status,
-       created_at,
-       updated_at
+    `SELECT ${selectWordColumns()}
      FROM words
      WHERE is_active = 1
      ORDER BY word COLLATE NOCASE ASC
@@ -232,18 +223,7 @@ export async function findWordByWord(
   word: string,
 ): Promise<WordRecord | null> {
   return db.getFirstAsync<WordRecord>(
-    `SELECT
-       id,
-       word,
-       meaning,
-       phonetic,
-       example_sentence,
-       example_source,
-       example_generated_at,
-       is_active,
-       learning_status,
-       created_at,
-       updated_at
+    `SELECT ${selectWordColumns()}
      FROM words
      WHERE word = $word COLLATE NOCASE
      LIMIT 1`,
@@ -260,18 +240,7 @@ export async function listWordsForExampleGeneration(
     : "AND TRIM(example_sentence) = ''";
 
   return db.getAllAsync<WordRecord>(
-    `SELECT
-       id,
-       word,
-       meaning,
-       phonetic,
-       example_sentence,
-       example_source,
-       example_generated_at,
-       is_active,
-       learning_status,
-       created_at,
-       updated_at
+    `SELECT ${selectWordColumns()}
      FROM words
      WHERE is_active = 1
        ${whereExample}
@@ -312,18 +281,7 @@ export async function listUnlearnedActiveWords(
     : 'words.word COLLATE NOCASE ASC';
 
   return db.getAllAsync<WordRecord>(
-    `SELECT
-       words.id,
-       words.word,
-       words.meaning,
-       words.phonetic,
-       words.example_sentence,
-       words.example_source,
-       words.example_generated_at,
-       words.is_active,
-       words.learning_status,
-       words.created_at,
-       words.updated_at
+    `SELECT ${selectWordColumns('words')}
      FROM words
      WHERE words.is_active = 1
        AND words.learning_status = 'unlearned'

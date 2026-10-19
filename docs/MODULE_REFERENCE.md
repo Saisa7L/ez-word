@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-19 18:18
+最后更新：2026-10-19 18:20
 
 ## 使用方式
 
@@ -197,6 +197,8 @@
 - 存档实际读取的字段子集。
 - 存档恢复时的表顺序。
 - `validateDatabaseSchema(db)`：迁移后对比 `PRAGMA table_info`，发现字段漂移立即报错。
+
+`src/database/sqlFragments.ts` 维护 `WordRecord` 查询字段列表，仓库通过 `selectWordColumns(alias?)` 生成 SELECT 字段，避免字段顺序在多个仓库中重复。
 
 ## Services
 

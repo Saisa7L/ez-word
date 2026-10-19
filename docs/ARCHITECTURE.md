@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-19 18:18
+最后更新：2026-10-19 18:20
 
 ## 架构概览
 
@@ -58,6 +58,7 @@ RootLayout
 | `services/aiKeyStore.ts` | API Key 安全存储 | `get/save/clearDeepSeekApiKey` |
 | `services/wordCsvFiles.ts` | CSV 文件选择和读取 | `pickWordCsvFile` |
 | `database/schema.ts` | 当前表字段、存档字段和结构校验 | `validateDatabaseSchema` |
+| `database/sqlFragments.ts` | 跨仓库共享的查询字段片段 | `selectWordColumns` |
 
 ## 状态归属
 
