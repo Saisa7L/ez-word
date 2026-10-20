@@ -37,7 +37,9 @@ export function Dialog({
         importantForAccessibility="yes"
         style={styles.overlay}
       >
-        <View style={[styles.dialog, contentStyle]}>{children}</View>
+        <View accessibilityRole="alert" style={[styles.dialog, contentStyle]}>
+          {children}
+        </View>
       </View>
     </Modal>
   );

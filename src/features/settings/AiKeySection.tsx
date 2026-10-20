@@ -51,6 +51,8 @@ export function AiKeySection({
       </View>
 
       <TextInput
+        accessibilityHint="输入后可以保存新的 DeepSeek API Key"
+        accessibilityLabel="DeepSeek API Key"
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={onChangeInput}

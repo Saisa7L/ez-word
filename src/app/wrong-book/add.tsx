@@ -232,6 +232,7 @@ export default function AddWrongBookWordScreen() {
           <View style={styles.manualForm}>
             <Text style={styles.fieldLabel}>单词</Text>
             <TextInput
+              accessibilityLabel="要加入错题的单词"
               autoCapitalize="none"
               autoCorrect={false}
               onChangeText={setManualWord}

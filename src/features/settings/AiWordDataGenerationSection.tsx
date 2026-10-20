@@ -46,6 +46,9 @@ export function AiWordDataGenerationSection({
           </Text>
         </View>
         <Switch
+          accessibilityHint="开启后会重新生成已有音标和例句，释义不会改变"
+          accessibilityLabel="覆盖已有单词数据"
+          accessibilityState={{ checked: overwriteExisting }}
           onValueChange={onOverwriteChange}
           thumbColor={colors.surface}
           trackColor={{ false: colors.border, true: colors.accentText }}

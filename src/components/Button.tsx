@@ -8,7 +8,11 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { DEFAULT_GREEN, type ThemeColors } from '@/constants/theme';
+import {
+  DEFAULT_GREEN,
+  getContrastColor,
+  type ThemeColors,
+} from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type ButtonVariant = 'danger' | 'primary' | 'secondary' | 'success';
@@ -81,7 +85,7 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.red,
     },
     dangerText: {
-      color: '#FFFFFF',
+      color: getContrastColor(colors.red),
     },
     disabled: {
       backgroundColor: colors.disabled,
@@ -106,7 +110,7 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: DEFAULT_GREEN,
     },
     successText: {
-      color: '#FFFFFF',
+      color: getContrastColor(DEFAULT_GREEN),
     },
     text: {
       fontSize: 21,

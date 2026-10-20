@@ -32,8 +32,8 @@ theme_settings
 | `background` | `#F0F0F8` | `#000000` | 页面底层 |
 | `surface` | `#FFFFFF` | `#292929` | 卡片、卷轴和弹窗 |
 | `text` | `#1D2430` | `#F5F5F5` | 主文字 |
-| `textSecondary` | 灰色 | 浅灰 | 说明和次要信息 |
-| `textMuted` | 灰色 | 灰色 | 占位和弱提示 |
+| `textSecondary` | `#5F6977` | 浅灰 | 说明和次要信息 |
+| `textMuted` | `#646E7E` | 灰色 | 占位和弱提示 |
 | `border` | 浅灰 | `#4A4A4A` | 分割线和轨道 |
 | `graySoft` | `#EEF0F5` | `#3A3A3A` | 输入框、普通按钮和弱背景 |
 | `disabled` | `#B9C0CA` | `#4B4B4B` | 禁用状态 |
@@ -67,6 +67,7 @@ theme_settings
 - 导入页文件图标保留品牌绿。
 - 错题回顾、单词再练等页面按功能使用蓝、橙、红等功能色。
 - 个人名片文字和描边颜色属于用户配置，不纳入 App 主题。
+- 日间主题的 `textSecondary` 和 `textMuted` 在 `background`、`surface` 上必须保持至少 4.5:1 对比度。
 - 听力进度条使用 `accentText`，日间黑色、夜间白色。
 
 ## 修改主题检查表

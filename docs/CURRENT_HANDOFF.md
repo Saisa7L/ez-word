@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 21:47
+最后更新：2026-10-20 21:51
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`225931b Remove unused learned count from learning state`
-- 当前阶段：P2-9 Android-only 平台收口已完成自动验证，随本批提交
+- 已提交基线：`2297b77 Close unsupported web and iOS platform entry points`
+- 当前阶段：P2-7 无障碍第一批已完成自动验证，等待 TalkBack/大字号真机验收
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：移除 iOS/Web 启动入口、平台配置和 Web 专用资源
+- 当前工作：提升辅助文字对比度、补齐输入框/开关标签并增强弹窗语义
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -46,7 +46,7 @@ git log --oneline --decorate -5
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
 - P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
 - v21 数据库迁移已完成真机验收。
-- P2-9 已完成；下一批进入 P2-7 无障碍与字号布局。
+- P2-9 已完成；P2-7 第二批将处理固定高度、大字号裁切和减少动画。
 - 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -155,6 +155,17 @@ git log --oneline --decorate -5
 - 保留 Expo Router 必需的 `expo-linking`。
 - README 和开发指南明确项目仅支持 Android，不提供 Web/iOS 调试入口。
 - 已通过依赖检查、完整门禁和 Android 导出。
+
+## P2-7 无障碍第一批
+
+- 日间主题 `textSecondary` 调整为 `#5F6977`，`textMuted` 调整为 `#646E7E`。
+- 两种辅助文字在页面背景和白色表面上均达到至少 4.5:1 对比度。
+- danger/success 按钮的前景色根据实际底色自动选择深色或浅色。
+- API Key、添加单词、错题手动添加、资料编辑、页码跳转和颜色输入均补齐无障碍标签。
+- AI“覆盖已有单词数据”开关补齐标签、提示和选中状态。
+- Dialog 容器增加 `alert` 语义，保留模态隔离和 Android 返回关闭。
+- 新增浅色/深色对比度与按钮前景色测试，全项目共 51 项。
+- 已通过完整门禁和 Android 导出。
 
 ## P0 批次 0-3 结果
 
@@ -370,10 +381,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-9 Android-only 平台收口已完成自动验证，等待随本批提交。
+当前 P2-7 无障碍第一批已完成自动验证，等待 TalkBack/大字号真机验收。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、P2-9 平台收口结果和 P2-7 无障碍边界。
+请先说明当前 Git 状态、P2-7 第一批验收结果和剩余大字号/减少动画工作。
 ```

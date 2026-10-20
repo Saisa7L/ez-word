@@ -71,6 +71,7 @@ export default function AddLibraryWordScreen() {
 
         <Text style={styles.fieldLabel}>单词</Text>
         <TextInput
+          accessibilityLabel="单词"
           autoCapitalize="none"
           autoCorrect={false}
           onChangeText={setWord}
@@ -82,6 +83,7 @@ export default function AddLibraryWordScreen() {
 
         <Text style={styles.fieldLabel}>释义</Text>
         <TextInput
+          accessibilityLabel="释义"
           onChangeText={setMeaning}
           placeholder="例如 放弃；抛弃"
           placeholderTextColor={colors.textMuted}
@@ -91,6 +93,7 @@ export default function AddLibraryWordScreen() {
 
         <Text style={styles.fieldLabel}>音标</Text>
         <TextInput
+          accessibilityLabel="音标"
           autoCapitalize="none"
           autoCorrect={false}
           onChangeText={setPhonetic}

@@ -78,7 +78,7 @@ function mixColors(base: string, blend: string, blendWeight: number): string {
   );
 }
 
-function getContrastColor(background: string): string {
+export function getContrastColor(background: string): string {
   const [red, green, blue] = hexToRgb(background);
   const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
   return luminance > 0.58 ? '#000000' : '#FFFFFF';
@@ -122,8 +122,8 @@ function createLightPalette(
     slate: '#7C8798',
     surface: '#FFFFFF',
     text: '#1D2430',
-    textMuted: '#8992A3',
-    textSecondary: '#657080',
+    textMuted: '#646E7E',
+    textSecondary: '#5F6977',
   };
 }
 

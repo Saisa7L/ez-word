@@ -47,6 +47,7 @@ export function ProfileEditModal({
             {mode === 'name' ? '修改用户名' : '修改个人简介'}
           </Text>
           <TextInput
+            accessibilityLabel={isBio ? '个人简介' : '用户名'}
             autoFocus
             maxLength={isBio ? BIO_MAX_LENGTH : PROFILE_USERNAME_MAX_LENGTH}
             multiline={isBio}

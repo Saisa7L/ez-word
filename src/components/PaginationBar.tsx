@@ -113,6 +113,7 @@ export function PaginationBar({
             <Text style={styles.dialogTitle}>跳转到页码</Text>
             <Text style={styles.dialogHint}>当前共 {pageCount} 页</Text>
             <TextInput
+              accessibilityLabel="跳转页码"
               autoFocus
               keyboardType="number-pad"
               maxLength={4}

@@ -239,6 +239,7 @@ export function ColorPalette({
           style={[styles.previewSwatch, { backgroundColor: currentColor }]}
         />
         <TextInput
+          accessibilityLabel="颜色十六进制值"
           autoCapitalize="characters"
           autoCorrect={false}
           maxLength={11}
