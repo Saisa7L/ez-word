@@ -11,6 +11,7 @@ import {
 } from '../src/application/daily-task/startTaskSelection';
 import { migrateDatabase } from '../src/database/database';
 import {
+  MIGRATIONS,
   runMigrations,
   type DatabaseMigration,
 } from '../src/database/migrations';
@@ -122,12 +123,55 @@ async function insertTestWord(
   );
 }
 
+function convertSettingsToLegacyArchive(archive: {
+  databaseVersion: number;
+  tables: Record<string, Record<string, unknown>[]>;
+}): Record<string, unknown> {
+  const task = archive.tables.task_settings[0];
+  const review = archive.tables.review_settings[0];
+  const ai = archive.tables.ai_settings[0];
+  const theme = archive.tables.theme_settings[0];
+  if (!task || !review || !ai || !theme) {
+    throw new Error('当前测试存档缺少设置行');
+  }
+
+  const legacySettings = {
+    advance_on_mistakes: task.advance_on_mistakes,
+    ai_overwrite_examples: ai.ai_overwrite_examples,
+    auto_remove_correct_wrong_review: review.auto_remove_correct_wrong_review,
+    daily_word_limit: task.daily_word_limit,
+    id: 1,
+    last_review_prompt_checkin: 0,
+    last_review_prompt_study_day: review.last_review_prompt_study_day,
+    listening_default_rate: task.listening_default_rate,
+    listening_word_interval_seconds: task.listening_word_interval_seconds,
+    random_word_selection: task.random_word_selection,
+    review_reminder_enabled: review.review_reminder_enabled,
+    review_reminder_interval_days: review.review_reminder_interval_days,
+    theme_accent_color: '#FFFFFF',
+    theme_background_color: '#F0F0F8',
+    theme_mode: theme.theme_mode,
+    theme_primary_color: theme.theme_primary_color,
+    theme_surface_color: '#FFFFFF',
+    word_review_word_limit: review.word_review_word_limit,
+    wrong_review_random: review.wrong_review_random,
+    wrong_review_word_limit: review.wrong_review_word_limit,
+  };
+
+  archive.tables.app_settings = [legacySettings];
+  delete archive.tables.task_settings;
+  delete archive.tables.review_settings;
+  delete archive.tables.ai_settings;
+  delete archive.tables.theme_settings;
+  return legacySettings;
+}
+
 test('validates the current database schema', async () => {
   const adapter = await createMigratedAdapter();
   await validateDatabaseSchema(asDatabase(adapter));
 });
 
-test('migrates an empty database to v18 and matches schema', async () => {
+test('migrates an empty database to v19 and matches schema', async () => {
   const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
 
   await migrateDatabase(asDatabase(adapter));
@@ -139,7 +183,7 @@ test('migrates an empty database to v18 and matches schema', async () => {
   const settings = adapter.db
     .prepare(
       `SELECT daily_word_limit, listening_default_rate
-       FROM app_settings
+       FROM task_settings
        WHERE id = 1`,
     )
     .get() as {
@@ -147,7 +191,7 @@ test('migrates an empty database to v18 and matches schema', async () => {
     listening_default_rate: number;
   };
 
-  assert.equal(version.user_version, 18);
+  assert.equal(version.user_version, 19);
   assert.equal(settings.daily_word_limit, 10);
   assert.equal(settings.listening_default_rate, 1);
 });
@@ -186,20 +230,33 @@ test('round-trips archive JSON and restores all tables', async () => {
     },
   );
   await source.runAsync(
-    `INSERT OR REPLACE INTO app_settings (
-       id, daily_word_limit, listening_default_rate,
-       advance_on_mistakes, listening_word_interval_seconds,
-       random_word_selection, last_review_prompt_checkin,
-       wrong_review_random, review_reminder_enabled,
-       review_reminder_interval_days, last_review_prompt_study_day,
-       word_review_word_limit, wrong_review_word_limit,
-       auto_remove_correct_wrong_review, ai_overwrite_examples,
-       theme_mode, theme_accent_color, theme_surface_color,
-       theme_background_color, theme_primary_color
-     ) VALUES (
-       1, 10, 1, 1, 5, 0, 0, 0, 1, 3, 0, 10, 10, 0, 0,
-       'day', '#FFFFFF', '#FFFFFF', '#F0F0F8', '#FFFFFF'
-     )`,
+    `UPDATE task_settings
+     SET daily_word_limit = 12,
+         listening_default_rate = 1.5,
+         advance_on_mistakes = 0,
+         listening_word_interval_seconds = 4,
+         random_word_selection = 1
+     WHERE id = 1`,
+  );
+  await source.runAsync(
+    `UPDATE review_settings
+     SET wrong_review_random = 1,
+         review_reminder_enabled = 0,
+         review_reminder_interval_days = 7,
+         last_review_prompt_study_day = 3,
+         word_review_word_limit = 20,
+         wrong_review_word_limit = 15,
+         auto_remove_correct_wrong_review = 1
+     WHERE id = 1`,
+  );
+  await source.runAsync(
+    'UPDATE ai_settings SET ai_overwrite_examples = 1 WHERE id = 1',
+  );
+  await source.runAsync(
+    `UPDATE theme_settings
+     SET theme_mode = 'custom',
+         theme_primary_color = '#245A8D'
+     WHERE id = 1`,
   );
   await source.runAsync(
     `INSERT OR REPLACE INTO user_profile (
@@ -300,12 +357,12 @@ test('repairs a schema that advanced before user_version was written', async () 
   const version = adapter.db.prepare('PRAGMA user_version').get() as {
     user_version: number;
   };
-  assert.equal(version.user_version, 18);
+  assert.equal(version.user_version, 19);
 });
 
-test('recreates app settings before saving a theme', async () => {
+test('recreates theme settings before saving a theme', async () => {
   const adapter = await createMigratedAdapter();
-  adapter.db.exec('DELETE FROM app_settings');
+  adapter.db.exec('DELETE FROM theme_settings');
 
   await saveThemeSettings(asDatabase(adapter), {
     mode: 'custom',
@@ -314,7 +371,7 @@ test('recreates app settings before saving a theme', async () => {
 
   const settings = await getThemeSettings(asDatabase(adapter));
   const count = adapter.db
-    .prepare('SELECT COUNT(*) AS total FROM app_settings')
+    .prepare('SELECT COUNT(*) AS total FROM theme_settings')
     .get() as { total: number };
 
   assert.deepEqual(settings, {
@@ -324,13 +381,67 @@ test('recreates app settings before saving a theme', async () => {
   assert.equal(count.total, 1);
 });
 
+test('migrates v18 settings into split v19 tables', async () => {
+  const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
+  const migrationsThroughV18 = MIGRATIONS.filter(
+    (migration) => migration.to <= 18,
+  );
+  await runMigrations(asDatabase(adapter), 0, migrationsThroughV18);
+  adapter.db.exec(`
+    UPDATE app_settings
+    SET daily_word_limit = 37,
+        listening_default_rate = 1.5,
+        word_review_word_limit = 23,
+        ai_overwrite_examples = 1,
+        theme_mode = 'night'
+    WHERE id = 1;
+  `);
+
+  await runMigrations(asDatabase(adapter), 18);
+  await validateDatabaseSchema(asDatabase(adapter));
+
+  const task = adapter.db
+    .prepare(
+      'SELECT daily_word_limit, listening_default_rate FROM task_settings',
+    )
+    .get() as { daily_word_limit: number; listening_default_rate: number };
+  const review = adapter.db
+    .prepare('SELECT word_review_word_limit FROM review_settings')
+    .get() as { word_review_word_limit: number };
+  const ai = adapter.db
+    .prepare('SELECT ai_overwrite_examples FROM ai_settings')
+    .get() as { ai_overwrite_examples: number };
+  const theme = adapter.db
+    .prepare('SELECT theme_mode FROM theme_settings')
+    .get() as { theme_mode: string };
+  const legacyTable = adapter.db
+    .prepare(
+      `SELECT name
+       FROM sqlite_master
+       WHERE type = 'table' AND name = 'app_settings'`,
+    )
+    .get();
+
+  assert.deepEqual(
+    { ...task },
+    {
+      daily_word_limit: 37,
+      listening_default_rate: 1.5,
+    },
+  );
+  assert.equal(review.word_review_word_limit, 23);
+  assert.equal(ai.ai_overwrite_examples, 1);
+  assert.equal(theme.theme_mode, 'night');
+  assert.equal(legacyTable, undefined);
+});
+
 test('rejects database versions supported by a newer app', async () => {
   const adapter = await createMigratedAdapter();
-  adapter.db.exec('PRAGMA user_version = 19');
+  adapter.db.exec('PRAGMA user_version = 20');
 
   await assert.rejects(
     () => migrateDatabase(asDatabase(adapter)),
-    /高于 App 支持的 18/,
+    /高于 App 支持的 19/,
   );
 });
 
@@ -346,15 +457,22 @@ test('rejects database versions without a migration path', async () => {
 
 test('reads daily task settings without creating a missing row', async () => {
   const adapter = await createMigratedAdapter();
-  adapter.db.exec('DELETE FROM app_settings');
+  adapter.db.exec(`
+    DELETE FROM task_settings;
+    DELETE FROM review_settings;
+  `);
 
   const settings = await getDailyTaskSettings(asDatabase(adapter));
-  const count = adapter.db
-    .prepare('SELECT COUNT(*) AS total FROM app_settings')
+  const taskCount = adapter.db
+    .prepare('SELECT COUNT(*) AS total FROM task_settings')
+    .get() as { total: number };
+  const reviewCount = adapter.db
+    .prepare('SELECT COUNT(*) AS total FROM review_settings')
     .get() as { total: number };
 
   assert.equal(settings.dailyWordLimit, 10);
-  assert.equal(count.total, 0);
+  assert.equal(taskCount.total, 0);
+  assert.equal(reviewCount.total, 0);
 });
 
 test('migrates a v16 custom theme into the current archive shape', async () => {
@@ -364,16 +482,16 @@ test('migrates a v16 custom theme into the current archive shape', async () => {
     databaseVersion: number;
     tables: Record<string, Record<string, unknown>[]>;
   };
-  const settings = archive.tables.app_settings[0];
 
   archive.databaseVersion = 16;
+  const settings = convertSettingsToLegacyArchive(archive);
   settings.theme_mode = 'custom';
   delete settings.theme_primary_color;
   settings.theme_surface_color = '#245A8D';
   settings.theme_accent_color = '#112233';
 
   const parsed = parseArchiveSnapshot(JSON.stringify(archive));
-  assert.equal(parsed.tables.app_settings[0]?.theme_primary_color, '#245A8D');
+  assert.equal(parsed.tables.theme_settings[0]?.theme_primary_color, '#245A8D');
 
   const target = await createMigratedAdapter();
   await restoreArchiveSnapshot(asDatabase(target), parsed);
@@ -385,6 +503,33 @@ test('migrates a v16 custom theme into the current archive shape', async () => {
   });
 });
 
+test('migrates a v18 app settings archive into split tables', async () => {
+  const source = await createMigratedAdapter();
+  const snapshot = await createArchiveSnapshot(asDatabase(source));
+  const archive = JSON.parse(stringifyArchive(snapshot)) as {
+    databaseVersion: number;
+    tables: Record<string, Record<string, unknown>[]>;
+  };
+
+  archive.databaseVersion = 18;
+  const settings = convertSettingsToLegacyArchive(archive);
+  settings.daily_word_limit = 33;
+  settings.word_review_word_limit = 19;
+  settings.theme_mode = 'night';
+
+  const parsed = parseArchiveSnapshot(JSON.stringify(archive));
+  assert.equal(parsed.tables.task_settings[0]?.daily_word_limit, 33);
+  assert.equal(parsed.tables.review_settings[0]?.word_review_word_limit, 19);
+  assert.equal(parsed.tables.theme_settings[0]?.theme_mode, 'night');
+  assert.equal(parsed.tables.app_settings, undefined);
+
+  const target = await createMigratedAdapter();
+  await restoreArchiveSnapshot(asDatabase(target), parsed);
+  const restored = await getDailyTaskSettings(asDatabase(target));
+  assert.equal(restored.dailyWordLimit, 33);
+  assert.equal(restored.wordReviewWordLimit, 19);
+});
+
 test('rejects current archives with missing required fields', async () => {
   const source = await createMigratedAdapter();
   const snapshot = await createArchiveSnapshot(asDatabase(source));
@@ -392,7 +537,7 @@ test('rejects current archives with missing required fields', async () => {
     tables: Record<string, Record<string, unknown>[]>;
   };
 
-  delete archive.tables.app_settings[0].theme_primary_color;
+  delete archive.tables.theme_settings[0].theme_primary_color;
 
   assert.throws(
     () => parseArchiveSnapshot(JSON.stringify(archive)),
@@ -441,7 +586,10 @@ test('restores an empty settings collection with default settings', async () => 
   const archive = JSON.parse(stringifyArchive(snapshot)) as {
     tables: Record<string, Record<string, unknown>[]>;
   };
-  archive.tables.app_settings = [];
+  archive.tables.task_settings = [];
+  archive.tables.review_settings = [];
+  archive.tables.ai_settings = [];
+  archive.tables.theme_settings = [];
 
   const parsed = parseArchiveSnapshot(JSON.stringify(archive));
   const target = await createMigratedAdapter();
@@ -458,10 +606,10 @@ test('fills v10 profile and theme defaults during archive migration', async () =
     databaseVersion: number;
     tables: Record<string, Record<string, unknown>[]>;
   };
-  const settings = archive.tables.app_settings[0];
   const profile = archive.tables.user_profile[0];
 
   archive.databaseVersion = 10;
+  const settings = convertSettingsToLegacyArchive(archive);
   delete settings.theme_mode;
   delete settings.theme_primary_color;
   delete profile.bio;
@@ -472,8 +620,8 @@ test('fills v10 profile and theme defaults during archive migration', async () =
   delete profile.text_stroke_width;
 
   const parsed = parseArchiveSnapshot(JSON.stringify(archive));
-  assert.equal(parsed.tables.app_settings[0]?.theme_mode, 'day');
-  assert.equal(parsed.tables.app_settings[0]?.theme_primary_color, '#FFFFFF');
+  assert.equal(parsed.tables.theme_settings[0]?.theme_mode, 'day');
+  assert.equal(parsed.tables.theme_settings[0]?.theme_primary_color, '#FFFFFF');
   assert.equal(parsed.tables.user_profile[0]?.bio, '');
 
   const target = await createMigratedAdapter();
@@ -491,9 +639,9 @@ test('uses the default theme for a v14 archive without theme fields', async () =
     databaseVersion: number;
     tables: Record<string, Record<string, unknown>[]>;
   };
-  const settings = archive.tables.app_settings[0];
 
   archive.databaseVersion = 14;
+  const settings = convertSettingsToLegacyArchive(archive);
   delete settings.theme_mode;
   delete settings.theme_primary_color;
 
@@ -748,7 +896,7 @@ test('loads the configured number of word-review words', async () => {
   }
 
   await adapter.runAsync(
-    'UPDATE app_settings SET word_review_word_limit = 1 WHERE id = 1',
+    'UPDATE review_settings SET word_review_word_limit = 1 WHERE id = 1',
   );
   const selection = await loadWordReviewSelection(asDatabase(adapter), null);
 

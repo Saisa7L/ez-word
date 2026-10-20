@@ -7,7 +7,7 @@ import {
   type ThemeMode,
 } from '@/constants/theme';
 
-import { ensureAppSettings } from './appSettings';
+import { ensureSettingsRows } from './settingsRows';
 
 export type ThemeSettings = {
   mode: ThemeMode;
@@ -28,7 +28,7 @@ export async function getThemeSettings(
 ): Promise<ThemeSettings> {
   const row = await db.getFirstAsync<ThemeSettingsRow>(
     `SELECT theme_mode, theme_primary_color
-     FROM app_settings
+     FROM theme_settings
      WHERE id = 1`,
   );
 
@@ -45,9 +45,9 @@ export async function saveThemeSettings(
   db: SQLiteDatabase,
   settings: ThemeSettings,
 ): Promise<void> {
-  await ensureAppSettings(db);
+  await ensureSettingsRows(db);
   await db.runAsync(
-    `UPDATE app_settings
+    `UPDATE theme_settings
      SET theme_mode = $mode,
          theme_primary_color = $primaryColor
      WHERE id = 1`,

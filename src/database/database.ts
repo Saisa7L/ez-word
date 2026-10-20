@@ -1,8 +1,8 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { ensureAppSettings } from './appSettings';
 import { MIGRATIONS, runMigrations } from './migrations';
 import { validateDatabaseSchema } from './schema';
+import { ensureSettingsRows } from './settingsRows';
 
 export const DATABASE_NAME = 'vocabulary.db';
 
@@ -38,5 +38,5 @@ export async function migrateDatabase(db: SQLiteDatabase) {
   }
 
   await validateDatabaseSchema(db);
-  await ensureAppSettings(db);
+  await ensureSettingsRows(db);
 }

@@ -1,11 +1,11 @@
 # 本地数据库说明
 
-最后更新：2026-10-20 12:50
+最后更新：2026-10-20 20:57
 
 ## 基本信息
 
 - 数据库文件：`vocabulary.db`
-- 当前版本：`18`
+- 当前版本：`19`
 - 初始化入口：`src/database/database.ts`
 - 当前 schema 定义：`src/database/schema.ts`
 - 迁移方式：读取 `PRAGMA user_version`，通过 `src/database/migrations.ts` 的版本注册表执行
@@ -13,7 +13,7 @@
 
 所有待执行迁移在同一个主连接事务中按版本顺序运行，每一步成功后立即写入对应的 `PRAGMA user_version`。迁移中断会整体回滚；旧版本异常中断留下“schema 已前进但版本号未前进”时，列检查保护会跳过已存在字段并继续完成迁移。数据库版本高于 App 支持版本或遇到不支持的版本（例如 v11）会显式报错。
 
-迁移完成后会使用 `PRAGMA table_info` 校验当前六张业务表的字段顺序，并调用 `ensureAppSettings` 补齐缺失的 `app_settings` 单行。校验失败会阻止 App 继续启动。
+迁移完成后会使用 `PRAGMA table_info` 校验当前九张业务表的字段顺序，并调用 `ensureSettingsRows` 补齐四张设置表的单行数据。校验失败会阻止 App 继续启动。
 
 ## 数据表
 
@@ -35,20 +35,40 @@
 | `created_at` | 创建时间 |
 | `updated_at` | 更新时间 |
 
-### app_settings
+### task_settings
 
-单行设置表，固定 `id = 1`。包含每日任务、复习提醒、AI 和主题设置。
+单行任务设置表，固定 `id = 1`：
 
-主要字段：
+- `daily_word_limit`
+- `listening_default_rate`
+- `advance_on_mistakes`
+- `listening_word_interval_seconds`
+- `random_word_selection`
 
-- 每日数量：`daily_word_limit`
-- 听力：`listening_default_rate`、`listening_word_interval_seconds`
-- 选词和错题：`random_word_selection`、`wrong_review_random`
-- 复习提醒：`review_reminder_enabled`、`review_reminder_interval_days`
-- 复习数量：`word_review_word_limit`、`wrong_review_word_limit`
-- 行为开关：`advance_on_mistakes`、`auto_remove_correct_wrong_review`
-- 例句：`ai_overwrite_examples`
-- 主题：`theme_mode`、`theme_primary_color`
+### review_settings
+
+单行复习设置表，固定 `id = 1`：
+
+- `last_review_prompt_study_day`
+- `wrong_review_random`
+- `review_reminder_enabled`
+- `review_reminder_interval_days`
+- `word_review_word_limit`
+- `wrong_review_word_limit`
+- `auto_remove_correct_wrong_review`
+
+### ai_settings
+
+单行 AI 设置表，固定 `id = 1`：
+
+- `ai_overwrite_examples`
+
+### theme_settings
+
+单行主题设置表，固定 `id = 1`：
+
+- `theme_mode`
+- `theme_primary_color`
 
 ### user_profile
 
@@ -98,7 +118,7 @@
 - 软清空只改变 `is_active`，不能删除关联历史。
 - 重新导入同一单词沿用原 `words.id`，避免学习记录丢失。
 - 错题移出后，单词状态必须同步为 `learned` 或 `unlearned`。
-- `app_settings` 和 `user_profile` 必须保留固定单行 `id = 1`。
+- 四张设置表和 `user_profile` 必须保留固定单行 `id = 1`。
 
 ## 迁移历史
 
@@ -121,6 +141,7 @@
 | 15 → 16 | 增加旧主题表面色和背景色 |
 | 16 → 17 | 增加当前主题主色并迁移自定义主题 |
 | 17 → 18 | 增加任务选词、复习、错题和统计查询索引 |
+| 18 → 19 | 拆分四张设置表，删除旧提醒列、三个旧主题列和 `app_settings` |
 
 版本 11 没有独立迁移步骤。数据库 v11 不在存档兼容范围内。
 
@@ -137,7 +158,7 @@
 |---|---|
 | 数据库初始化与迁移调度 | `src/database/database.ts` |
 | 版本迁移注册表 | `src/database/migrations.ts` |
-| 设置单行自愈 | `src/database/appSettings.ts` |
+| 设置单行自愈 | `src/database/settingsRows.ts` |
 | 当前字段和结构校验 | `src/database/schema.ts` |
 | 共享查询字段 | `src/database/sqlFragments.ts` |
 | 单词 | `src/database/wordsRepository.ts` |
@@ -157,13 +178,16 @@
 `src/database/schema.ts` 统一定义存档字段和表顺序，`features/archive/archiveSnapshot.ts` 使用该定义保存以下表：
 
 - `words`
-- `app_settings`
+- `task_settings`
+- `review_settings`
+- `ai_settings`
+- `theme_settings`
 - `user_profile`
 - `word_learning_state`
 - `wrong_book_words`
 - `study_sessions`
 
-恢复时按上述依赖顺序删除和插入，并使用同一主连接事务，使该连接已开启的外键约束生效。恢复结束后在同一事务内调用 `ensureAppSettings`。解析和恢复前都会检查字段类型、数值范围、字符串长度、图片 URI、主键重复和引用完整性。任何表字段变化都必须同步：
+恢复时按上述依赖顺序删除和插入，并使用同一主连接事务，使该连接已开启的外键约束生效。恢复结束后在同一事务内调用 `ensureSettingsRows`。解析和恢复前都会检查字段类型、数值范围、字符串长度、图片 URI、主键重复和引用完整性。任何表字段变化都必须同步：
 
 1. `src/database/schema.ts` 中的 `DATABASE_TABLE_SCHEMAS`
 2. 旧版本默认值
@@ -181,15 +205,15 @@
 
 ## 数据测试
 
-`tests/data.test.ts` 当前包含 24 项测试：
+`tests/data.test.ts` 当前包含 26 项测试：
 
 - 真实迁移后的 schema 校验。
-- v0 → v18 迁移和默认设置。
+- v0 → v19 迁移和默认设置。
 - 字段漂移拒绝。
 - 存档 JSON round-trip 和错误格式拒绝。
 - 迁移中途失败时整批回滚。
 - schema 已前进但 `user_version` 仍为 0 时自动修复。
-- `app_settings` 单行缺失后保存主题可自愈。
+- 设置表单行缺失后保存主题可自愈。
 - 拒绝未来数据库版本和不支持的 v11。
 - 读取每日任务设置不会创建缺失行。
 - v16 自定义主题迁移到当前存档结构。
@@ -197,6 +221,8 @@
 - 空设置表存档恢复后自动补齐默认设置。
 - v10 资料和主题缺列默认值。
 - v14 无主题字段时恢复默认主题。
+- v18 数据库设置迁移到四张 v19 设置表。
+- v18 旧存档的 `app_settings` 自动转换为 v19 四张设置表。
 - 每日任务只在完成页单事务写错题、学习状态和打卡。
 - 错题回顾只在完成页自动移出正确单词。
 - v18 查询索引创建成功。
@@ -209,4 +235,4 @@
 - `idx_wrong_last_wrong`：错题最近答错时间排序。
 - `idx_sessions_study_date`：首页今日学习和学习天数统计。
 
-v17 存档与 v18 表结构相同，继续保留在存档兼容范围内。
+v18 及更早存档继续保留兼容，解析时会把旧 `app_settings` 拆分为四张设置表。

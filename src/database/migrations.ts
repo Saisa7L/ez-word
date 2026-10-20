@@ -430,6 +430,106 @@ export const MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    description: '拆分设置表并移除旧主题列',
+    to: 19,
+    up: async (db) => {
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS task_settings (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          daily_word_limit INTEGER NOT NULL DEFAULT 10,
+          listening_default_rate REAL NOT NULL DEFAULT 1,
+          advance_on_mistakes INTEGER NOT NULL DEFAULT 1,
+          listening_word_interval_seconds REAL NOT NULL DEFAULT 5,
+          random_word_selection INTEGER NOT NULL DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS review_settings (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          last_review_prompt_study_day INTEGER NOT NULL DEFAULT 0,
+          wrong_review_random INTEGER NOT NULL DEFAULT 0,
+          review_reminder_enabled INTEGER NOT NULL DEFAULT 1,
+          review_reminder_interval_days INTEGER NOT NULL DEFAULT 3,
+          word_review_word_limit INTEGER NOT NULL DEFAULT 10,
+          wrong_review_word_limit INTEGER NOT NULL DEFAULT 10,
+          auto_remove_correct_wrong_review INTEGER NOT NULL DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS ai_settings (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          ai_overwrite_examples INTEGER NOT NULL DEFAULT 0
+        );
+
+        CREATE TABLE IF NOT EXISTS theme_settings (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          theme_mode TEXT NOT NULL DEFAULT 'day'
+            CHECK (theme_mode IN ('day', 'night', 'custom')),
+          theme_primary_color TEXT NOT NULL DEFAULT '${DEFAULT_THEME_PRIMARY_COLOR}'
+        );
+
+        INSERT OR IGNORE INTO task_settings (
+          id,
+          daily_word_limit,
+          listening_default_rate,
+          advance_on_mistakes,
+          listening_word_interval_seconds,
+          random_word_selection
+        )
+        SELECT
+          id,
+          daily_word_limit,
+          listening_default_rate,
+          advance_on_mistakes,
+          listening_word_interval_seconds,
+          random_word_selection
+        FROM app_settings
+        WHERE id = 1;
+
+        INSERT OR IGNORE INTO review_settings (
+          id,
+          last_review_prompt_study_day,
+          wrong_review_random,
+          review_reminder_enabled,
+          review_reminder_interval_days,
+          word_review_word_limit,
+          wrong_review_word_limit,
+          auto_remove_correct_wrong_review
+        )
+        SELECT
+          id,
+          last_review_prompt_study_day,
+          wrong_review_random,
+          review_reminder_enabled,
+          review_reminder_interval_days,
+          word_review_word_limit,
+          wrong_review_word_limit,
+          auto_remove_correct_wrong_review
+        FROM app_settings
+        WHERE id = 1;
+
+        INSERT OR IGNORE INTO ai_settings (id, ai_overwrite_examples)
+        SELECT id, ai_overwrite_examples
+        FROM app_settings
+        WHERE id = 1;
+
+        INSERT OR IGNORE INTO theme_settings (
+          id,
+          theme_mode,
+          theme_primary_color
+        )
+        SELECT id, theme_mode, theme_primary_color
+        FROM app_settings
+        WHERE id = 1;
+
+        INSERT OR IGNORE INTO task_settings (id) VALUES (1);
+        INSERT OR IGNORE INTO review_settings (id) VALUES (1);
+        INSERT OR IGNORE INTO ai_settings (id) VALUES (1);
+        INSERT OR IGNORE INTO theme_settings (id) VALUES (1);
+
+        DROP TABLE app_settings;
+      `);
+    },
+  },
 ];
 
 export async function runMigrations(

@@ -15,13 +15,13 @@
 ## 运行时入口
 
 ```text
-app_settings
+theme_settings
 → ThemeProvider
 → createThemeColors(mode, primaryColor)
 → useThemedStyles(createStyles)
 ```
 
-主题设置的保存位置是 `app_settings.theme_mode` 和 `app_settings.theme_primary_color`，并包含在本地存档中。
+主题设置的保存位置是 `theme_settings.theme_mode` 和 `theme_settings.theme_primary_color`，并包含在本地存档中。
 
 ## 颜色令牌
 

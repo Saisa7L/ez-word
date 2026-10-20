@@ -41,13 +41,16 @@ export type DailyTaskSettings = {
   wordReviewWordLimit: number;
 };
 
-type SettingsRow = {
+type TaskSettingsRow = {
   advance_on_mistakes: number;
-  auto_remove_correct_wrong_review: number;
   daily_word_limit: number;
   listening_default_rate: number;
   listening_word_interval_seconds: number;
   random_word_selection: number;
+};
+
+type ReviewSettingsRow = {
+  auto_remove_correct_wrong_review: number;
   review_reminder_enabled: number;
   review_reminder_interval_days: number;
   wrong_review_random: number;
@@ -117,43 +120,74 @@ export function normalizeReviewWordLimit(value: number): number {
 export async function getDailyTaskSettings(
   db: SQLiteDatabase,
 ): Promise<DailyTaskSettings> {
-  const row = await db.getFirstAsync<SettingsRow>(
-    `SELECT
-       advance_on_mistakes,
-       auto_remove_correct_wrong_review,
-       daily_word_limit,
-       listening_default_rate,
-       listening_word_interval_seconds,
-       random_word_selection,
-       review_reminder_enabled,
-       review_reminder_interval_days,
-       wrong_review_random,
-       wrong_review_word_limit,
-       word_review_word_limit
-     FROM app_settings
-     WHERE id = 1`,
-  );
+  const [taskRow, reviewRow] = await Promise.all([
+    db.getFirstAsync<TaskSettingsRow>(
+      `SELECT
+         advance_on_mistakes,
+         daily_word_limit,
+         listening_default_rate,
+         listening_word_interval_seconds,
+         random_word_selection
+       FROM task_settings
+       WHERE id = 1`,
+    ),
+    db.getFirstAsync<ReviewSettingsRow>(
+      `SELECT
+         auto_remove_correct_wrong_review,
+         review_reminder_enabled,
+         review_reminder_interval_days,
+         wrong_review_random,
+         wrong_review_word_limit,
+         word_review_word_limit
+       FROM review_settings
+       WHERE id = 1`,
+    ),
+  ]);
 
-  if (!row) {
+  if (!taskRow && !reviewRow) {
     return { ...DEFAULT_DAILY_TASK_SETTINGS };
   }
 
   return {
-    advanceOnMistakes: row.advance_on_mistakes === 1,
-    autoRemoveCorrectWrongReview: row.auto_remove_correct_wrong_review === 1,
-    dailyWordLimit: normalizeDailyWordLimit(row.daily_word_limit),
-    listeningDefaultRate: normalizeListeningRate(row.listening_default_rate),
+    advanceOnMistakes:
+      (taskRow?.advance_on_mistakes ??
+        (DEFAULT_DAILY_TASK_SETTINGS.advanceOnMistakes ? 1 : 0)) === 1,
+    autoRemoveCorrectWrongReview:
+      (reviewRow?.auto_remove_correct_wrong_review ??
+        (DEFAULT_DAILY_TASK_SETTINGS.autoRemoveCorrectWrongReview ? 1 : 0)) ===
+      1,
+    dailyWordLimit: normalizeDailyWordLimit(
+      taskRow?.daily_word_limit ?? DEFAULT_DAILY_TASK_SETTINGS.dailyWordLimit,
+    ),
+    listeningDefaultRate: normalizeListeningRate(
+      taskRow?.listening_default_rate ??
+        DEFAULT_DAILY_TASK_SETTINGS.listeningDefaultRate,
+    ),
     listeningWordIntervalSeconds: normalizeListeningWordInterval(
-      row.listening_word_interval_seconds,
+      taskRow?.listening_word_interval_seconds ??
+        DEFAULT_DAILY_TASK_SETTINGS.listeningWordIntervalSeconds,
     ),
-    randomWordSelection: row.random_word_selection === 1,
-    reviewReminderEnabled: row.review_reminder_enabled === 1,
+    randomWordSelection:
+      (taskRow?.random_word_selection ??
+        (DEFAULT_DAILY_TASK_SETTINGS.randomWordSelection ? 1 : 0)) === 1,
+    reviewReminderEnabled:
+      (reviewRow?.review_reminder_enabled ??
+        (DEFAULT_DAILY_TASK_SETTINGS.reviewReminderEnabled ? 1 : 0)) === 1,
     reviewReminderIntervalDays: normalizeReviewReminderInterval(
-      row.review_reminder_interval_days,
+      reviewRow?.review_reminder_interval_days ??
+        DEFAULT_DAILY_TASK_SETTINGS.reviewReminderIntervalDays,
     ),
-    wrongReviewRandom: row.wrong_review_random === 1,
-    wrongReviewWordLimit: normalizeReviewWordLimit(row.wrong_review_word_limit),
-    wordReviewWordLimit: normalizeReviewWordLimit(row.word_review_word_limit),
+    wrongReviewRandom:
+      (reviewRow?.wrong_review_random ??
+        (DEFAULT_DAILY_TASK_SETTINGS.wrongReviewRandom ? 1 : 0)) === 1,
+    wrongReviewWordLimit: normalizeReviewWordLimit(
+      reviewRow?.wrong_review_word_limit ??
+        DEFAULT_DAILY_TASK_SETTINGS.wrongReviewWordLimit,
+    ),
+    wordReviewWordLimit: normalizeReviewWordLimit(
+      reviewRow?.word_review_word_limit ??
+        DEFAULT_DAILY_TASK_SETTINGS.wordReviewWordLimit,
+    ),
   };
 }
 
@@ -161,71 +195,85 @@ export async function saveDailyTaskSettings(
   db: SQLiteDatabase,
   settings: DailyTaskSettings,
 ): Promise<void> {
-  await db.runAsync(
-    `INSERT INTO app_settings (
-       advance_on_mistakes,
-       auto_remove_correct_wrong_review,
-       id,
-       daily_word_limit,
-       listening_default_rate,
-       listening_word_interval_seconds,
-       random_word_selection,
-       review_reminder_enabled,
-       review_reminder_interval_days,
-       wrong_review_random,
-       wrong_review_word_limit,
-       word_review_word_limit
-     )
-     VALUES (
-       $advanceOnMistakes,
-       $autoRemoveCorrectWrongReview,
-       1,
-       $dailyWordLimit,
-       $listeningDefaultRate,
-       $listeningWordIntervalSeconds,
-       $randomWordSelection,
-       $reviewReminderEnabled,
-       $reviewReminderIntervalDays,
-       $wrongReviewRandom,
-       $wrongReviewWordLimit,
-       $wordReviewWordLimit
-     )
-     ON CONFLICT(id) DO UPDATE SET
-       advance_on_mistakes = excluded.advance_on_mistakes,
-       auto_remove_correct_wrong_review = excluded.auto_remove_correct_wrong_review,
-       daily_word_limit = excluded.daily_word_limit,
-       listening_default_rate = excluded.listening_default_rate,
-       listening_word_interval_seconds = excluded.listening_word_interval_seconds,
-       random_word_selection = excluded.random_word_selection,
-       review_reminder_enabled = excluded.review_reminder_enabled,
-       review_reminder_interval_days = excluded.review_reminder_interval_days,
-       wrong_review_random = excluded.wrong_review_random,
-       wrong_review_word_limit = excluded.wrong_review_word_limit,
-       word_review_word_limit = excluded.word_review_word_limit`,
-    {
-      $advanceOnMistakes: settings.advanceOnMistakes ? 1 : 0,
-      $autoRemoveCorrectWrongReview: settings.autoRemoveCorrectWrongReview
-        ? 1
-        : 0,
-      $dailyWordLimit: normalizeDailyWordLimit(settings.dailyWordLimit),
-      $listeningDefaultRate: normalizeListeningRate(
-        settings.listeningDefaultRate,
-      ),
-      $listeningWordIntervalSeconds: normalizeListeningWordInterval(
-        settings.listeningWordIntervalSeconds,
-      ),
-      $randomWordSelection: settings.randomWordSelection ? 1 : 0,
-      $reviewReminderEnabled: settings.reviewReminderEnabled ? 1 : 0,
-      $reviewReminderIntervalDays: normalizeReviewReminderInterval(
-        settings.reviewReminderIntervalDays,
-      ),
-      $wrongReviewRandom: settings.wrongReviewRandom ? 1 : 0,
-      $wrongReviewWordLimit: normalizeReviewWordLimit(
-        settings.wrongReviewWordLimit,
-      ),
-      $wordReviewWordLimit: normalizeReviewWordLimit(
-        settings.wordReviewWordLimit,
-      ),
-    },
-  );
+  await db.withTransactionAsync(async () => {
+    await db.runAsync(
+      `INSERT INTO task_settings (
+         id,
+         advance_on_mistakes,
+         daily_word_limit,
+         listening_default_rate,
+         listening_word_interval_seconds,
+         random_word_selection
+       )
+       VALUES (
+         1,
+         $advanceOnMistakes,
+         $dailyWordLimit,
+         $listeningDefaultRate,
+         $listeningWordIntervalSeconds,
+         $randomWordSelection
+       )
+       ON CONFLICT(id) DO UPDATE SET
+         advance_on_mistakes = excluded.advance_on_mistakes,
+         daily_word_limit = excluded.daily_word_limit,
+         listening_default_rate = excluded.listening_default_rate,
+         listening_word_interval_seconds = excluded.listening_word_interval_seconds,
+         random_word_selection = excluded.random_word_selection`,
+      {
+        $advanceOnMistakes: settings.advanceOnMistakes ? 1 : 0,
+        $dailyWordLimit: normalizeDailyWordLimit(settings.dailyWordLimit),
+        $listeningDefaultRate: normalizeListeningRate(
+          settings.listeningDefaultRate,
+        ),
+        $listeningWordIntervalSeconds: normalizeListeningWordInterval(
+          settings.listeningWordIntervalSeconds,
+        ),
+        $randomWordSelection: settings.randomWordSelection ? 1 : 0,
+      },
+    );
+
+    await db.runAsync(
+      `INSERT INTO review_settings (
+         id,
+         auto_remove_correct_wrong_review,
+         review_reminder_enabled,
+         review_reminder_interval_days,
+         wrong_review_random,
+         wrong_review_word_limit,
+         word_review_word_limit
+       )
+       VALUES (
+         1,
+         $autoRemoveCorrectWrongReview,
+         $reviewReminderEnabled,
+         $reviewReminderIntervalDays,
+         $wrongReviewRandom,
+         $wrongReviewWordLimit,
+         $wordReviewWordLimit
+       )
+       ON CONFLICT(id) DO UPDATE SET
+         auto_remove_correct_wrong_review = excluded.auto_remove_correct_wrong_review,
+         review_reminder_enabled = excluded.review_reminder_enabled,
+         review_reminder_interval_days = excluded.review_reminder_interval_days,
+         wrong_review_random = excluded.wrong_review_random,
+         wrong_review_word_limit = excluded.wrong_review_word_limit,
+         word_review_word_limit = excluded.word_review_word_limit`,
+      {
+        $autoRemoveCorrectWrongReview: settings.autoRemoveCorrectWrongReview
+          ? 1
+          : 0,
+        $reviewReminderEnabled: settings.reviewReminderEnabled ? 1 : 0,
+        $reviewReminderIntervalDays: normalizeReviewReminderInterval(
+          settings.reviewReminderIntervalDays,
+        ),
+        $wrongReviewRandom: settings.wrongReviewRandom ? 1 : 0,
+        $wrongReviewWordLimit: normalizeReviewWordLimit(
+          settings.wrongReviewWordLimit,
+        ),
+        $wordReviewWordLimit: normalizeReviewWordLimit(
+          settings.wordReviewWordLimit,
+        ),
+      },
+    );
+  });
 }

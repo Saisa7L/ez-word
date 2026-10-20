@@ -13,7 +13,7 @@
 | 入口 | 生命周期 | 暴露接口 | 持久化 |
 |---|---|---|---|
 | `SQLiteProvider` | 整个 App | SQLite 连接和迁移 | SQLite |
-| `ThemeProvider` | 整个 App | `useAppTheme`、`saveTheme`、`reloadTheme` | `app_settings` |
+| `ThemeProvider` | 整个 App | `useAppTheme`、`saveTheme`、`reloadTheme` | `theme_settings` |
 | `DailyTaskProvider` | 整个 App | 当前任务状态和任务操作 | 无 |
 | `AppFeedbackProvider` | 整个 App | `showNotice`、`showConfirm` | 无 |
 
@@ -245,13 +245,13 @@ Provider 内部分成两个 Context：
 
 `src/database/migrations.ts` 维护：
 
-- `MIGRATIONS`：v1-v18 的版本注册表，v10 直接迁移到 v12。
+- `MIGRATIONS`：v1-v19 的版本注册表，v10 直接迁移到 v12。
 - `runMigrations(db, currentVersion)`：在同一主连接事务中按序执行，并在每步后写入 `user_version`。
 - `ensureColumn`：执行 `ALTER TABLE` 前检查真实列，兼容旧实现留下的部分迁移状态。
 
-`src/database/appSettings.ts` 维护：
+`src/database/settingsRows.ts` 维护：
 
-- `ensureAppSettings(db)`：通过 `INSERT OR IGNORE` 补齐固定 `id = 1` 设置行。
+- `ensureSettingsRows(db)`：通过 `INSERT OR IGNORE` 补齐 `task_settings`、`review_settings`、`ai_settings` 和 `theme_settings` 的固定 `id = 1` 设置行。
 - 启动迁移、主题保存、AI 设置和复习提醒写入会调用该函数。
 
 `src/database/sqlFragments.ts` 维护 `WordRecord` 查询字段列表，仓库通过 `selectWordColumns(alias?)` 生成 SELECT 字段，避免字段顺序在多个仓库中重复。

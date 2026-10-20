@@ -64,7 +64,7 @@ RootLayout
 | `database/schema.ts` | 当前表字段、存档字段和结构校验 | `validateDatabaseSchema` |
 | `database/sqlFragments.ts` | 跨仓库共享的查询字段片段 | `selectWordColumns` |
 | `database/migrations.ts` | 版本迁移注册表和统一事务执行 | `MIGRATIONS`、`runMigrations` |
-| `database/appSettings.ts` | 设置单行缺失时自动补齐 | `ensureAppSettings` |
+| `database/settingsRows.ts` | 四张设置表单行缺失时自动补齐 | `ensureSettingsRows` |
 | `database/taskCompletionRepository.ts` | 完成页统一结算任务数据 | `completeTaskSession` |
 | `database/taskWordMapper.ts` | 数据库行到任务领域对象映射 | `mapTaskWordRow` |
 | `hooks/useDailyTaskPhaseGuard` | 任务路由与显式阶段一致性校验 | `useDailyTaskPhaseGuard` |
@@ -78,14 +78,14 @@ RootLayout
 
 | 状态 | 所属位置 | 是否持久化 |
 |---|---|---|
-| 当前主题 | `ThemeProvider` | 是，`app_settings` |
+| 当前主题 | `ThemeProvider` | 是，`theme_settings` |
 | 当前任务单词、任务最终错词、计时 | `DailyTaskProvider` | 否，离开任务即重置 |
 | 填空答案和当前页填空错误标记 | 填空页面局部状态 | 否 |
 | 听力答案和当前页听力错误标记 | 听力页面局部状态 | 否 |
 | 首页统计和用户名头像 | 首页局部状态 | 从 SQLite 每次进入时读取 |
 | 错题本、词库分页和选择 | 对应页面局部状态 | 选择是临时的，数据写入 SQLite |
 | 全局提示和确认弹窗 | `AppFeedbackProvider` | 否 |
-| 资料、设置、学习记录、主题 | SQLite | 是 |
+| 资料、任务/复习/AI/主题设置、学习记录 | SQLite | 是 |
 
 ## 依赖方向
 

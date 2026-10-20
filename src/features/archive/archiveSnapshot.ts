@@ -17,16 +17,16 @@ import {
   DEFAULT_THEME_PRIMARY_COLOR,
   normalizeThemeColor,
 } from '@/constants/theme';
-import { ensureAppSettings } from '@/database/appSettings';
 import { DATABASE_VERSION } from '@/database/database';
 import {
   ARCHIVE_INSERT_ORDER as INSERT_ORDER,
   ARCHIVE_TABLE_DEFINITIONS as ARCHIVE_TABLES,
 } from '@/database/schema';
+import { ensureSettingsRows } from '@/database/settingsRows';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
-const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16, 17];
+const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16, 17, 18];
 const MAX_ID = 1_000_000_000;
 
 type ArchiveValue = number | string | null;
@@ -52,22 +52,24 @@ export type ArchiveSummary = {
 const NULLABLE_COLUMNS = new Set(['words.example_generated_at']);
 
 const INTEGER_RANGES: Record<string, readonly [number, number]> = {
-  'app_settings.advance_on_mistakes': [0, 1],
-  'app_settings.ai_overwrite_examples': [0, 1],
-  'app_settings.auto_remove_correct_wrong_review': [0, 1],
-  'app_settings.daily_word_limit': [5, 50],
-  'app_settings.id': [1, 1],
-  'app_settings.last_review_prompt_checkin': [0, MAX_ID],
-  'app_settings.last_review_prompt_study_day': [0, MAX_ID],
-  'app_settings.random_word_selection': [0, 1],
-  'app_settings.review_reminder_enabled': [0, 1],
-  'app_settings.review_reminder_interval_days': [1, 30],
-  'app_settings.word_review_word_limit': [1, 100],
-  'app_settings.wrong_review_random': [0, 1],
-  'app_settings.wrong_review_word_limit': [1, 100],
+  'ai_settings.ai_overwrite_examples': [0, 1],
+  'ai_settings.id': [1, 1],
+  'review_settings.auto_remove_correct_wrong_review': [0, 1],
+  'review_settings.id': [1, 1],
+  'review_settings.last_review_prompt_study_day': [0, MAX_ID],
+  'review_settings.review_reminder_enabled': [0, 1],
+  'review_settings.review_reminder_interval_days': [1, 30],
+  'review_settings.word_review_word_limit': [1, 100],
+  'review_settings.wrong_review_random': [0, 1],
+  'review_settings.wrong_review_word_limit': [1, 100],
   'study_sessions.id': [1, MAX_ID],
   'study_sessions.word_count': [0, MAX_ID],
   'study_sessions.wrong_count': [0, MAX_ID],
+  'task_settings.advance_on_mistakes': [0, 1],
+  'task_settings.daily_word_limit': [5, 50],
+  'task_settings.id': [1, 1],
+  'task_settings.random_word_selection': [0, 1],
+  'theme_settings.id': [1, 1],
   'user_profile.id': [1, 1],
   'word_learning_state.learned_count': [0, MAX_ID],
   'word_learning_state.word_id': [1, MAX_ID],
@@ -78,8 +80,8 @@ const INTEGER_RANGES: Record<string, readonly [number, number]> = {
 };
 
 const REAL_RANGES: Record<string, readonly [number, number]> = {
-  'app_settings.listening_default_rate': [0.5, 2],
-  'app_settings.listening_word_interval_seconds': [1, 10],
+  'task_settings.listening_default_rate': [0.5, 2],
+  'task_settings.listening_word_interval_seconds': [1, 10],
   'user_profile.text_stroke_width': [0, 5],
 };
 
@@ -99,7 +101,7 @@ const NON_EMPTY_STRINGS = new Set([
 ]);
 
 const COLOR_COLUMNS = new Set([
-  'app_settings.theme_primary_color',
+  'theme_settings.theme_primary_color',
   'user_profile.card_content_color',
   'user_profile.text_stroke_color',
 ]);
@@ -110,13 +112,112 @@ const IMAGE_COLUMNS = new Set([
 ]);
 
 const PRIMARY_KEYS: Record<string, string> = {
-  app_settings: 'id',
+  ai_settings: 'id',
+  review_settings: 'id',
   study_sessions: 'id',
+  task_settings: 'id',
+  theme_settings: 'id',
   user_profile: 'id',
   word_learning_state: 'word_id',
   words: 'id',
   wrong_book_words: 'word_id',
 };
+
+const SINGLETON_SETTINGS_TABLES = [
+  'task_settings',
+  'review_settings',
+  'ai_settings',
+  'theme_settings',
+] as const;
+
+function normalizeLegacyArchiveTables(
+  sourceTables: Record<string, unknown>,
+  databaseVersion: number,
+): Record<string, unknown> {
+  if (databaseVersion >= 19) {
+    return sourceTables;
+  }
+
+  const legacyRows = sourceTables.app_settings;
+  if (!Array.isArray(legacyRows)) {
+    throw new Error('存档缺少数据表：app_settings');
+  }
+  if (legacyRows.length > 1) {
+    throw new Error('app_settings 只能包含一行');
+  }
+  if (legacyRows.length === 0) {
+    return {
+      ...sourceTables,
+      ai_settings: [],
+      review_settings: [],
+      task_settings: [],
+      theme_settings: [],
+    };
+  }
+
+  const legacyRow = legacyRows[0];
+  if (!legacyRow || typeof legacyRow !== 'object') {
+    throw new Error('app_settings 第 1 行格式错误');
+  }
+  const source = legacyRow as Record<string, unknown>;
+  const themeMode =
+    databaseVersion < 15 && source.theme_mode === undefined
+      ? DEFAULT_THEME_MODE
+      : source.theme_mode;
+  let themePrimaryColor = source.theme_primary_color;
+  if (databaseVersion < 17 && themePrimaryColor === undefined) {
+    if (themeMode === 'custom') {
+      const legacyColor =
+        source.theme_surface_color ?? source.theme_accent_color;
+      themePrimaryColor =
+        typeof legacyColor === 'string'
+          ? normalizeThemeColor(legacyColor, DEFAULT_THEME_PRIMARY_COLOR)
+          : DEFAULT_THEME_PRIMARY_COLOR;
+    } else {
+      themePrimaryColor = DEFAULT_THEME_PRIMARY_COLOR;
+    }
+  }
+
+  return {
+    ...sourceTables,
+    ai_settings: [
+      {
+        ai_overwrite_examples: source.ai_overwrite_examples,
+        id: source.id,
+      },
+    ],
+    review_settings: [
+      {
+        auto_remove_correct_wrong_review:
+          source.auto_remove_correct_wrong_review,
+        id: source.id,
+        last_review_prompt_study_day: source.last_review_prompt_study_day,
+        review_reminder_enabled: source.review_reminder_enabled,
+        review_reminder_interval_days: source.review_reminder_interval_days,
+        word_review_word_limit: source.word_review_word_limit,
+        wrong_review_random: source.wrong_review_random,
+        wrong_review_word_limit: source.wrong_review_word_limit,
+      },
+    ],
+    task_settings: [
+      {
+        advance_on_mistakes: source.advance_on_mistakes,
+        daily_word_limit: source.daily_word_limit,
+        id: source.id,
+        listening_default_rate: source.listening_default_rate,
+        listening_word_interval_seconds: source.listening_word_interval_seconds,
+        random_word_selection: source.random_word_selection,
+      },
+    ],
+    theme_settings: [
+      {
+        id: source.id,
+        theme_mode: themeMode,
+        theme_primary_color: themePrimaryColor,
+      },
+    ],
+  };
+}
 
 function buildSummary(tables: Record<string, ArchiveRow[]>): ArchiveSummary {
   return {
@@ -193,9 +294,13 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
   }
 
   const databaseVersion = archive.databaseVersion;
+  const sourceTables = normalizeLegacyArchiveTables(
+    archive.tables as Record<string, unknown>,
+    databaseVersion,
+  );
   const tables: Record<string, ArchiveRow[]> = {};
   for (const table of ARCHIVE_TABLES) {
-    const rows = (archive.tables as Record<string, unknown>)[table.name];
+    const rows = sourceTables[table.name];
     if (!Array.isArray(rows)) {
       throw new Error(`存档缺少数据表：${table.name}`);
     }
@@ -255,22 +360,6 @@ function getLegacyColumnDefault(
   source: Record<string, unknown>,
   databaseVersion: number,
 ): ArchiveValue | undefined {
-  if (tableName === 'app_settings') {
-    if (column === 'theme_mode' && databaseVersion < 15) {
-      return DEFAULT_THEME_MODE;
-    }
-    if (column === 'theme_primary_color' && databaseVersion < 17) {
-      if (source.theme_mode === 'custom') {
-        const legacyColor =
-          source.theme_surface_color ?? source.theme_accent_color;
-        return typeof legacyColor === 'string'
-          ? normalizeThemeColor(legacyColor, DEFAULT_THEME_PRIMARY_COLOR)
-          : DEFAULT_THEME_PRIMARY_COLOR;
-      }
-      return DEFAULT_THEME_PRIMARY_COLOR;
-    }
-  }
-
   if (tableName === 'user_profile') {
     if (
       databaseVersion < 12 &&
@@ -312,8 +401,10 @@ function validateArchiveTables(tables: Record<string, ArchiveRow[]>): void {
     });
   }
 
-  if ((tables.app_settings?.length ?? 0) > 1) {
-    throw new Error('app_settings 只能包含一行');
+  for (const tableName of SINGLETON_SETTINGS_TABLES) {
+    if ((tables[tableName]?.length ?? 0) > 1) {
+      throw new Error(`${tableName} 只能包含一行`);
+    }
   }
   if ((tables.user_profile?.length ?? 0) > 1) {
     throw new Error('user_profile 只能包含一行');
@@ -404,7 +495,7 @@ function validateArchiveValue(
     throw new Error(`${rowLabel} 不是有效颜色`);
   }
   if (
-    field === 'app_settings.theme_mode' &&
+    field === 'theme_settings.theme_mode' &&
     !['day', 'night', 'custom'].includes(value)
   ) {
     throw new Error(`${rowLabel} 不是有效主题模式`);
@@ -467,7 +558,10 @@ export async function restoreArchiveSnapshot(
       DELETE FROM word_learning_state;
       DELETE FROM study_sessions;
       DELETE FROM words;
-      DELETE FROM app_settings;
+      DELETE FROM task_settings;
+      DELETE FROM review_settings;
+      DELETE FROM ai_settings;
+      DELETE FROM theme_settings;
       DELETE FROM user_profile;
       DELETE FROM sqlite_sequence
       WHERE name IN ('words', 'study_sessions');
@@ -494,6 +588,6 @@ export async function restoreArchiveSnapshot(
       }
     }
 
-    await ensureAppSettings(db);
+    await ensureSettingsRows(db);
   });
 }

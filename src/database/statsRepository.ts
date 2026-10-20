@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { formatLocalDate } from '@/utils/date';
 
-import { ensureAppSettings } from './appSettings';
+import { ensureSettingsRows } from './settingsRows';
 
 export type HomeStats = {
   checkinCount: number;
@@ -50,7 +50,7 @@ export async function getLastReviewPromptStudyDay(
 ): Promise<number> {
   const row = await db.getFirstAsync<{ last_review_prompt_study_day: number }>(
     `SELECT last_review_prompt_study_day
-     FROM app_settings
+     FROM review_settings
      WHERE id = 1`,
   );
   return row?.last_review_prompt_study_day ?? 0;
@@ -60,9 +60,9 @@ export async function markReviewPrompted(
   db: SQLiteDatabase,
   studyDay: number,
 ): Promise<void> {
-  await ensureAppSettings(db);
+  await ensureSettingsRows(db);
   await db.runAsync(
-    `UPDATE app_settings
+    `UPDATE review_settings
      SET last_review_prompt_study_day = $studyDay
      WHERE id = 1
        AND last_review_prompt_study_day < $studyDay`,

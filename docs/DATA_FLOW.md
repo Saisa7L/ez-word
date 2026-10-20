@@ -7,7 +7,7 @@
 ```text
 RootLayout
 → SQLiteProvider 打开 vocabulary.db
-→ migrateDatabase 升级到 v18
+→ migrateDatabase 升级到 v19
 → ThemeProvider 读取主题
 → DailyTaskProvider 建立空任务状态
 → AppFeedbackProvider 挂载全局反馈弹层
@@ -173,7 +173,7 @@ AI 设置页
 
 ```text
 主题页选择草稿
-→ saveThemeSettings 写入 app_settings
+→ saveThemeSettings 写入 theme_settings
 → ThemeProvider 更新 mode 和 primaryColor
 → createThemeColors 生成完整调色板
 → useThemedStyles 重建页面样式
@@ -211,7 +211,7 @@ archive.tsx
 → 旧版本存档迁移主题与资料默认值
 → 用户确认
 → restoreArchiveSnapshot 在同一主连接事务内清空并重建数据
-→ ensureAppSettings 补设置单行
+→ ensureSettingsRows 补四张设置表单行
 → reloadTheme
 → 页面重新读取数据
 ```
@@ -226,8 +226,9 @@ archive.tsx
 | 学习状态 | `words`、`word_learning_state` | `reviewRepository`、`statsRepository` | `completeTaskSession` |
 | 错题 | `wrong_book_words`、`words` | `wrongBookRepository` | `completeTaskSession`、`addWrongBookWords` |
 | 打卡 | `study_sessions` | `statsRepository` | `completeTaskSession` |
-| 每日任务设置 | `app_settings` | `settingsRepository` | `saveDailyTaskSettings` |
-| 主题 | `app_settings` | `themeRepository` | `saveThemeSettings` |
+| 每日任务设置 | `task_settings`、`review_settings` | `settingsRepository` | `saveDailyTaskSettings` |
+| AI 设置 | `ai_settings` | `aiRepository` | `setAiOverwriteExamples` |
+| 主题 | `theme_settings` | `themeRepository` | `saveThemeSettings` |
 | 个人资料 | `user_profile` | `userProfileRepository` | `updateUserProfile` |
 | API Key | SecureStore | `aiKeyStore` | `aiKeyStore` |
 
