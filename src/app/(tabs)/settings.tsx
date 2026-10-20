@@ -41,7 +41,9 @@ export default function SettingsScreen() {
     }, [db]),
   );
 
-  const avatarSource = avatarData ? { uri: avatarData } : uiAssets.avatars.user;
+  const avatarSource = avatarData
+    ? { uri: avatarData }
+    : uiAssets.avatars.default;
 
   return (
     <GreenSheetScreen title="我的">

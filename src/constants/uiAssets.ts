@@ -3,8 +3,7 @@ export const uiAssets = {
     icon: require('../../assets/app/icon.png'),
   },
   avatars: {
-    dinosaur: require('../../assets/ui/shared/avatar-dinosaur.png'),
-    user: require('../../assets/ui/shared/avatar-user.png'),
+    default: require('../../assets/ui/shared/avatar-user.png'),
   },
   dailyTask: {
     complete: require('../../assets/ui/daily-task/complete.png'),

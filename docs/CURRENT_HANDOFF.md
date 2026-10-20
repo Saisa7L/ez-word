@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 20:35
+最后更新：2026-10-20 20:39
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`97a2649 Add reproducible engineering quality gates`
-- 当前阶段：P2-5 依赖清理已完成自动验证，随本批提交
+- 已提交基线：`5235883 Remove unused document picker dependency`
+- 当前阶段：P2-4 资源优化已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：已移除未使用的 `expo-document-picker`，并确认 Router 必需依赖
+- 当前工作：App 图标、favicon、启动图和页面插画已压缩，重复与废弃资源已删除
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -44,8 +44,8 @@ git log --oneline --decorate -5
 ## 下一轮重构
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
-- P2-6、P2-5 已完成；下一批进入 P2-4 资源优化。
-- P2-1/P2-3 schema 清理必须等旧数据库和旧存档迁移方案明确后单独执行。
+- P2-6、P2-5、P2-4 已完成；下一批进入 P2-1/P2-2/P2-3 数据模型批次。
+- 数据模型批次必须先备份真实数据库，并补旧数据库、旧存档、新存档三向兼容测试。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
 ## P2-6 工程化门禁结果
@@ -69,6 +69,18 @@ git log --oneline --decorate -5
 - `npx expo install --check` 显示依赖全部匹配。
 - 已通过 `npm run check` 和 Android 离线导出。
 - `npm audit --omit=dev` 仍报告 30 个传递依赖审计项，来源为 Expo/Metro/Router；强制修复会要求 Expo 44 降级或 Router 58 跨大版本升级，本批不执行。
+
+## P2-4 资源优化结果
+
+- App 图标保持 1024 × 1024，并通过调色板压缩从约 906KB 降到 364KB。
+- favicon 从 1024 × 1024、约 906KB 调整为 64 × 64、约 3.5KB。
+- 启动图从 1024 × 1024、约 906KB 调整为 768 × 768、约 238KB。
+- 三张页面大插画从 120–161KB 压缩到 35–47KB，像素尺寸不变。
+- 删除 P5 已废弃的 `assets/app/android` adaptive 模板资源，保持 P5 收口的主图标方案。
+- 两个同哈希头像收敛为 `avatar-user.png`，`uiAssets` 统一暴露 `avatars.default`。
+- 资源总量从 3,291,233 字节降到 778,506 字节，减少 2,512,727 字节，约 76.3%。
+- 当前资源目录无重复哈希文件。
+- 已通过 `npm run check` 和 Android 离线导出。
 
 ## P0 批次 0-3 结果
 
@@ -284,10 +296,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-5 依赖清理已完成自动验证，等待随本批提交。
+当前 P2-4 资源优化已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、P2 依赖验证结果和下一批边界。
+请先说明当前 Git 状态、P2 资源验证结果和下一批数据迁移风险。
 ```

@@ -1,6 +1,6 @@
 # 资源规范
 
-最后更新：2026-10-19 18:26
+最后更新：2026-10-20 20:39
 
 ## 目录结构
 
@@ -9,14 +9,9 @@ assets/
 ├─ app/
 │  ├─ icon.png
 │  ├─ favicon.png
-│  ├─ splash-icon.png
-│  └─ android/
-│     ├─ adaptive-icon-background.png
-│     ├─ adaptive-icon-foreground.png
-│     └─ adaptive-icon-monochrome.png
+│  └─ splash-icon.png
 ├─ ui/
 │  ├─ shared/
-│  │  ├─ avatar-dinosaur.png
 │  │  └─ avatar-user.png
 │  ├─ navigation/
 │  │  ├─ home.png
@@ -75,6 +70,14 @@ uiAssets.wrongBook.reviewStart
 | 启动图 | PNG，由 `expo-splash-screen` 引用 |
 | CSV 模板 | 放在 `templates`，属于数据资源，不属于 UI |
 
+## 当前尺寸与压缩
+
+- App 图标：1024 × 1024，保留完整尺寸供系统图标和关于页使用。
+- favicon：64 × 64，只用于 web favicon。
+- 启动图：768 × 768，覆盖 3 倍屏下 220dp 显示宽度。
+- 页面大插画：256 色调色板 PNG，保持原始像素尺寸。
+- 小图标和头像：保持 256 × 256。
+
 ## 新增资源流程
 
 1. 确定资源属于 App、页面还是共享资源。
@@ -87,5 +90,8 @@ uiAssets.wrongBook.reviewStart
 ## 已清理内容
 
 - 删除了与错题回顾主素材哈希相同的重复图片。
+- 删除了 P5 已废弃的 Android adaptive 模板资源，桌面图标继续使用主图标。
+- 将同哈希的 `avatar-dinosaur.png` 与 `avatar-user.png` 收敛为唯一默认头像。
+- 对 App 图标、favicon、启动图和三张页面插画执行调色板压缩。
 - 删除了代码中未引用的 `book.svg`、`calendar.svg`、`import-info.svg` 和 `settings-archive.svg`。
 - 移除了 `f1`、`f3` 等历史阶段目录命名。

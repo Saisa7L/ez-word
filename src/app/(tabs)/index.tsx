@@ -82,7 +82,7 @@ export default function HomeScreen() {
   ];
   const avatarSource = avatarData
     ? { uri: avatarData }
-    : uiAssets.avatars.dinosaur;
+    : uiAssets.avatars.default;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>

@@ -52,7 +52,9 @@ export function ProfileCard({
   textStrokeWidth,
 }: ProfileCardProps) {
   const styles = useThemedStyles(createStyles);
-  const avatarSource = avatarData ? { uri: avatarData } : uiAssets.avatars.user;
+  const avatarSource = avatarData
+    ? { uri: avatarData }
+    : uiAssets.avatars.default;
   const displayNameLines = splitDisplayName(displayName);
 
   return (
