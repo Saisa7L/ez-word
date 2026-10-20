@@ -5,7 +5,7 @@
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`1da642b Sync handoff for upcoming refactor`
+- 已提交基线：`b60ccc0 Complete accepted P0 and P1 refactor batches`
 - 当前阶段：P1 填空页拆分批次已验收并提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
