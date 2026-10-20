@@ -8,6 +8,7 @@ import {
   Text,
   View,
   type DimensionValue,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -20,9 +21,11 @@ import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
 import { useTaskPhaseNavigation } from '@/hooks/useTaskPhaseNavigation';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { calculateFittedWordFontSize } from '@/utils/fitWordText';
 
 export default function LearnWordsScreen() {
   const { colors } = useAppTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const styles = useThemedStyles(createStyles);
   const { taskMode, words } = useDailyTaskSession();
   const [index, setIndex] = useState(0);
@@ -44,6 +47,10 @@ export default function LearnWordsScreen() {
   }
 
   const word = words[index];
+  const wordFontSize = calculateFittedWordFontSize(
+    Math.max(0, windowWidth - 100),
+    Array.from(word.word).length,
+  );
   const progress = ((index + 1) / words.length) * 100;
   const isLast = index === words.length - 1;
   const taskTitle = getTaskTitle(taskMode);
@@ -85,7 +92,15 @@ export default function LearnWordsScreen() {
 
       <View style={styles.content}>
         <View style={styles.wordCard}>
-          <Text style={styles.word}>{word.word}</Text>
+          <Text
+            adjustsFontSizeToFit
+            allowFontScaling={false}
+            minimumFontScale={0.5}
+            numberOfLines={1}
+            style={[styles.word, { fontSize: wordFontSize }]}
+          >
+            {word.word}
+          </Text>
           <Text style={styles.meaning}>{word.meaning}</Text>
           <Text style={styles.phonetic}>{word.phonetic || '暂无音标'}</Text>
           <Pressable
@@ -269,8 +284,9 @@ const createStyles = (colors: ThemeColors) =>
     },
     word: {
       color: colors.text,
-      fontSize: 54,
       fontWeight: '800',
+      textAlign: 'center',
+      width: '100%',
     },
     wordCard: {
       ...shadow,

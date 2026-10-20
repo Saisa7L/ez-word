@@ -37,7 +37,7 @@
 | 错题本 | `src/app/(tabs)/wrong-book.tsx` | 错题分页、多选、移除 |
 | 我的 | `src/app/(tabs)/settings.tsx` | 资料和各设置入口 |
 | 每日任务开始 | `src/app/daily-task/index.tsx` | 读取设置和未学单词 |
-| 认识单词 | `src/app/daily-task/learn.tsx` | 单词、释义、音标、发音 |
+| 认识单词 | `src/app/daily-task/learn.tsx` | 单词、释义、音标、发音、长单词自动缩放 |
 | 选词填空 | `src/app/daily-task/fill-blank.tsx` | 例句填空、错误记录 |
 | 听力测试 | `src/app/daily-task/listening.tsx` | TTS 播放、听写、完成记录 |
 | 任务完成 | `src/app/daily-task/complete.tsx` | 任务统计和返回首页 |

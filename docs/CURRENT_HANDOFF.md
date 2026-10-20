@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 21:24
+最后更新：2026-10-20 21:39
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`f416005 Exclude inactive words from wrong-book add candidates`
-- 当前阶段：AI 单词数据补齐功能已完成自动验证，等待真机与真实 API 验收
+- 已提交基线：`6e6a01a Add AI word data generation test fixture`
+- 当前阶段：认识单词页长单词自动缩放修复已完成自动验证，等待真机复查
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：AI 可补齐启用词库中缺失的音标和例句
+- 当前工作：认识单词页根据可用宽度自动缩放过长单词并保持单行
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -45,7 +45,7 @@ git log --oneline --decorate -5
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
 - P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
-- AI 单词数据补齐功能等待真实 DeepSeek Key 验收。
+- AI 单词数据补齐功能已完成真实 Key 覆盖测试，当前等待长单词界面复查。
 - 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -124,7 +124,16 @@ git log --oneline --decorate -5
 - 单词和中文释义始终不会被 AI 修改。
 - DeepSeek 返回缺少音标或有效例句时，该单词计为失败且不写入半成品数据。
 - 设置页标题、说明、开关、进度、完成提示和清除 Key 文案已同步。
-- 新增待补齐选词、选择性更新和 AI 返回解析测试，全项目共 43 项。
+- 新增待补齐选词、选择性更新和 AI 返回解析测试。
+- 已通过 `npm run check` 和 Android 离线导出。
+
+## 认识单词页长单词自动缩放
+
+- Android 不支持 `adjustsFontSizeToFit`，改为按屏幕可用宽度和字符数量计算字号。
+- 短单词保持 54px 上限；长单词自动缩小，最低保持 16px。
+- 单词固定单行居中，不再在单词中间断行。
+- 音标和释义字号不受影响。
+- 新增字号计算纯函数测试，全项目共 46 项。
 - 已通过 `npm run check` 和 Android 离线导出。
 
 ## P0 批次 0-3 结果
@@ -341,10 +350,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 AI 单词数据补齐功能已完成自动验证，等待真实 API 验收。
+当前长单词自动缩放修复已完成自动验证，等待真机复查。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、AI 单词数据验收结果和 learned_count 清理风险。
+请先说明当前 Git 状态、长单词界面验收结果和 learned_count 清理风险。
 ```
