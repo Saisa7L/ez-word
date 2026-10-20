@@ -24,13 +24,17 @@ import {
 } from '../src/database/themeRepository';
 import { getUserProfile } from '../src/database/userProfileRepository';
 import {
+  countAvailableWordsForWrongBook,
+  listAvailableWordsForWrongBook,
+} from '../src/database/wrongBookRepository';
+import {
   createArchiveSnapshot,
   parseArchiveSnapshot,
   restoreArchiveSnapshot,
   stringifyArchive,
 } from '../src/features/archive/archiveSnapshot';
 
-type SqlParams = Record<string, number | string | null> | undefined;
+type SqlParams = Record<string, number | string | null>;
 
 class NodeSqliteAdapter {
   constructor(readonly db: DatabaseSync) {}
@@ -39,23 +43,32 @@ class NodeSqliteAdapter {
     this.db.exec(source);
   }
 
-  async getAllAsync<T>(source: string, params?: SqlParams): Promise<T[]> {
+  async getAllAsync<T>(source: string, ...params: unknown[]): Promise<T[]> {
     const statement = this.db.prepare(source);
-    return (params ? statement.all(params) : statement.all()) as T[];
+    const rows =
+      params.length === 1 && typeof params[0] === 'object'
+        ? statement.all(params[0] as SqlParams)
+        : statement.all(...(params as (number | string | null)[]));
+    return rows as T[];
   }
 
   async getFirstAsync<T>(
     source: string,
-    params?: SqlParams,
+    ...params: unknown[]
   ): Promise<T | null> {
     const statement = this.db.prepare(source);
-    const row = params ? statement.get(params) : statement.get();
+    const row =
+      params.length === 1 && typeof params[0] === 'object'
+        ? statement.get(params[0] as SqlParams)
+        : statement.get(...(params as (number | string | null)[]));
     return (row ?? null) as T | null;
   }
 
-  async runAsync(source: string, params?: SqlParams): Promise<unknown> {
+  async runAsync(source: string, ...params: unknown[]): Promise<unknown> {
     const statement = this.db.prepare(source);
-    return params ? statement.run(params) : statement.run();
+    return params.length === 1 && typeof params[0] === 'object'
+      ? statement.run(params[0] as SqlParams)
+      : statement.run(...(params as (number | string | null)[]));
   }
 
   async withExclusiveTransactionAsync(
@@ -98,6 +111,7 @@ async function insertTestWord(
   options: {
     exampleSentence?: string;
     id: number;
+    isActive?: boolean;
     learningStatus?: 'learned' | 'unlearned' | 'wrong';
     word: string;
   },
@@ -110,11 +124,12 @@ async function insertTestWord(
        example_source, example_generated_at
      ) VALUES (
        $id, $word, $meaning, '', $now, $now,
-       1, $status, $example, '', NULL
+       $isActive, $status, $example, '', NULL
      )`,
     {
       $example: options.exampleSentence ?? '',
       $id: options.id,
+      $isActive: options.isActive === false ? 0 : 1,
       $meaning: options.word,
       $now: now,
       $status: options.learningStatus ?? 'unlearned',
@@ -928,6 +943,35 @@ test('creates the v18 query indexes', async () => {
   );
   assert.ok(indexNames('wrong_book_words').includes('idx_wrong_last_wrong'));
   assert.ok(indexNames('study_sessions').includes('idx_sessions_study_date'));
+});
+
+test('excludes inactive and existing wrong-book words from add candidates', async () => {
+  const adapter = await createMigratedAdapter();
+  await insertTestWord(adapter, { id: 1, word: 'alpha' });
+  await insertTestWord(adapter, {
+    id: 2,
+    learningStatus: 'wrong',
+    word: 'beta',
+  });
+  await insertTestWord(adapter, {
+    id: 3,
+    isActive: false,
+    word: 'zero',
+  });
+  await insertWrongBookEntry(adapter, 2, ['manual']);
+
+  const count = await countAvailableWordsForWrongBook(asDatabase(adapter));
+  const words = await listAvailableWordsForWrongBook(
+    asDatabase(adapter),
+    10,
+    0,
+  );
+
+  assert.equal(count, 1);
+  assert.deepEqual(
+    words.map((word) => word.word),
+    ['alpha'],
+  );
 });
 
 test('loads daily task words through the TaskWord mapper', async () => {

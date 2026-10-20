@@ -197,7 +197,8 @@ export async function countAvailableWordsForWrongBook(
   const result = await db.getFirstAsync<{ count: number }>(
     `SELECT COUNT(*) AS count
      FROM words
-     WHERE NOT EXISTS (
+     WHERE words.is_active = 1
+       AND NOT EXISTS (
        SELECT 1
        FROM wrong_book_words
        WHERE wrong_book_words.word_id = words.id
@@ -214,7 +215,8 @@ export async function listAvailableWordsForWrongBook(
   return db.getAllAsync<WordRecord>(
     `SELECT ${selectWordColumns('words')}
      FROM words
-     WHERE NOT EXISTS (
+     WHERE words.is_active = 1
+       AND NOT EXISTS (
        SELECT 1
        FROM wrong_book_words
        WHERE wrong_book_words.word_id = words.id

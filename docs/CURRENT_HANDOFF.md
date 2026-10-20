@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 21:08
+最后更新：2026-10-20 21:17
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`1de3641 Split app settings into normalized v19 tables`
-- 当前阶段：P2-2 v20 错题来源规范化已完成自动验证，随本批提交
+- 已提交基线：`d49b53e Normalize wrong-book sources into a relation table`
+- 当前阶段：添加错题候选过滤修复已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：错题来源已迁移到 `wrong_book_sources` 关联表，旧来源字符串自动转换
+- 当前工作：添加错题候选只显示当前启用且尚未加入错题本的单词
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -44,7 +44,7 @@ git log --oneline --decorate -5
 ## 下一轮重构
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
-- P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成。
+- P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
 - 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -104,6 +104,15 @@ git log --oneline --decorate -5
 - v19 旧存档解析时自动把 `sources` 字符串转换为 `wrong_book_sources` 行。
 - 数据测试从 26 项增加到 28 项，覆盖 v19 数据库迁移、旧存档转换和 schema 修复幂等。
 - 已通过类型检查与数据测试。
+
+## 验收补充修复：添加错题候选过滤
+
+- CSV 规则不变：音标列必须存在，但音标单元格允许为空。
+- `zero`、`hello` 音标为空仍属于合法导入，不是导入失败。
+- 问题根因是“可添加错题”查询未过滤 `words.is_active = 1`，软停用词会泄漏到添加错题页。
+- 计数和列表查询现在同时排除软停用词和已在错题本的单词。
+- 新增回归测试，数据测试增加到 29 项，全项目共 40 项。
+- 已通过 `npm run check` 和 Android 离线导出。
 
 ## P0 批次 0-3 结果
 
@@ -319,10 +328,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-2 v20 错题来源规范化已完成自动验证，等待随本批提交。
+当前“添加错题候选过滤”修复已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、v20 来源迁移结果和 learned_count 清理风险。
+请先说明当前 Git 状态、添加错题候选过滤结果和 learned_count 清理风险。
 ```
