@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  createThemeColors,
-  getContrastColor,
-} from '../src/constants/theme';
+import { createThemeColors, getContrastColor } from '../src/constants/theme';
 
 function luminance(hex: string): number {
   const channels = [1, 3, 5].map((index) => {

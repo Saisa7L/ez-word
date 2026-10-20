@@ -26,6 +26,8 @@ import {
   completeNavigationLock,
   isNavigationLocked,
 } from '@/utils/backNavigation';
+import { normalizeAppError } from '@/utils/appError';
+import { logger } from '@/utils/logger';
 import { backOnce, canGoBack, dismissToOnce } from '@/utils/navigationActions';
 
 export default function RootLayout() {
@@ -123,12 +125,18 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   const theme = useOptionalAppTheme();
   const colors = theme?.colors ?? defaultColors;
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const appError = normalizeAppError(error);
+
+  useEffect(() => {
+    logger.error('root.render_error', appError);
+  }, [appError]);
 
   return (
     <SafeAreaView style={styles.errorScreen}>
       <View style={styles.errorCard}>
         <Text style={styles.errorTitle}>页面加载失败</Text>
-        <Text style={styles.errorMessage}>{error.message}</Text>
+        <Text style={styles.errorMessage}>{appError.message}</Text>
+        <Text style={styles.errorCode}>错误代码：{appError.code}</Text>
         <Pressable
           accessibilityRole="button"
           onPress={() => {
@@ -154,6 +162,11 @@ const createStyles = (colors: ThemeColors) =>
       maxWidth: 420,
       padding: 28,
       width: '86%',
+    },
+    errorCode: {
+      color: colors.textMuted,
+      fontSize: 14,
+      marginTop: 10,
     },
     errorMessage: {
       color: colors.textSecondary,

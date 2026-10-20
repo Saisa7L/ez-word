@@ -1,4 +1,5 @@
 import { buildClozeSentence } from '@/features/daily-task/sentenceTemplates';
+import { AppError } from '@/utils/appError';
 
 export type WordDataInput = {
   meaning: string;
@@ -25,9 +26,9 @@ type ChatCompletionResponse = {
 const DEEPSEEK_ENDPOINT = 'https://api.deepseek.com/chat/completions';
 const DEEPSEEK_MODEL = 'deepseek-chat';
 
-export class DeepSeekError extends Error {
+export class DeepSeekError extends AppError {
   constructor(message: string) {
-    super(message);
+    super('AI_SERVICE', message);
     this.name = 'DeepSeekError';
   }
 }

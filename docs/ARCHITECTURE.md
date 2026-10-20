@@ -68,6 +68,8 @@ RootLayout
 | `database/taskCompletionRepository.ts` | 完成页统一结算任务数据 | `completeTaskSession` |
 | `database/taskWordMapper.ts` | 数据库行到任务领域对象映射 | `mapTaskWordRow` |
 | `database/wrongBookRepository.ts` | 错题分页、来源关联和学习状态事务 | `listWrongBookWords`、`recordWrongWordsInTransaction` |
+| `utils/appError` | 统一错误码和应用错误对象 | `AppError`、`normalizeAppError` |
+| `utils/logger` | 本地日志、敏感信息脱敏和诊断文本 | `logger`、`buildDiagnosticReport` |
 | `hooks/useDailyTaskPhaseGuard` | 任务路由与显式阶段一致性校验 | `useDailyTaskPhaseGuard` |
 | `utils/backNavigation` | 全导航动作锁、最小/最大锁定和纯测试入口 | `beginNavigationLock`、`completeNavigationLock`、`runNavigationOnce` |
 | `utils/navigationActions` | 唯一 Expo Router 导航动作入口 | `pushOnce`、`backOnce`、`replaceOnce`、`dismissToOnce`、`resetToHomeOnce` |

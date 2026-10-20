@@ -26,6 +26,7 @@ import {
   DeepSeekError,
   testDeepSeekConnection,
 } from '@/services/deepSeekService';
+import { logger } from '@/utils/logger';
 
 type Notice = {
   message: string;
@@ -119,6 +120,7 @@ export default function AiSettingsScreen() {
         title: '测试成功',
       });
     } catch (error) {
+      logger.error('ai.test_connection_failed', error);
       setNotice({
         message:
           error instanceof DeepSeekError
@@ -192,6 +194,7 @@ export default function AiSettingsScreen() {
         title: '生成完成',
       });
     } catch (error) {
+      logger.error('ai.generate_word_data_failed', error);
       setNotice({
         message:
           error instanceof DeepSeekError

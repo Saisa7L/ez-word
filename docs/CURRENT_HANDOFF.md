@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 22:06
+最后更新：2026-10-20 22:08
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`f2b31ae Improve accessibility contrast and control labels`
-- 当前阶段：P2-7 大字号与减少动画第二批已通过真机验收，随本批提交
+- 已提交基线：`647fa31 Support large text and reduced motion accessibility`
+- 当前阶段：P2-10 可观测性第一批已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：文字按钮支持大字号增长，系统减少动画时禁用导航/弹层/滚动动画
+- 当前工作：统一 AppError 错误码、脱敏日志和本地诊断文本
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -45,8 +45,8 @@ git log --oneline --decorate -5
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
 - P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
-- v21 数据库迁移和 P2-7 第一批已完成真机验收。
-- P2-9 已完成；本批收口固定文字按钮和减少动画。
+- v21 数据库迁移和 P2-7 两批已完成真机验收。
+- P2-9 已完成；P2-10 第一批已接入日志与诊断基础。
 - 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -176,6 +176,16 @@ git log --oneline --decorate -5
 - 按钮可以随系统字体增长，不再依赖固定高度裁切文字。
 - 退出任务确认弹窗的“是”按钮保持原 success 底板和白色文字。
 - 已通过格式、类型、Lint、51 项测试、Doctor 和 Android 导出。
+
+## P2-10 可观测性第一批
+
+- 新增 `AppError`，统一 `AI_SERVICE`、`ARCHIVE`、`DATABASE`、`FILE`、`NAVIGATION`、`VALIDATION`、`UNKNOWN` 错误码。
+- 新增本地 `logger`，自动脱敏 API Key、Authorization、password、secret 和 token。
+- 新增 `buildDiagnosticReport`，生成脱敏 JSON 诊断文本，不上传远端。
+- 根错误页展示错误代码，并记录 render error。
+- DeepSeek 错误继承 `AppError`，AI 连接和生成失败接入本地日志。
+- 新增 4 项错误码、脱敏和诊断测试，全项目共 55 项。
+- 已通过完整门禁和 Android 导出。
 
 ## P0 批次 0-3 结果
 
@@ -391,10 +401,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-7 大字号与减少动画第二批已通过真机验收，等待随本批提交。
+当前 P2-10 可观测性第一批已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、P2-7 第二批验收结果和下一批 P2 工作。
+请先说明当前 Git 状态、P2-10 可观测性结果和下一批 P2 工作。
 ```

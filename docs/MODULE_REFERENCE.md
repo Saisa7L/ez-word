@@ -269,6 +269,15 @@ Provider 内部分成两个 Context：
 | `aiKeyStore` | `get/save/clearDeepSeekApiKey` | SecureStore |
 | `wordCsvFiles` | `pickWordCsvFile` | CSV 文件选择和读取 |
 
+## 错误与诊断
+
+- `AppError`：稳定错误码为 `AI_SERVICE`、`ARCHIVE`、`DATABASE`、`FILE`、`NAVIGATION`、`VALIDATION` 和 `UNKNOWN`。
+- `normalizeAppError(error, fallbackCode?)`：把未知异常转换为可记录的应用错误。
+- `logger.error/warn/info(event, error, context?)`：仅本地记录，不上传。
+- `redactSensitiveText`、`sanitizeLogContext`：自动脱敏 API Key、Authorization、password、secret 和 token。
+- `buildDiagnosticReport`：生成可复制的脱敏 JSON 诊断文本。
+- 根错误页会显示错误代码并把异常记录到本地日志。
+
 ## Hooks
 
 | Hook | 作用 | 使用位置 |
