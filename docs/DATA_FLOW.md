@@ -89,6 +89,7 @@ RootLayout
 ```text
 completeTaskSession
 → 合并填空和听力错误来源，每个单词只累计一次
+→ 来源写入 wrong_book_sources 关联表
 → 批量写 word_learning_state
 → 批量更新 words.learning_status
 → 写一条 study_sessions
@@ -225,6 +226,7 @@ archive.tsx
 | 单词与例句 | `words` | `wordsRepository` | `upsertWords`、`updateWordExample` |
 | 学习状态 | `words`、`word_learning_state` | `reviewRepository`、`statsRepository` | `completeTaskSession` |
 | 错题 | `wrong_book_words`、`words` | `wrongBookRepository` | `completeTaskSession`、`addWrongBookWords` |
+| 错题来源 | `wrong_book_sources` | `wrongBookRepository` | `completeTaskSession`、`addWrongBookWords` |
 | 打卡 | `study_sessions` | `statsRepository` | `completeTaskSession` |
 | 每日任务设置 | `task_settings`、`review_settings` | `settingsRepository` | `saveDailyTaskSettings` |
 | AI 设置 | `ai_settings` | `aiRepository` | `setAiOverwriteExamples` |

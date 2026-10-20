@@ -129,15 +129,14 @@ export const DATABASE_TABLE_SCHEMAS = [
     name: 'word_learning_state',
   },
   {
-    archiveColumns: [
-      'word_id',
-      'added_at',
-      'last_wrong_at',
-      'wrong_count',
-      'sources',
-    ],
-    columns: ['word_id', 'added_at', 'last_wrong_at', 'wrong_count', 'sources'],
+    archiveColumns: ['word_id', 'added_at', 'last_wrong_at', 'wrong_count'],
+    columns: ['word_id', 'added_at', 'last_wrong_at', 'wrong_count'],
     name: 'wrong_book_words',
+  },
+  {
+    archiveColumns: ['word_id', 'source'],
+    columns: ['word_id', 'source'],
+    name: 'wrong_book_sources',
   },
   {
     archiveColumns: [

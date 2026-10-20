@@ -123,6 +123,35 @@ async function insertTestWord(
   );
 }
 
+async function insertWrongBookEntry(
+  adapter: NodeSqliteAdapter,
+  wordId: number,
+  sources: readonly string[],
+  wrongCount = 1,
+  now = '2026-10-19T10:00:00.000Z',
+): Promise<void> {
+  await adapter.runAsync(
+    `INSERT INTO wrong_book_words (
+       word_id, added_at, last_wrong_at, wrong_count
+     ) VALUES ($wordId, $now, $now, $wrongCount)`,
+    {
+      $now: now,
+      $wordId: wordId,
+      $wrongCount: wrongCount,
+    },
+  );
+  for (const source of sources) {
+    await adapter.runAsync(
+      `INSERT INTO wrong_book_sources (word_id, source)
+       VALUES ($wordId, $source)`,
+      {
+        $source: source,
+        $wordId: wordId,
+      },
+    );
+  }
+}
+
 function convertSettingsToLegacyArchive(archive: {
   databaseVersion: number;
   tables: Record<string, Record<string, unknown>[]>;
@@ -171,7 +200,7 @@ test('validates the current database schema', async () => {
   await validateDatabaseSchema(asDatabase(adapter));
 });
 
-test('migrates an empty database to v19 and matches schema', async () => {
+test('migrates an empty database to v20 and matches schema', async () => {
   const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
 
   await migrateDatabase(asDatabase(adapter));
@@ -191,7 +220,7 @@ test('migrates an empty database to v19 and matches schema', async () => {
     listening_default_rate: number;
   };
 
-  assert.equal(version.user_version, 19);
+  assert.equal(version.user_version, 20);
   assert.equal(settings.daily_word_limit, 10);
   assert.equal(settings.listening_default_rate, 1);
 });
@@ -274,12 +303,7 @@ test('round-trips archive JSON and restores all tables', async () => {
      ) VALUES (1, $now, $now, 1)`,
     { $now: now },
   );
-  await source.runAsync(
-    `INSERT INTO wrong_book_words (
-       word_id, added_at, last_wrong_at, wrong_count, sources
-     ) VALUES (1, $now, $now, 1, 'fill')`,
-    { $now: now },
-  );
+  await insertWrongBookEntry(source, 1, ['fill']);
   await source.runAsync(
     `INSERT INTO study_sessions (
        id, completed_at, study_date, word_count, wrong_count
@@ -357,7 +381,7 @@ test('repairs a schema that advanced before user_version was written', async () 
   const version = adapter.db.prepare('PRAGMA user_version').get() as {
     user_version: number;
   };
-  assert.equal(version.user_version, 19);
+  assert.equal(version.user_version, 20);
 });
 
 test('recreates theme settings before saving a theme', async () => {
@@ -435,13 +459,57 @@ test('migrates v18 settings into split v19 tables', async () => {
   assert.equal(legacyTable, undefined);
 });
 
+test('migrates v19 wrong-book sources into the relation table', async () => {
+  const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
+  const migrationsThroughV19 = MIGRATIONS.filter(
+    (migration) => migration.to <= 19,
+  );
+  await runMigrations(asDatabase(adapter), 0, migrationsThroughV19);
+  await insertTestWord(adapter, {
+    id: 1,
+    learningStatus: 'wrong',
+    word: 'abandon',
+  });
+  adapter.db.exec(`
+    INSERT INTO wrong_book_words (
+      word_id, added_at, last_wrong_at, wrong_count, sources
+    ) VALUES (
+      1, '2026-10-19T10:00:00.000Z', '2026-10-19T10:00:00.000Z',
+      3, 'fill,listening'
+    );
+  `);
+
+  await runMigrations(asDatabase(adapter), 19);
+  await validateDatabaseSchema(asDatabase(adapter));
+
+  const sources = adapter.db
+    .prepare(
+      `SELECT source
+       FROM wrong_book_sources
+       WHERE word_id = 1
+       ORDER BY source`,
+    )
+    .all() as { source: string }[];
+  const columns = (
+    adapter.db.prepare('PRAGMA table_info(wrong_book_words)').all() as {
+      name: string;
+    }[]
+  ).map((row) => row.name);
+
+  assert.deepEqual(
+    sources.map((row) => row.source),
+    ['fill', 'listening'],
+  );
+  assert.equal(columns.includes('sources'), false);
+});
+
 test('rejects database versions supported by a newer app', async () => {
   const adapter = await createMigratedAdapter();
-  adapter.db.exec('PRAGMA user_version = 20');
+  adapter.db.exec('PRAGMA user_version = 21');
 
   await assert.rejects(
     () => migrateDatabase(asDatabase(adapter)),
-    /高于 App 支持的 19/,
+    /高于 App 支持的 20/,
   );
 });
 
@@ -528,6 +596,47 @@ test('migrates a v18 app settings archive into split tables', async () => {
   const restored = await getDailyTaskSettings(asDatabase(target));
   assert.equal(restored.dailyWordLimit, 33);
   assert.equal(restored.wordReviewWordLimit, 19);
+});
+
+test('migrates v19 archive sources into the relation table', async () => {
+  const source = await createMigratedAdapter();
+  await insertTestWord(source, {
+    id: 1,
+    learningStatus: 'wrong',
+    word: 'abandon',
+  });
+  await insertWrongBookEntry(source, 1, ['fill', 'listening'], 2);
+  const snapshot = await createArchiveSnapshot(asDatabase(source));
+  const archive = JSON.parse(stringifyArchive(snapshot)) as {
+    databaseVersion: number;
+    tables: Record<string, Record<string, unknown>[]>;
+  };
+
+  archive.databaseVersion = 19;
+  archive.tables.wrong_book_words[0].sources = 'fill,listening';
+  delete archive.tables.wrong_book_sources;
+
+  const parsed = parseArchiveSnapshot(JSON.stringify(archive));
+  assert.equal(parsed.tables.wrong_book_words[0]?.sources, undefined);
+  assert.deepEqual(parsed.tables.wrong_book_sources, [
+    { source: 'fill', word_id: 1 },
+    { source: 'listening', word_id: 1 },
+  ]);
+
+  const target = await createMigratedAdapter();
+  await restoreArchiveSnapshot(asDatabase(target), parsed);
+  const restoredSources = target.db
+    .prepare(
+      `SELECT source
+       FROM wrong_book_sources
+       WHERE word_id = 1
+       ORDER BY source`,
+    )
+    .all() as { source: string }[];
+  assert.deepEqual(
+    restoredSources.map((row) => row.source),
+    ['fill', 'listening'],
+  );
 });
 
 test('rejects current archives with missing required fields', async () => {
@@ -699,9 +808,15 @@ test('persists daily task state only in one completion step', async () => {
 
   const wrongRows = adapter.db
     .prepare(
-      `SELECT word_id, wrong_count, sources
+      `SELECT
+         wrong_book_words.word_id,
+         wrong_book_words.wrong_count,
+         GROUP_CONCAT(wrong_book_sources.source, ',') AS sources
        FROM wrong_book_words
-       ORDER BY word_id`,
+       JOIN wrong_book_sources
+         ON wrong_book_sources.word_id = wrong_book_words.word_id
+       GROUP BY wrong_book_words.word_id
+       ORDER BY wrong_book_words.word_id`,
     )
     .all() as {
     sources: string;
@@ -762,12 +877,7 @@ test('applies wrong-review removal only when the task is finalized', async () =>
         $word: word,
       },
     );
-    await db.runAsync(
-      `INSERT INTO wrong_book_words (
-         word_id, added_at, last_wrong_at, wrong_count, sources
-       ) VALUES ($id, $now, $now, 1, 'fill')`,
-      { $id: id, $now: now },
-    );
+    await insertWrongBookEntry(adapter, id, ['fill'], 1, now);
   }
 
   await completeTaskSession(db, {
@@ -859,12 +969,7 @@ test('loads wrong-review words through the application use case', async () => {
   });
 
   for (const id of [1, 2]) {
-    await adapter.runAsync(
-      `INSERT INTO wrong_book_words (
-         word_id, added_at, last_wrong_at, wrong_count, sources
-       ) VALUES ($id, $now, $now, 1, 'fill')`,
-      { $id: id, $now: now },
-    );
+    await insertWrongBookEntry(adapter, id, ['fill'], 1, now);
   }
 
   const selection = await loadWrongReviewSelection(asDatabase(adapter));

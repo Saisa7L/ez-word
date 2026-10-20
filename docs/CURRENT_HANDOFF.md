@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 20:57
+最后更新：2026-10-20 21:08
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`74b0a35 Align home statistic dividers with equal columns`
-- 当前阶段：P2-1/P2-3 v19 设置模型拆分已完成自动验证，随本批提交
+- 已提交基线：`1de3641 Split app settings into normalized v19 tables`
+- 当前阶段：P2-2 v20 错题来源规范化已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：`app_settings` 已拆分为四张设置表，v18 数据库和旧存档迁移已测试
+- 当前工作：错题来源已迁移到 `wrong_book_sources` 关联表，旧来源字符串自动转换
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -44,8 +44,8 @@ git log --oneline --decorate -5
 ## 下一轮重构
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
-- P2-6、P2-5、P2-4、P2-1/P2-3 已完成；下一批进入 P2-2 错题来源规范化。
-- P2-2 必须处理 `sources` 逗号字符串到关联表的迁移，并保留旧存档兼容。
+- P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成。
+- 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
 ## P2-6 工程化门禁结果
@@ -91,8 +91,19 @@ git log --oneline --decorate -5
 - 每日任务设置保存时在同一事务内写入 `task_settings` 和 `review_settings`。
 - 当前存档改用四张设置表；v10-v18 旧存档解析时会自动转换旧 `app_settings` 行。
 - 数据测试从 24 项增加到 26 项，覆盖 v18 数据库迁移和 v18 旧存档迁移。
-- `learned_count` 与 `wrong_book_words.sources` 尚未在本批处理，留到 v20。
+- `learned_count` 留到后续批次，`wrong_book_words.sources` 已在 v20 处理。
 - 已通过类型检查、Lint、数据测试和 Android 导出。
+
+## P2-2 v20 错题来源规范化结果
+
+- 数据库升级到 v20，新增 `wrong_book_sources` 关联表。
+- `wrong_book_words` 删除 `sources` 文本列。
+- 旧 `fill,listening,manual` 字符串在迁移时拆分并去重写入关联表。
+- 错题分页查询通过 `GROUP_CONCAT` 还原当前行的来源集合，UI 改为使用 `WrongBookSource[]`。
+- 错题移除时先清理来源行，再删除错题主行。
+- v19 旧存档解析时自动把 `sources` 字符串转换为 `wrong_book_sources` 行。
+- 数据测试从 26 项增加到 28 项，覆盖 v19 数据库迁移、旧存档转换和 schema 修复幂等。
+- 已通过类型检查与数据测试。
 
 ## P0 批次 0-3 结果
 
@@ -308,10 +319,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-1/P2-3 v19 设置模型拆分已完成自动验证，等待随本批提交。
+当前 P2-2 v20 错题来源规范化已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、v19 设置迁移结果和 P2-2 来源规范化风险。
+请先说明当前 Git 状态、v20 来源迁移结果和 learned_count 清理风险。
 ```

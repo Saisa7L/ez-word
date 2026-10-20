@@ -117,6 +117,7 @@ Provider 内部分成两个 Context：
 
 - 加入错题会同步 `words.learning_status = 'wrong'`。
 - `recordWrongWords` 只增加 `wrong_count` 和更新最近错误时间。
+- 错题来源保存在 `wrong_book_sources`，每个单词每种来源一行。
 - 任务过程中的填空和听力确认不再直接调用 `recordWrongWords`。
 - 手动加入不增加错误次数。
 - 移出错题会删除 `wrong_book_words` 并同步单词状态。

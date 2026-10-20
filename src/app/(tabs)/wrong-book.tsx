@@ -20,6 +20,7 @@ import {
   listWrongBookWords,
   resolveWrongBookRemoval,
   type WrongBookEntry,
+  type WrongBookSource,
 } from '@/database/wrongBookRepository';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
@@ -27,16 +28,13 @@ import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 
 const PAGE_SIZE = 5;
 
-function formatSources(sources: string): string {
-  const labels: Record<string, string> = {
+function formatSources(sources: WrongBookSource[]): string {
+  const labels: Record<WrongBookSource, string> = {
     fill: '填空',
     listening: '听写',
     manual: '手动',
   };
-  const sourceLabels = sources
-    .split(',')
-    .filter(Boolean)
-    .map((source) => labels[source] ?? source);
+  const sourceLabels = sources.map((source) => labels[source] ?? source);
   return sourceLabels.length > 0 ? sourceLabels.join('、') : '手动';
 }
 

@@ -11,17 +11,40 @@ export type WrongBookSource = 'fill' | 'listening' | 'manual';
 export type WrongBookEntry = WordRecord & {
   added_at: string;
   last_wrong_at: string;
-  sources: string;
+  sources: WrongBookSource[];
   wrong_count: number;
 };
 
-function mergeSources(
-  currentSources: string,
-  addedSources: readonly WrongBookSource[],
-): string {
-  return [
-    ...new Set([...currentSources.split(','), ...addedSources].filter(Boolean)),
-  ].join(',');
+type WrongBookEntryRow = Omit<WrongBookEntry, 'sources'> & {
+  sources: string;
+};
+
+const SOURCE_ORDER: readonly WrongBookSource[] = [
+  'fill',
+  'listening',
+  'manual',
+];
+
+function parseSources(value: string): WrongBookSource[] {
+  const sources = new Set(value.split(',').filter(Boolean));
+  return SOURCE_ORDER.filter((source) => sources.has(source));
+}
+
+async function addWrongBookSources(
+  db: SQLiteDatabase,
+  wordId: number,
+  sources: readonly WrongBookSource[],
+): Promise<void> {
+  for (const source of new Set(sources)) {
+    await db.runAsync(
+      `INSERT OR IGNORE INTO wrong_book_sources (word_id, source)
+       VALUES ($wordId, $source)`,
+      {
+        $source: source,
+        $wordId: wordId,
+      },
+    );
+  }
 }
 
 async function saveWrongBookEntry(
@@ -31,52 +54,41 @@ async function saveWrongBookEntry(
   now: string,
   countAsMistake: boolean,
 ): Promise<void> {
-  const existing = await db.getFirstAsync<{ sources: string }>(
-    'SELECT sources FROM wrong_book_words WHERE word_id = $wordId',
-    { $wordId: wordId },
-  );
-  const sources = mergeSources(existing?.sources ?? '', addedSources);
-
   if (countAsMistake) {
     await db.runAsync(
       `INSERT INTO wrong_book_words (
          word_id,
          added_at,
          last_wrong_at,
-         wrong_count,
-         sources
+         wrong_count
        )
-       VALUES ($wordId, $now, $now, 1, $sources)
+       VALUES ($wordId, $now, $now, 1)
        ON CONFLICT(word_id) DO UPDATE SET
          last_wrong_at = excluded.last_wrong_at,
-         wrong_count = wrong_book_words.wrong_count + 1,
-         sources = excluded.sources`,
+         wrong_count = wrong_book_words.wrong_count + 1`,
       {
         $now: now,
-        $sources: sources,
         $wordId: wordId,
       },
     );
-    return;
+  } else {
+    await db.runAsync(
+      `INSERT INTO wrong_book_words (
+         word_id,
+         added_at,
+         last_wrong_at,
+         wrong_count
+       )
+       VALUES ($wordId, $now, $now, 0)
+       ON CONFLICT(word_id) DO NOTHING`,
+      {
+        $now: now,
+        $wordId: wordId,
+      },
+    );
   }
 
-  await db.runAsync(
-    `INSERT INTO wrong_book_words (
-       word_id,
-       added_at,
-       last_wrong_at,
-       wrong_count,
-       sources
-     )
-     VALUES ($wordId, $now, $now, 0, $sources)
-     ON CONFLICT(word_id) DO UPDATE SET
-       sources = excluded.sources`,
-    {
-      $now: now,
-      $sources: sources,
-      $wordId: wordId,
-    },
-  );
+  await addWrongBookSources(db, wordId, addedSources);
 }
 
 async function saveWrongBookEntries(
@@ -138,19 +150,26 @@ export async function listWrongBookWords(
   limit: number,
   offset: number,
 ): Promise<WrongBookEntry[]> {
-  return db.getAllAsync<WrongBookEntry>(
+  const rows = await db.getAllAsync<WrongBookEntryRow>(
     `SELECT ${selectWordColumns('words')},
        wrong_book_words.added_at,
        wrong_book_words.last_wrong_at,
-       wrong_book_words.sources,
-       wrong_book_words.wrong_count
+       wrong_book_words.wrong_count,
+       COALESCE(GROUP_CONCAT(wrong_book_sources.source, ','), '') AS sources
      FROM wrong_book_words
      JOIN words ON words.id = wrong_book_words.word_id
+     LEFT JOIN wrong_book_sources
+       ON wrong_book_sources.word_id = wrong_book_words.word_id
+     GROUP BY wrong_book_words.word_id
      ORDER BY wrong_book_words.last_wrong_at DESC, words.word COLLATE NOCASE ASC
      LIMIT ? OFFSET ?`,
     limit,
     offset,
   );
+  return rows.map((row) => ({
+    ...row,
+    sources: parseSources(row.sources),
+  }));
 }
 
 export async function listWrongReviewWords(
@@ -270,6 +289,10 @@ export async function setWordsLearningStatusInTransaction(
     if (targetStatus === 'wrong') {
       await saveWrongBookEntry(db, wordId, ['manual'], now, false);
     } else {
+      await db.runAsync(
+        'DELETE FROM wrong_book_sources WHERE word_id = $wordId',
+        { $wordId: wordId },
+      );
       await db.runAsync(
         'DELETE FROM wrong_book_words WHERE word_id = $wordId',
         { $wordId: wordId },

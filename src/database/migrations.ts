@@ -530,6 +530,53 @@ export const MIGRATIONS: readonly DatabaseMigration[] = [
       `);
     },
   },
+  {
+    description: '规范化错题来源关联表',
+    to: 20,
+    up: async (db) => {
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS wrong_book_sources (
+          word_id INTEGER NOT NULL,
+          source TEXT NOT NULL
+            CHECK (source IN ('fill', 'listening', 'manual')),
+          PRIMARY KEY (word_id, source),
+          FOREIGN KEY (word_id)
+            REFERENCES wrong_book_words(word_id)
+            ON DELETE CASCADE
+        );
+      `);
+
+      const columns = await db.getAllAsync<{ name: string }>(
+        'PRAGMA table_info(wrong_book_words)',
+      );
+      if (columns.some((column) => column.name === 'sources')) {
+        const rows = await db.getAllAsync<{
+          sources: string;
+          word_id: number;
+        }>('SELECT word_id, sources FROM wrong_book_words');
+        const allowedSources = new Set(['fill', 'listening', 'manual']);
+
+        for (const row of rows) {
+          const sources = [
+            ...new Set(row.sources.split(',').filter(Boolean)),
+          ].filter((source) => allowedSources.has(source));
+
+          for (const source of sources) {
+            await db.runAsync(
+              `INSERT OR IGNORE INTO wrong_book_sources (word_id, source)
+               VALUES ($wordId, $source)`,
+              {
+                $source: source,
+                $wordId: row.word_id,
+              },
+            );
+          }
+        }
+
+        await db.execAsync('ALTER TABLE wrong_book_words DROP COLUMN sources;');
+      }
+    },
+  },
 ];
 
 export async function runMigrations(

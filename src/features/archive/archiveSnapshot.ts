@@ -26,7 +26,7 @@ import { ensureSettingsRows } from '@/database/settingsRows';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
-const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16, 17, 18];
+const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16, 17, 18, 19];
 const MAX_ID = 1_000_000_000;
 
 type ArchiveValue = number | string | null;
@@ -75,6 +75,7 @@ const INTEGER_RANGES: Record<string, readonly [number, number]> = {
   'word_learning_state.word_id': [1, MAX_ID],
   'words.id': [1, MAX_ID],
   'words.is_active': [0, 1],
+  'wrong_book_sources.word_id': [1, MAX_ID],
   'wrong_book_words.word_id': [1, MAX_ID],
   'wrong_book_words.wrong_count': [0, MAX_ID],
 };
@@ -111,16 +112,17 @@ const IMAGE_COLUMNS = new Set([
   'user_profile.background_data',
 ]);
 
-const PRIMARY_KEYS: Record<string, string> = {
-  ai_settings: 'id',
-  review_settings: 'id',
-  study_sessions: 'id',
-  task_settings: 'id',
-  theme_settings: 'id',
-  user_profile: 'id',
-  word_learning_state: 'word_id',
-  words: 'id',
-  wrong_book_words: 'word_id',
+const PRIMARY_KEYS: Record<string, readonly string[]> = {
+  ai_settings: ['id'],
+  review_settings: ['id'],
+  study_sessions: ['id'],
+  task_settings: ['id'],
+  theme_settings: ['id'],
+  user_profile: ['id'],
+  word_learning_state: ['word_id'],
+  words: ['id'],
+  wrong_book_sources: ['word_id', 'source'],
+  wrong_book_words: ['word_id'],
 };
 
 const SINGLETON_SETTINGS_TABLES = [
@@ -134,89 +136,117 @@ function normalizeLegacyArchiveTables(
   sourceTables: Record<string, unknown>,
   databaseVersion: number,
 ): Record<string, unknown> {
-  if (databaseVersion >= 19) {
-    return sourceTables;
-  }
+  const normalized = { ...sourceTables };
 
-  const legacyRows = sourceTables.app_settings;
-  if (!Array.isArray(legacyRows)) {
-    throw new Error('存档缺少数据表：app_settings');
-  }
-  if (legacyRows.length > 1) {
-    throw new Error('app_settings 只能包含一行');
-  }
-  if (legacyRows.length === 0) {
-    return {
-      ...sourceTables,
-      ai_settings: [],
-      review_settings: [],
-      task_settings: [],
-      theme_settings: [],
-    };
-  }
-
-  const legacyRow = legacyRows[0];
-  if (!legacyRow || typeof legacyRow !== 'object') {
-    throw new Error('app_settings 第 1 行格式错误');
-  }
-  const source = legacyRow as Record<string, unknown>;
-  const themeMode =
-    databaseVersion < 15 && source.theme_mode === undefined
-      ? DEFAULT_THEME_MODE
-      : source.theme_mode;
-  let themePrimaryColor = source.theme_primary_color;
-  if (databaseVersion < 17 && themePrimaryColor === undefined) {
-    if (themeMode === 'custom') {
-      const legacyColor =
-        source.theme_surface_color ?? source.theme_accent_color;
-      themePrimaryColor =
-        typeof legacyColor === 'string'
-          ? normalizeThemeColor(legacyColor, DEFAULT_THEME_PRIMARY_COLOR)
-          : DEFAULT_THEME_PRIMARY_COLOR;
+  if (databaseVersion < 19) {
+    const legacyRows = sourceTables.app_settings;
+    if (!Array.isArray(legacyRows)) {
+      throw new Error('存档缺少数据表：app_settings');
+    }
+    if (legacyRows.length > 1) {
+      throw new Error('app_settings 只能包含一行');
+    }
+    if (legacyRows.length === 0) {
+      normalized.ai_settings = [];
+      normalized.review_settings = [];
+      normalized.task_settings = [];
+      normalized.theme_settings = [];
     } else {
-      themePrimaryColor = DEFAULT_THEME_PRIMARY_COLOR;
+      const legacyRow = legacyRows[0];
+      if (!legacyRow || typeof legacyRow !== 'object') {
+        throw new Error('app_settings 第 1 行格式错误');
+      }
+      const source = legacyRow as Record<string, unknown>;
+      const themeMode =
+        databaseVersion < 15 && source.theme_mode === undefined
+          ? DEFAULT_THEME_MODE
+          : source.theme_mode;
+      let themePrimaryColor = source.theme_primary_color;
+      if (databaseVersion < 17 && themePrimaryColor === undefined) {
+        if (themeMode === 'custom') {
+          const legacyColor =
+            source.theme_surface_color ?? source.theme_accent_color;
+          themePrimaryColor =
+            typeof legacyColor === 'string'
+              ? normalizeThemeColor(legacyColor, DEFAULT_THEME_PRIMARY_COLOR)
+              : DEFAULT_THEME_PRIMARY_COLOR;
+        } else {
+          themePrimaryColor = DEFAULT_THEME_PRIMARY_COLOR;
+        }
+      }
+
+      normalized.ai_settings = [
+        {
+          ai_overwrite_examples: source.ai_overwrite_examples,
+          id: source.id,
+        },
+      ];
+      normalized.review_settings = [
+        {
+          auto_remove_correct_wrong_review:
+            source.auto_remove_correct_wrong_review,
+          id: source.id,
+          last_review_prompt_study_day: source.last_review_prompt_study_day,
+          review_reminder_enabled: source.review_reminder_enabled,
+          review_reminder_interval_days: source.review_reminder_interval_days,
+          word_review_word_limit: source.word_review_word_limit,
+          wrong_review_random: source.wrong_review_random,
+          wrong_review_word_limit: source.wrong_review_word_limit,
+        },
+      ];
+      normalized.task_settings = [
+        {
+          advance_on_mistakes: source.advance_on_mistakes,
+          daily_word_limit: source.daily_word_limit,
+          id: source.id,
+          listening_default_rate: source.listening_default_rate,
+          listening_word_interval_seconds:
+            source.listening_word_interval_seconds,
+          random_word_selection: source.random_word_selection,
+        },
+      ];
+      normalized.theme_settings = [
+        {
+          id: source.id,
+          theme_mode: themeMode,
+          theme_primary_color: themePrimaryColor,
+        },
+      ];
     }
   }
 
-  return {
-    ...sourceTables,
-    ai_settings: [
-      {
-        ai_overwrite_examples: source.ai_overwrite_examples,
-        id: source.id,
-      },
-    ],
-    review_settings: [
-      {
-        auto_remove_correct_wrong_review:
-          source.auto_remove_correct_wrong_review,
-        id: source.id,
-        last_review_prompt_study_day: source.last_review_prompt_study_day,
-        review_reminder_enabled: source.review_reminder_enabled,
-        review_reminder_interval_days: source.review_reminder_interval_days,
-        word_review_word_limit: source.word_review_word_limit,
-        wrong_review_random: source.wrong_review_random,
-        wrong_review_word_limit: source.wrong_review_word_limit,
-      },
-    ],
-    task_settings: [
-      {
-        advance_on_mistakes: source.advance_on_mistakes,
-        daily_word_limit: source.daily_word_limit,
-        id: source.id,
-        listening_default_rate: source.listening_default_rate,
-        listening_word_interval_seconds: source.listening_word_interval_seconds,
-        random_word_selection: source.random_word_selection,
-      },
-    ],
-    theme_settings: [
-      {
-        id: source.id,
-        theme_mode: themeMode,
-        theme_primary_color: themePrimaryColor,
-      },
-    ],
-  };
+  if (databaseVersion < 20) {
+    const legacyWrongWords = sourceTables.wrong_book_words;
+    if (!Array.isArray(legacyWrongWords)) {
+      throw new Error('存档缺少数据表：wrong_book_words');
+    }
+    const normalizedWrongWords: Record<string, unknown>[] = [];
+    const normalizedSources: Record<string, unknown>[] = [];
+
+    for (const row of legacyWrongWords) {
+      if (!row || typeof row !== 'object') {
+        normalizedWrongWords.push(row as Record<string, unknown>);
+        continue;
+      }
+      const source = row as Record<string, unknown>;
+      const { sources, ...withoutSources } = source;
+      normalizedWrongWords.push(withoutSources);
+      if (typeof sources !== 'string') {
+        continue;
+      }
+      for (const wrongSource of new Set(sources.split(',').filter(Boolean))) {
+        normalizedSources.push({
+          source: wrongSource,
+          word_id: source.word_id,
+        });
+      }
+    }
+
+    normalized.wrong_book_words = normalizedWrongWords;
+    normalized.wrong_book_sources = normalizedSources;
+  }
+
+  return normalized;
 }
 
 function buildSummary(tables: Record<string, ArchiveRow[]>): ArchiveSummary {
@@ -383,16 +413,18 @@ function getLegacyColumnDefault(
 function validateArchiveTables(tables: Record<string, ArchiveRow[]>): void {
   for (const table of ARCHIVE_TABLES) {
     const rows = tables[table.name] ?? [];
-    const primaryKey = PRIMARY_KEYS[table.name];
-    const primaryValues = new Set<ArchiveValue>();
+    const primaryKeys = PRIMARY_KEYS[table.name];
+    const primaryValues = new Set<string>();
 
     rows.forEach((row, rowIndex) => {
       for (const column of table.columns) {
         validateArchiveValue(table.name, column, row[column], rowIndex);
       }
 
-      if (primaryKey) {
-        const primaryValue = row[primaryKey];
+      if (primaryKeys) {
+        const primaryValue = JSON.stringify(
+          primaryKeys.map((primaryKey) => row[primaryKey]),
+        );
         if (primaryValues.has(primaryValue)) {
           throw new Error(`${table.name} 第 ${rowIndex + 1} 行主键重复`);
         }
@@ -421,6 +453,14 @@ function validateArchiveTables(tables: Record<string, ArchiveRow[]>): void {
       if (!wordIds.has(row.word_id)) {
         throw new Error(`${tableName} 第 ${rowIndex + 1} 行引用了不存在的单词`);
       }
+    }
+  }
+
+  for (const [rowIndex, row] of (tables.wrong_book_sources ?? []).entries()) {
+    if (!wrongWordIds.has(row.word_id)) {
+      throw new Error(
+        `wrong_book_sources 第 ${rowIndex + 1} 行引用了不存在的错题记录`,
+      );
     }
   }
 
@@ -509,8 +549,11 @@ function validateArchiveValue(
   if (field === 'words.example_source' && !['', 'csv', 'ai'].includes(value)) {
     throw new Error(`${rowLabel} 不是有效例句来源`);
   }
-  if (field === 'wrong_book_words.sources') {
-    validateWrongBookSources(value, rowLabel);
+  if (
+    field === 'wrong_book_sources.source' &&
+    !['fill', 'listening', 'manual'].includes(value)
+  ) {
+    throw new Error(`${rowLabel} 不是有效来源`);
   }
   if (
     field === 'user_profile.display_name' &&
@@ -527,21 +570,6 @@ function validateArchiveValue(
   }
 }
 
-function validateWrongBookSources(value: string, rowLabel: string): void {
-  if (value === '') {
-    return;
-  }
-
-  const sources = value.split(',');
-  const allowedSources = new Set(['fill', 'listening', 'manual']);
-  if (
-    sources.some((source) => !allowedSources.has(source)) ||
-    new Set(sources).size !== sources.length
-  ) {
-    throw new Error(`${rowLabel} 包含无效来源`);
-  }
-}
-
 export function stringifyArchive(snapshot: ArchiveSnapshot): string {
   return JSON.stringify(snapshot, null, 2);
 }
@@ -554,6 +582,7 @@ export async function restoreArchiveSnapshot(
 
   await db.withTransactionAsync(async () => {
     await db.execAsync(`
+      DELETE FROM wrong_book_sources;
       DELETE FROM wrong_book_words;
       DELETE FROM word_learning_state;
       DELETE FROM study_sessions;

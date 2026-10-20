@@ -1,11 +1,11 @@
 # 本地数据库说明
 
-最后更新：2026-10-20 20:57
+最后更新：2026-10-20 21:08
 
 ## 基本信息
 
 - 数据库文件：`vocabulary.db`
-- 当前版本：`19`
+- 当前版本：`20`
 - 初始化入口：`src/database/database.ts`
 - 当前 schema 定义：`src/database/schema.ts`
 - 迁移方式：读取 `PRAGMA user_version`，通过 `src/database/migrations.ts` 的版本注册表执行
@@ -13,7 +13,7 @@
 
 所有待执行迁移在同一个主连接事务中按版本顺序运行，每一步成功后立即写入对应的 `PRAGMA user_version`。迁移中断会整体回滚；旧版本异常中断留下“schema 已前进但版本号未前进”时，列检查保护会跳过已存在字段并继续完成迁移。数据库版本高于 App 支持版本或遇到不支持的版本（例如 v11）会显式报错。
 
-迁移完成后会使用 `PRAGMA table_info` 校验当前九张业务表的字段顺序，并调用 `ensureSettingsRows` 补齐四张设置表的单行数据。校验失败会阻止 App 继续启动。
+迁移完成后会使用 `PRAGMA table_info` 校验当前十张业务表的字段顺序，并调用 `ensureSettingsRows` 补齐四张设置表的单行数据。校验失败会阻止 App 继续启动。
 
 ## 数据表
 
@@ -97,7 +97,17 @@
 | `added_at` | 首次加入时间 |
 | `last_wrong_at` | 最近答错时间 |
 | `wrong_count` | 答错次数 |
-| `sources` | 逗号分隔来源：`fill`、`listening`、`manual` |
+
+### wrong_book_sources
+
+错题来源关联表，每个单词的每种来源一行：
+
+| 字段 | 作用 |
+|---|---|
+| `word_id` | 关联 `wrong_book_words.word_id` |
+| `source` | `fill`、`listening` 或 `manual` |
+
+`(word_id, source)` 为联合主键；删除错题时来源行级联删除。
 
 ### study_sessions
 
@@ -142,6 +152,7 @@
 | 16 → 17 | 增加当前主题主色并迁移自定义主题 |
 | 17 → 18 | 增加任务选词、复习、错题和统计查询索引 |
 | 18 → 19 | 拆分四张设置表，删除旧提醒列、三个旧主题列和 `app_settings` |
+| 19 → 20 | 把 `wrong_book_words.sources` 迁移到 `wrong_book_sources` 关联表 |
 
 版本 11 没有独立迁移步骤。数据库 v11 不在存档兼容范围内。
 
@@ -185,6 +196,7 @@
 - `user_profile`
 - `word_learning_state`
 - `wrong_book_words`
+- `wrong_book_sources`
 - `study_sessions`
 
 恢复时按上述依赖顺序删除和插入，并使用同一主连接事务，使该连接已开启的外键约束生效。恢复结束后在同一事务内调用 `ensureSettingsRows`。解析和恢复前都会检查字段类型、数值范围、字符串长度、图片 URI、主键重复和引用完整性。任何表字段变化都必须同步：
@@ -205,10 +217,10 @@
 
 ## 数据测试
 
-`tests/data.test.ts` 当前包含 26 项测试：
+`tests/data.test.ts` 当前包含 28 项测试：
 
 - 真实迁移后的 schema 校验。
-- v0 → v19 迁移和默认设置。
+- v0 → v20 迁移和默认设置。
 - 字段漂移拒绝。
 - 存档 JSON round-trip 和错误格式拒绝。
 - 迁移中途失败时整批回滚。
@@ -223,6 +235,7 @@
 - v14 无主题字段时恢复默认主题。
 - v18 数据库设置迁移到四张 v19 设置表。
 - v18 旧存档的 `app_settings` 自动转换为 v19 四张设置表。
+- v19 数据库与旧存档的错题来源自动转换为 v20 关联表。
 - 每日任务只在完成页单事务写错题、学习状态和打卡。
 - 错题回顾只在完成页自动移出正确单词。
 - v18 查询索引创建成功。
@@ -235,4 +248,4 @@
 - `idx_wrong_last_wrong`：错题最近答错时间排序。
 - `idx_sessions_study_date`：首页今日学习和学习天数统计。
 
-v18 及更早存档继续保留兼容，解析时会把旧 `app_settings` 拆分为四张设置表。
+v19 及更早存档继续保留兼容，解析时会把旧 `app_settings` 拆分为四张设置表，并把旧 `sources` 字符串拆分为来源关联行。
