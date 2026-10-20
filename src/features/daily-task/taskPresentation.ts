@@ -24,7 +24,5 @@ export function resolveListeningSpeed(
   startedAt: number | null,
   override: { speed: number; startedAt: number | null } | null,
 ): number {
-  return override?.startedAt === startedAt
-    ? override.speed
-    : defaultRate;
+  return override?.startedAt === startedAt ? override.speed : defaultRate;
 }

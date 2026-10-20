@@ -58,11 +58,7 @@ export async function completeTaskSession(
 
   await db.withTransactionAsync(async () => {
     if (finalizedSources.size > 0) {
-      await recordWrongWordsInTransaction(
-        db,
-        finalizedSources,
-        completedAtIso,
-      );
+      await recordWrongWordsInTransaction(db, finalizedSources, completedAtIso);
     }
 
     if (mode === 'daily') {
@@ -89,9 +85,7 @@ export async function completeTaskSession(
            SET learning_status = $learningStatus
            WHERE id = $wordId`,
           {
-            $learningStatus: wrongWordIds.has(wordId)
-              ? 'wrong'
-              : 'learned',
+            $learningStatus: wrongWordIds.has(wordId) ? 'wrong' : 'learned',
             $wordId: wordId,
           },
         );
@@ -112,10 +106,7 @@ export async function completeTaskSession(
           $wrongCount: wrongWordIds.size,
         },
       );
-    } else if (
-      mode === 'wrongReview' &&
-      autoRemoveCorrectWrongReview
-    ) {
+    } else if (mode === 'wrongReview' && autoRemoveCorrectWrongReview) {
       const correctWordIds = uniqueWordIds.filter(
         (wordId) => !wrongWordIds.has(wordId),
       );

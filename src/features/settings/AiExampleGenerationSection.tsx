@@ -10,10 +10,7 @@ import {
 
 import type { ThemeColors } from '@/constants/theme';
 import type { ExampleGenerationProgress } from '@/features/ai/generateWordExamples';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type AiExampleGenerationSectionProps = {
   isGenerating: boolean;
@@ -93,11 +90,7 @@ export function AiExampleGenerationSection({
           <ActivityIndicator color={colors.accentText} />
         ) : (
           <>
-            <RefreshCw
-              color={colors.accentText}
-              size={23}
-              strokeWidth={2.3}
-            />
+            <RefreshCw color={colors.accentText} size={23} strokeWidth={2.3} />
             <Text style={styles.generateText}>生成单词数据</Text>
           </>
         )}

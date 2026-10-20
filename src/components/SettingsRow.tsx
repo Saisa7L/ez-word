@@ -12,10 +12,7 @@ import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 
 import type { ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type SettingsRowProps = {
   backgroundColor: string;
@@ -88,38 +85,38 @@ export function SettingsRow({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  icon: {
-    height: 31,
-    width: 31,
-  },
-  iconBox: {
-    alignItems: 'center',
-    borderRadius: 14,
-    height: 56,
-    justifyContent: 'center',
-    width: 56,
-  },
-  label: {
-    color: colors.text,
-    fontSize: 21,
-    fontWeight: '600',
-    marginLeft: 18,
-  },
-  left: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-  row: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    minHeight: 91,
-  },
-  rowBorder: {
-    borderBottomColor: colors.border,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
+    icon: {
+      height: 31,
+      width: 31,
+    },
+    iconBox: {
+      alignItems: 'center',
+      borderRadius: 14,
+      height: 56,
+      justifyContent: 'center',
+      width: 56,
+    },
+    label: {
+      color: colors.text,
+      fontSize: 21,
+      fontWeight: '600',
+      marginLeft: 18,
+    },
+    left: {
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    pressed: {
+      opacity: 0.65,
+    },
+    row: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      minHeight: 91,
+    },
+    rowBorder: {
+      borderBottomColor: colors.border,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+  });

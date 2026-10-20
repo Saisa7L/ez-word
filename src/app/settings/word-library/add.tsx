@@ -12,14 +12,8 @@ import {
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { radii, type ThemeColors } from '@/constants/theme';
-import {
-  findWordByWord,
-  upsertSingleWord,
-} from '@/database/wordsRepository';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { findWordByWord, upsertSingleWord } from '@/database/wordsRepository';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 export default function AddLibraryWordScreen() {
@@ -69,10 +63,7 @@ export default function AddLibraryWordScreen() {
   }
 
   return (
-    <GreenSheetScreen
-      onBack={handleBack}
-      title="添加单词"
-    >
+    <GreenSheetScreen onBack={handleBack} title="添加单词">
       <View style={styles.content}>
         <Text style={styles.hint}>
           历史词库中不存在该单词时，将以“未学习”状态加入；历史已存在时恢复原状态。
@@ -134,49 +125,49 @@ export default function AddLibraryWordScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  addButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
-    height: 58,
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  addButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  addText: {
-    color: colors.onPrimary,
-    fontSize: 21,
-    fontWeight: '700',
-  },
-  content: {
-    paddingHorizontal: 22,
-    paddingTop: 22,
-  },
-  fieldLabel: {
-    color: colors.text,
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 18,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    lineHeight: 23,
-  },
-  input: {
-    backgroundColor: colors.graySoft,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    color: colors.text,
-    fontSize: 18,
-    height: 54,
-    paddingHorizontal: 16,
-  },
-  pressed: {
-    opacity: 0.68,
-  },
-});
+    addButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 28,
+      height: 58,
+      justifyContent: 'center',
+      marginTop: 30,
+    },
+    addButtonDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    addText: {
+      color: colors.onPrimary,
+      fontSize: 21,
+      fontWeight: '700',
+    },
+    content: {
+      paddingHorizontal: 22,
+      paddingTop: 22,
+    },
+    fieldLabel: {
+      color: colors.text,
+      fontSize: 17,
+      fontWeight: '600',
+      marginBottom: 8,
+      marginTop: 18,
+    },
+    hint: {
+      color: colors.textSecondary,
+      fontSize: 15,
+      lineHeight: 23,
+    },
+    input: {
+      backgroundColor: colors.graySoft,
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      color: colors.text,
+      fontSize: 18,
+      height: 54,
+      paddingHorizontal: 16,
+    },
+    pressed: {
+      opacity: 0.68,
+    },
+  });

@@ -2,10 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { TaskWord } from '@/domain/word/taskWord';
 
-import {
-  mapTaskWordRow,
-  type TaskWordRow,
-} from './taskWordMapper';
+import { mapTaskWordRow, type TaskWordRow } from './taskWordMapper';
 import { selectTaskWordColumns } from './sqlFragments';
 function getCutoffIso(days: number | null): string | null {
   if (days === null) {

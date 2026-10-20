@@ -1,33 +1,38 @@
 # 质量与技术债
 
-最后更新：2026-10-20 20:22
+最后更新：2026-10-20 20:26
 
 ## 当前质量门槛
 
 每次代码整理至少执行：
 
 ```powershell
-npm run typecheck
-npm run lint
-npm test
+npm run check
 npx expo export --platform android --output-dir .expo/check
 ```
 
-涉及 Expo 配置或依赖时增加：
+`npm run check` 依次执行：
 
 ```powershell
-npx expo config --type public
-npx expo-doctor
+npm run format:check
+npm run typecheck
+npm run lint
+npm run test:coverage
+npm run doctor
 ```
 
 ## 已具备的自动验证
 
 - TypeScript 类型检查
 - ESLint
+- Prettier 格式检查
 - Expo 配置解析
+- Expo Doctor 21 项项目检查
 - Android Metro 打包和资源引用检查
 - 文档引用存在性检查
 - 数据层 schema 和存档 round-trip 测试
+- Node 内置测试覆盖率及 80% 最低阈值
+- GitHub Actions 自动质量门禁
 
 ## 测试缺口
 
@@ -55,6 +60,16 @@ npx expo-doctor
 | `hooks` | 较高 | 依赖 SQLite 调用方传入 | 新 Hook 方向正确 |
 
 ## 技术债优先级
+
+### P2 已完成：工程化门禁
+
+- 新增 Prettier 和统一格式化配置，源码、测试、配置及 CI workflow 已格式化。
+- `package.json` 声明 Node `>=22.5.0`，覆盖 `node:sqlite` 的运行要求。
+- 新增 `test:coverage`，行、分支、函数最低阈值均为 80%。
+- 当前覆盖率：行 87.25%、分支 85.20%、函数 82.44%。
+- 新增 Expo Doctor 脚本和 GitHub Actions CI。
+- `npm run check` 成为本地统一质量入口。
+- 下一批依赖审计和删包仍应单独提交，不在本批处理 `npm audit` 结果。
 
 ### 已解决：P0 数据与任务主链路
 

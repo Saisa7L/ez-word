@@ -7,15 +7,10 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { SettingsRow } from '@/components/SettingsRow';
 import { ArchiveIcon } from '@/components/icons/ArchiveIcon';
-import {
-  type ThemeColors,
-} from '@/constants/theme';
+import { type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
 import { getUserProfile } from '@/database/userProfileRepository';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 
 export default function SettingsScreen() {
@@ -46,9 +41,7 @@ export default function SettingsScreen() {
     }, [db]),
   );
 
-  const avatarSource = avatarData
-    ? { uri: avatarData }
-    : uiAssets.avatars.user;
+  const avatarSource = avatarData ? { uri: avatarData } : uiAssets.avatars.user;
 
   return (
     <GreenSheetScreen title="我的">
@@ -89,7 +82,9 @@ export default function SettingsScreen() {
           <SettingsRow
             backgroundColor={colors.blueSoft}
             iconColor={colors.blue}
-            iconElement={<Palette color={colors.blue} size={25} strokeWidth={2.2} />}
+            iconElement={
+              <Palette color={colors.blue} size={25} strokeWidth={2.2} />
+            }
             label="主题外观"
             onPress={() => pushOnce('/settings/theme')}
           />
@@ -130,39 +125,39 @@ export default function SettingsScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  avatar: {
-    height: '100%',
-    width: '100%',
-  },
-  avatarCircle: {
-    alignItems: 'center',
-    backgroundColor: colors.graySoft,
-    borderRadius: 28,
-    height: 56,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    width: 56,
-  },
-  avatarRow: {
-    alignItems: 'center',
-    borderBottomColor: colors.border,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  avatarRowContent: {
-    flex: 1,
-    borderBottomWidth: 0,
-  },
-  content: {
-    paddingHorizontal: 0,
-  },
-  menuCard: {
-    marginTop: 8,
-    paddingHorizontal: 26,
-    paddingVertical: 10,
-  },
-  pressed: {
-    opacity: 0.68,
-  },
-});
+    avatar: {
+      height: '100%',
+      width: '100%',
+    },
+    avatarCircle: {
+      alignItems: 'center',
+      backgroundColor: colors.graySoft,
+      borderRadius: 28,
+      height: 56,
+      justifyContent: 'center',
+      overflow: 'hidden',
+      width: 56,
+    },
+    avatarRow: {
+      alignItems: 'center',
+      borderBottomColor: colors.border,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    avatarRowContent: {
+      flex: 1,
+      borderBottomWidth: 0,
+    },
+    content: {
+      paddingHorizontal: 0,
+    },
+    menuCard: {
+      marginTop: 8,
+      paddingHorizontal: 26,
+      paddingVertical: 10,
+    },
+    pressed: {
+      opacity: 0.68,
+    },
+  });

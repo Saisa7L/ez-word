@@ -14,32 +14,27 @@ export type HomeStats = {
 
 export async function getHomeStats(db: SQLiteDatabase): Promise<HomeStats> {
   const today = formatLocalDate(new Date());
-  const [
-    todayRow,
-    totalRow,
-    wrongBookRow,
-    studyDaysRow,
-    checkinRow,
-  ] = await Promise.all([
-    db.getFirstAsync<{ total: number }>(
-      `SELECT COALESCE(SUM(word_count), 0) AS total
+  const [todayRow, totalRow, wrongBookRow, studyDaysRow, checkinRow] =
+    await Promise.all([
+      db.getFirstAsync<{ total: number }>(
+        `SELECT COALESCE(SUM(word_count), 0) AS total
        FROM study_sessions
        WHERE study_date = $today`,
-      { $today: today },
-    ),
-    db.getFirstAsync<{ total: number }>(
-      'SELECT COUNT(*) AS total FROM word_learning_state',
-    ),
-    db.getFirstAsync<{ total: number }>(
-      'SELECT COUNT(*) AS total FROM wrong_book_words',
-    ),
-    db.getFirstAsync<{ total: number }>(
-      'SELECT COUNT(DISTINCT study_date) AS total FROM study_sessions',
-    ),
-    db.getFirstAsync<{ total: number }>(
-      'SELECT COUNT(*) AS total FROM study_sessions',
-    ),
-  ]);
+        { $today: today },
+      ),
+      db.getFirstAsync<{ total: number }>(
+        'SELECT COUNT(*) AS total FROM word_learning_state',
+      ),
+      db.getFirstAsync<{ total: number }>(
+        'SELECT COUNT(*) AS total FROM wrong_book_words',
+      ),
+      db.getFirstAsync<{ total: number }>(
+        'SELECT COUNT(DISTINCT study_date) AS total FROM study_sessions',
+      ),
+      db.getFirstAsync<{ total: number }>(
+        'SELECT COUNT(*) AS total FROM study_sessions',
+      ),
+    ]);
 
   return {
     checkinCount: checkinRow?.total ?? 0,

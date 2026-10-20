@@ -61,9 +61,7 @@ export function Button({
         style,
       ]}
     >
-      <Text style={[styles.text, variantTextStyle, textStyle]}>
-        {children}
-      </Text>
+      <Text style={[styles.text, variantTextStyle, textStyle]}>{children}</Text>
     </Pressable>
   );
 }

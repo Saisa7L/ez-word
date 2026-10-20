@@ -9,10 +9,7 @@ import {
 
 import { PROFILE_USERNAME_MAX_LENGTH } from '@/constants/profile';
 import { radii, type ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 import { BIO_MAX_LENGTH, type EditMode } from './profileUtils';
 

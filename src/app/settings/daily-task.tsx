@@ -18,10 +18,7 @@ import {
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
 import { DailyTaskSettingsForm } from '@/features/settings/DailyTaskSettingsForm';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
@@ -75,10 +72,7 @@ export default function DailyTaskSettingsScreen() {
 
   return (
     <>
-      <GreenSheetScreen
-        onBack={handleBack}
-        title="通用设置"
-      >
+      <GreenSheetScreen onBack={handleBack} title="通用设置">
         {settings ? (
           <>
             <DailyTaskSettingsForm

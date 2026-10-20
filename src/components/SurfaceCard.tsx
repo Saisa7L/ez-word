@@ -15,8 +15,8 @@ export function SurfaceCard({ children, style, ...props }: ViewProps) {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-  },
-});
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: radii.lg,
+    },
+  });

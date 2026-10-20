@@ -1,6 +1,6 @@
 # English Vocabulary App
 
-最后更新：2026-10-19 18:26
+最后更新：2026-10-20 20:26
 
 面向大学生记忆英语单词的 Android App。
 
@@ -9,6 +9,7 @@
 - Expo SDK 57
 - React Native 0.86
 - TypeScript 6
+- Node.js 22.5+
 - Expo Router
 - 第一版使用本地 SQLite，不连接云端数据库
 - DeepSeek API Key 由用户在 App 内填写
@@ -27,9 +28,8 @@ npx expo start --lan
 ## 检查项目
 
 ```powershell
-npm run typecheck
-npm run lint
-npm test
+npm run check
+npx expo export --platform android --output-dir .expo/check
 ```
 
 ## 目录说明

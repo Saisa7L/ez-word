@@ -38,10 +38,7 @@ class NodeSqliteAdapter {
     this.db.exec(source);
   }
 
-  async getAllAsync<T>(
-    source: string,
-    params?: SqlParams,
-  ): Promise<T[]> {
+  async getAllAsync<T>(source: string, params?: SqlParams): Promise<T[]> {
     const statement = this.db.prepare(source);
     return (params ? statement.all(params) : statement.all()) as T[];
   }
@@ -55,10 +52,7 @@ class NodeSqliteAdapter {
     return (row ?? null) as T | null;
   }
 
-  async runAsync(
-    source: string,
-    params?: SqlParams,
-  ): Promise<unknown> {
+  async runAsync(source: string, params?: SqlParams): Promise<unknown> {
     const statement = this.db.prepare(source);
     return params ? statement.run(params) : statement.run();
   }
@@ -139,9 +133,9 @@ test('migrates an empty database to v18 and matches schema', async () => {
   await migrateDatabase(asDatabase(adapter));
   await validateDatabaseSchema(asDatabase(adapter));
 
-  const version = adapter.db
-    .prepare('PRAGMA user_version')
-    .get() as { user_version: number };
+  const version = adapter.db.prepare('PRAGMA user_version').get() as {
+    user_version: number;
+  };
   const settings = adapter.db
     .prepare(
       `SELECT daily_word_limit, listening_default_rate
@@ -288,9 +282,9 @@ test('rolls back every pending migration when one step fails', async () => {
          AND name = 'first_migration_test'`,
     )
     .get();
-  const version = adapter.db
-    .prepare('PRAGMA user_version')
-    .get() as { user_version: number };
+  const version = adapter.db.prepare('PRAGMA user_version').get() as {
+    user_version: number;
+  };
 
   assert.equal(table, undefined);
   assert.equal(version.user_version, 0);
@@ -303,9 +297,9 @@ test('repairs a schema that advanced before user_version was written', async () 
   await migrateDatabase(asDatabase(adapter));
   await validateDatabaseSchema(asDatabase(adapter));
 
-  const version = adapter.db
-    .prepare('PRAGMA user_version')
-    .get() as { user_version: number };
+  const version = adapter.db.prepare('PRAGMA user_version').get() as {
+    user_version: number;
+  };
   assert.equal(version.user_version, 18);
 });
 
@@ -379,10 +373,7 @@ test('migrates a v16 custom theme into the current archive shape', async () => {
   settings.theme_accent_color = '#112233';
 
   const parsed = parseArchiveSnapshot(JSON.stringify(archive));
-  assert.equal(
-    parsed.tables.app_settings[0]?.theme_primary_color,
-    '#245A8D',
-  );
+  assert.equal(parsed.tables.app_settings[0]?.theme_primary_color, '#245A8D');
 
   const target = await createMigratedAdapter();
   await restoreArchiveSnapshot(asDatabase(target), parsed);
@@ -416,8 +407,7 @@ test('rejects archive image values that are not local data URIs', async () => {
     tables: Record<string, Record<string, unknown>[]>;
   };
 
-  archive.tables.user_profile[0].avatar_data =
-    'https://example.com/avatar.png';
+  archive.tables.user_profile[0].avatar_data = 'https://example.com/avatar.png';
 
   assert.throws(
     () => parseArchiveSnapshot(JSON.stringify(archive)),
@@ -483,10 +473,7 @@ test('fills v10 profile and theme defaults during archive migration', async () =
 
   const parsed = parseArchiveSnapshot(JSON.stringify(archive));
   assert.equal(parsed.tables.app_settings[0]?.theme_mode, 'day');
-  assert.equal(
-    parsed.tables.app_settings[0]?.theme_primary_color,
-    '#FFFFFF',
-  );
+  assert.equal(parsed.tables.app_settings[0]?.theme_primary_color, '#FFFFFF');
   assert.equal(parsed.tables.user_profile[0]?.bio, '');
 
   const target = await createMigratedAdapter();
@@ -580,25 +567,26 @@ test('persists daily task state only in one completion step', async () => {
     .prepare('SELECT COUNT(*) AS total FROM word_learning_state')
     .get() as { total: number };
   const session = adapter.db
-    .prepare(
-      'SELECT word_count, wrong_count FROM study_sessions LIMIT 1',
-    )
+    .prepare('SELECT word_count, wrong_count FROM study_sessions LIMIT 1')
     .get() as { word_count: number; wrong_count: number };
 
   assert.equal(result.wrongWordCount, 2);
-  assert.deepEqual(wrongRows.map((row) => ({ ...row })), [
-    { sources: 'fill,listening', word_id: 1, wrong_count: 1 },
-    { sources: 'listening', word_id: 2, wrong_count: 1 },
-  ]);
-  assert.deepEqual(statusRows.map((row) => ({ ...row })), [
-    { id: 1, learning_status: 'wrong' },
-    { id: 2, learning_status: 'wrong' },
-  ]);
-  assert.equal(learningCount.total, 2);
   assert.deepEqual(
-    { ...session },
-    { word_count: 2, wrong_count: 2 },
+    wrongRows.map((row) => ({ ...row })),
+    [
+      { sources: 'fill,listening', word_id: 1, wrong_count: 1 },
+      { sources: 'listening', word_id: 2, wrong_count: 1 },
+    ],
   );
+  assert.deepEqual(
+    statusRows.map((row) => ({ ...row })),
+    [
+      { id: 1, learning_status: 'wrong' },
+      { id: 2, learning_status: 'wrong' },
+    ],
+  );
+  assert.equal(learningCount.total, 2);
+  assert.deepEqual({ ...session }, { word_count: 2, wrong_count: 2 });
 });
 
 test('applies wrong-review removal only when the task is finalized', async () => {
@@ -658,10 +646,13 @@ test('applies wrong-review removal only when the task is finalized', async () =>
     wrongRows.map((row) => ({ ...row })),
     [{ word_id: 1, wrong_count: 2 }],
   );
-  assert.deepEqual(statusRows.map((row) => ({ ...row })), [
-    { id: 1, learning_status: 'wrong' },
-    { id: 2, learning_status: 'learned' },
-  ]);
+  assert.deepEqual(
+    statusRows.map((row) => ({ ...row })),
+    [
+      { id: 1, learning_status: 'wrong' },
+      { id: 2, learning_status: 'learned' },
+    ],
+  );
 });
 
 test('creates the v18 query indexes', async () => {
@@ -677,12 +668,8 @@ test('creates the v18 query indexes', async () => {
   assert.ok(
     indexNames('word_learning_state').includes('idx_learning_last_learned'),
   );
-  assert.ok(
-    indexNames('wrong_book_words').includes('idx_wrong_last_wrong'),
-  );
-  assert.ok(
-    indexNames('study_sessions').includes('idx_sessions_study_date'),
-  );
+  assert.ok(indexNames('wrong_book_words').includes('idx_wrong_last_wrong'));
+  assert.ok(indexNames('study_sessions').includes('idx_sessions_study_date'));
 });
 
 test('loads daily task words through the TaskWord mapper', async () => {
@@ -763,10 +750,7 @@ test('loads the configured number of word-review words', async () => {
   await adapter.runAsync(
     'UPDATE app_settings SET word_review_word_limit = 1 WHERE id = 1',
   );
-  const selection = await loadWordReviewSelection(
-    asDatabase(adapter),
-    null,
-  );
+  const selection = await loadWordReviewSelection(asDatabase(adapter), null);
 
   assert.equal(selection.settings.wordReviewWordLimit, 1);
   assert.equal(selection.words.length, 1);

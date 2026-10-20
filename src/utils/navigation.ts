@@ -1,7 +1,4 @@
-import {
-  resetToHomeOnce,
-  type AppNavigation,
-} from './navigationActions';
+import { resetToHomeOnce, type AppNavigation } from './navigationActions';
 
 export type { AppNavigation };
 

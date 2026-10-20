@@ -2,10 +2,7 @@ import { Check } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type SelectionMarkerProps = {
   checkSize?: number;
@@ -24,11 +21,7 @@ export function SelectionMarker({
   return (
     <View style={[styles.marker, selected && styles.markerSelected]}>
       {selected ? (
-        <Check
-          color={colors.onPrimary}
-          size={checkSize}
-          strokeWidth={3}
-        />
+        <Check color={colors.onPrimary} size={checkSize} strokeWidth={3} />
       ) : (
         <Text style={styles.index}>{index + 1}</Text>
       )}

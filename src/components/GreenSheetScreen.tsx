@@ -13,16 +13,8 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import {
-  radii,
-  shadow,
-  spacing,
-  type ThemeColors,
-} from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { radii, shadow, spacing, type ThemeColors } from '@/constants/theme';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type GreenSheetScreenProps = {
   children: React.ReactNode;
@@ -105,61 +97,61 @@ export function GreenSheetScreen({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    height: 48,
-    justifyContent: 'center',
-    width: 48,
-  },
-  content: {
-    paddingHorizontal: 0,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: 150,
-    justifyContent: 'space-between',
-    paddingHorizontal: 14,
-  },
-  headerPlaceholder: {
-    width: 48,
-  },
-  headerSafeArea: {
-    backgroundColor: colors.primary,
-  },
-  headerTitle: {
-    color: colors.onPrimary,
-    fontSize: 25,
-    fontWeight: '700',
-  },
-  nonScrollContent: {
-    paddingBottom: 0,
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  scroll: {
-    flex: 1,
-    marginTop: 16,
-  },
-  sheet: {
-    ...shadow,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
-    bottom: 0,
-    left: spacing.lg,
-    overflow: 'hidden',
-    position: 'absolute',
-    right: spacing.lg,
-    top: -32,
-  },
-  sheetArea: {
-    flex: 1,
-    position: 'relative',
-  },
-});
+    backButton: {
+      alignItems: 'center',
+      height: 48,
+      justifyContent: 'center',
+      width: 48,
+    },
+    content: {
+      paddingHorizontal: 0,
+    },
+    header: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      height: 150,
+      justifyContent: 'space-between',
+      paddingHorizontal: 14,
+    },
+    headerPlaceholder: {
+      width: 48,
+    },
+    headerSafeArea: {
+      backgroundColor: colors.primary,
+    },
+    headerTitle: {
+      color: colors.onPrimary,
+      fontSize: 25,
+      fontWeight: '700',
+    },
+    nonScrollContent: {
+      paddingBottom: 0,
+    },
+    pressed: {
+      opacity: 0.65,
+    },
+    screen: {
+      backgroundColor: colors.background,
+      flex: 1,
+    },
+    scroll: {
+      flex: 1,
+      marginTop: 16,
+    },
+    sheet: {
+      ...shadow,
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radii.xl,
+      borderTopRightRadius: radii.xl,
+      bottom: 0,
+      left: spacing.lg,
+      overflow: 'hidden',
+      position: 'absolute',
+      right: spacing.lg,
+      top: -32,
+    },
+    sheetArea: {
+      flex: 1,
+      position: 'relative',
+    },
+  });

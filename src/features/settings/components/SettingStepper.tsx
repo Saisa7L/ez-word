@@ -2,10 +2,7 @@ import { Minus, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useLongPressStep } from '@/hooks/useLongPressStep';
 
 type SettingStepperProps = {
@@ -56,7 +53,9 @@ export function SettingStepper({
       </Pressable>
 
       <View style={styles.value}>
-        <Text style={[styles.valueNumber, { fontSize: valueSize }]}>{value}</Text>
+        <Text style={[styles.valueNumber, { fontSize: valueSize }]}>
+          {value}
+        </Text>
         <Text style={styles.unit}>{unit}</Text>
       </View>
 

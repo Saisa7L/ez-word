@@ -21,14 +21,20 @@ const HEADER_ALIASES: Record<RequiredColumn, string[]> = {
 const EXAMPLE_HEADER_ALIASES = ['example', 'sentence', '例句'];
 
 function normalizeHeader(header: string): string {
-  return header.replace(/^\uFEFF/, '').trim().toLowerCase();
+  return header
+    .replace(/^\uFEFF/, '')
+    .trim()
+    .toLowerCase();
 }
 
 function cleanCell(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function resolveColumn(fields: string[], column: RequiredColumn): string | undefined {
+function resolveColumn(
+  fields: string[],
+  column: RequiredColumn,
+): string | undefined {
   const aliases = HEADER_ALIASES[column];
   return fields.find((field) => aliases.includes(field));
 }
@@ -40,17 +46,20 @@ export function parseWordCsv(content: string): WordCsvPreview {
     transformHeader: normalizeHeader,
   });
 
-  const syntaxError = parsed.errors.find((error) => error.type !== 'FieldMismatch');
+  const syntaxError = parsed.errors.find(
+    (error) => error.type !== 'FieldMismatch',
+  );
   if (syntaxError) {
-    const rowText = syntaxError.row === undefined ? '' : `，第 ${syntaxError.row + 1} 行`;
-    throw new CsvValidationError(`CSV 格式错误${rowText}：${syntaxError.message}`);
+    const rowText =
+      syntaxError.row === undefined ? '' : `，第 ${syntaxError.row + 1} 行`;
+    throw new CsvValidationError(
+      `CSV 格式错误${rowText}：${syntaxError.message}`,
+    );
   }
 
   const fields = parsed.meta.fields ?? [];
   const columns = {
-    example: fields.find((field) =>
-      EXAMPLE_HEADER_ALIASES.includes(field),
-    ),
+    example: fields.find((field) => EXAMPLE_HEADER_ALIASES.includes(field)),
     word: resolveColumn(fields, 'word'),
     meaning: resolveColumn(fields, 'meaning'),
     phonetic: resolveColumn(fields, 'phonetic'),
@@ -58,7 +67,9 @@ export function parseWordCsv(content: string): WordCsvPreview {
 
   const missingColumns = REQUIRED_COLUMNS.filter((column) => !columns[column]);
   if (missingColumns.length > 0) {
-    const labels = missingColumns.map((column) => HEADER_ALIASES[column][0]).join('、');
+    const labels = missingColumns
+      .map((column) => HEADER_ALIASES[column][0])
+      .join('、');
     throw new CsvValidationError(`CSV 缺少必要列：${labels}`);
   }
 

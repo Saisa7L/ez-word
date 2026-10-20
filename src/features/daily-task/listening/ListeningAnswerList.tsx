@@ -27,17 +27,13 @@ export function ListeningAnswerList({
   return (
     <View style={styles.answerCard}>
       <View
-        onLayout={(event) =>
-          setViewportHeight(event.nativeEvent.layout.height)
-        }
+        onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
         style={styles.scrollViewport}
       >
         <ScrollView
           contentContainerStyle={styles.answerContent}
           onContentSizeChange={(_, height) => setContentHeight(height)}
-          onScroll={(event) =>
-            setScrollY(event.nativeEvent.contentOffset.y)
-          }
+          onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           style={styles.scrollView}

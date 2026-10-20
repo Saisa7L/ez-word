@@ -44,30 +44,30 @@ export function TaskErrorModal({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
-    height: 58,
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  dialog: {
-    padding: 28,
-    width: '82%',
-  },
-  message: {
-    color: colors.textSecondary,
-    fontSize: 18,
-    lineHeight: 28,
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  title: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-});
+    button: {
+      alignItems: 'center',
+      alignSelf: 'stretch',
+      backgroundColor: colors.primary,
+      borderRadius: 28,
+      height: 58,
+      justifyContent: 'center',
+      marginTop: 30,
+    },
+    dialog: {
+      padding: 28,
+      width: '82%',
+    },
+    message: {
+      color: colors.textSecondary,
+      fontSize: 18,
+      lineHeight: 28,
+      marginTop: 16,
+      textAlign: 'center',
+    },
+    title: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '700',
+      textAlign: 'center',
+    },
+  });

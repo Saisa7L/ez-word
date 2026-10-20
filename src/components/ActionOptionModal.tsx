@@ -29,10 +29,7 @@ export function ActionOptionModal({
   const styles = useThemedStyles(createStyles);
 
   return (
-    <Dialog
-      onRequestClose={onClose}
-      visible={visible}
-    >
+    <Dialog onRequestClose={onClose} visible={visible}>
       <Text style={styles.title}>{title}</Text>
       {message ? <Text style={styles.message}>{message}</Text> : null}
 
@@ -70,48 +67,48 @@ export function ActionOptionModal({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  message: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  optionButton: {
-    alignItems: 'center',
-    backgroundColor: colors.graySoft,
-    borderRadius: 24,
-    height: 54,
-    justifyContent: 'center',
-  },
-  optionDanger: {
-    backgroundColor: colors.redSoft,
-  },
-  optionPrimary: {
-    backgroundColor: colors.mint,
-  },
-  optionText: {
-    color: colors.text,
-    fontSize: 19,
-    fontWeight: '600',
-  },
-  optionTextDanger: {
-    color: colors.red,
-  },
-  optionTextPrimary: {
-    color: colors.accentText,
-  },
-  options: {
-    gap: 10,
-    marginTop: 22,
-  },
-  pressed: {
-    opacity: 0.66,
-  },
-  title: {
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-});
+    message: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      lineHeight: 24,
+      marginTop: 10,
+      textAlign: 'center',
+    },
+    optionButton: {
+      alignItems: 'center',
+      backgroundColor: colors.graySoft,
+      borderRadius: 24,
+      height: 54,
+      justifyContent: 'center',
+    },
+    optionDanger: {
+      backgroundColor: colors.redSoft,
+    },
+    optionPrimary: {
+      backgroundColor: colors.mint,
+    },
+    optionText: {
+      color: colors.text,
+      fontSize: 19,
+      fontWeight: '600',
+    },
+    optionTextDanger: {
+      color: colors.red,
+    },
+    optionTextPrimary: {
+      color: colors.accentText,
+    },
+    options: {
+      gap: 10,
+      marginTop: 22,
+    },
+    pressed: {
+      opacity: 0.66,
+    },
+    title: {
+      color: colors.text,
+      fontSize: 24,
+      fontWeight: '700',
+      textAlign: 'center',
+    },
+  });

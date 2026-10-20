@@ -1,20 +1,14 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { type ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 export function TaskPhasePlaceholder() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
 
   return (
-    <View
-      accessibilityLiveRegion="polite"
-      style={styles.screen}
-    >
+    <View accessibilityLiveRegion="polite" style={styles.screen}>
       <ActivityIndicator color={colors.accentText} size="large" />
       <Text style={styles.label}>正在恢复任务阶段</Text>
     </View>

@@ -1,12 +1,12 @@
 # 开发指南
 
-最后更新：2026-10-19 19:24
+最后更新：2026-10-20 20:26
 
 ## 环境
 
 - Windows 11
 - VS Code
-- Node.js 22
+- Node.js 22.5 或更高版本
 - Expo SDK 57
 - Android 真机：一加 Ace 2，Android 16
 - 项目路径：`F:\English vocabulary app\Project\vocab-app`
@@ -23,12 +23,11 @@ npx expo start --lan --clear
 ## 检查命令
 
 ```powershell
-npm run typecheck
-npm run lint
-npm test
-npx expo-doctor
+npm run check
 npx expo export --platform android --output-dir .expo/check
 ```
+
+`npm run check` 包含格式、类型、Lint、覆盖率和 Expo Doctor。
 
 依赖安装使用：
 
@@ -43,6 +42,15 @@ npm run test:data
 ```
 
 测试运行在 Node 内置 SQLite 上，出现 `ExperimentalWarning: SQLite` 属于运行环境提示，不代表测试失败。
+
+格式化：
+
+```powershell
+npm run format
+npm run format:check
+```
+
+CI 使用 Node 22，并执行与 `npm run check` 相同的质量门禁。
 
 禁止：
 

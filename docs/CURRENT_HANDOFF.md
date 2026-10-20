@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 20:22
+最后更新：2026-10-20 20:26
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`b60ccc0 Complete accepted P0 and P1 refactor batches`
-- 当前阶段：P1 设计系统与导航稳定性批次已通过真机验收，随本批提交
+- 已提交基线：`d33ccaf Guard all navigation transitions against duplicate actions`
+- 当前阶段：P2-6 工程化门禁已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：通用 Button/Dialog、无障碍标签和全导航动作锁已完成
+- 当前工作：Prettier、Node 版本约束、覆盖率阈值、CI 和 Expo Doctor 已接入
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -44,8 +44,21 @@ git log --oneline --decorate -5
 ## 下一轮重构
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
-- 本批提交后进入下一阶段，具体范围由用户指定。
+- P2-6 已完成；下一批优先做 P2-5 依赖清理，单独验证兼容性。
+- P2-1/P2-3 schema 清理必须等旧数据库和旧存档迁移方案明确后单独执行。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
+
+## P2-6 工程化门禁结果
+
+- `package.json` 增加 Node `>=22.5.0` 约束，匹配 `node:sqlite` 测试要求。
+- 接入 Prettier 3.9.10，新增 `format` 和 `format:check`。
+- 源码、测试、配置和 GitHub Actions workflow 完成统一格式化。
+- 新增 `test:coverage`，覆盖率最低阈值为行、分支、函数各 80%。
+- 当前测试覆盖率：行 87.25%、分支 85.20%、函数 82.44%。
+- 新增 `doctor` 和统一门禁 `check`；Expo Doctor 21/21 通过。
+- 新增 `.github/workflows/ci.yml`，依次执行格式、类型、Lint、覆盖率和 Doctor。
+- 已通过 `npm run check` 和 Android 离线导出。
+- 本批为纯工程化改动，不改变业务行为。
 
 ## P0 批次 0-3 结果
 
@@ -261,10 +274,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P1 设计系统、无障碍和导航稳定性批次已通过真机验收。
+当前 P2-6 工程化门禁已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、最近自动验证结果和下一阶段边界。
+请先说明当前 Git 状态、P2 工程化验证结果和下一批边界。
 ```

@@ -24,14 +24,8 @@ import {
 } from '@/features/daily-task/DailyTaskProvider';
 import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
-import {
-  resetToHomeOnce,
-  type AppNavigation,
-} from '@/utils/navigationActions';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { resetToHomeOnce, type AppNavigation } from '@/utils/navigationActions';
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -43,18 +37,10 @@ export default function DailyTaskCompleteScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const {
-    durationSeconds,
-    resetTask,
-    taskMode,
-    taskSettings,
-    words,
-  } = useDailyTaskSession();
-  const {
-    fillMistakeWordIds,
-    listeningMistakeWordIds,
-    wrongWordIds,
-  } = useDailyTaskMistakes();
+  const { durationSeconds, resetTask, taskMode, taskSettings, words } =
+    useDailyTaskSession();
+  const { fillMistakeWordIds, listeningMistakeWordIds, wrongWordIds } =
+    useDailyTaskMistakes();
   const navigation = useNavigation<AppNavigation>('/');
   const taskReady = useDailyTaskPhaseGuard('completed');
   const completionStartedRef = useRef(false);
@@ -77,8 +63,7 @@ export default function DailyTaskCompleteScreen() {
     completionStartedRef.current = true;
     try {
       await completeTaskSession(db, {
-        autoRemoveCorrectWrongReview:
-          taskSettings.autoRemoveCorrectWrongReview,
+        autoRemoveCorrectWrongReview: taskSettings.autoRemoveCorrectWrongReview,
         fillMistakeWordIds: [...fillMistakeWordIds],
         listeningMistakeWordIds: [...listeningMistakeWordIds],
         mode: taskMode,
@@ -236,7 +221,10 @@ export default function DailyTaskCompleteScreen() {
         <Pressable
           accessibilityRole="button"
           onPress={handleHome}
-          style={({ pressed }) => [styles.homeButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.homeButton,
+            pressed && styles.pressed,
+          ]}
         >
           <Text style={styles.homeButtonText}>返回主界面</Text>
         </Pressable>
@@ -247,132 +235,132 @@ export default function DailyTaskCompleteScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    height: 48,
-    justifyContent: 'center',
-    width: 48,
-  },
-  content: {
-    alignItems: 'center',
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  discardButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-    minHeight: 48,
-  },
-  discardButtonText: {
-    color: colors.textSecondary,
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: 88,
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-  },
-  headerPlaceholder: {
-    width: 48,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 23,
-    fontWeight: '700',
-  },
-  homeButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
-    height: 62,
-    justifyContent: 'center',
-    marginBottom: 18,
-    marginHorizontal: 28,
-  },
-  homeButtonText: {
-    color: colors.onPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  illustration: {
-    height: 250,
-    marginTop: 8,
-    width: 250,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  retryButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
-    justifyContent: 'center',
-    marginTop: 26,
-    minHeight: 58,
-    paddingHorizontal: 40,
-  },
-  retryButtonText: {
-    color: colors.onPrimary,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  summaryCard: {
-    ...shadow,
-    marginTop: 18,
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    width: '100%',
-  },
-  summaryLabel: {
-    color: colors.textSecondary,
-    fontSize: 20,
-  },
-  summaryRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  summaryValue: {
-    color: colors.text,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  statusContent: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    paddingBottom: 80,
-    paddingHorizontal: 18,
-  },
-  statusMessage: {
-    color: colors.textSecondary,
-    fontSize: 18,
-    lineHeight: 28,
-    marginTop: 14,
-    textAlign: 'center',
-  },
-  statusTitle: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '700',
-    marginTop: 20,
-    textAlign: 'center',
-  },
-  title: {
-    color: colors.text,
-    fontSize: 42,
-    fontWeight: '800',
-  },
-});
+    backButton: {
+      alignItems: 'center',
+      height: 48,
+      justifyContent: 'center',
+      width: 48,
+    },
+    content: {
+      alignItems: 'center',
+      flex: 1,
+      paddingHorizontal: 20,
+    },
+    discardButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 12,
+      minHeight: 48,
+    },
+    discardButtonText: {
+      color: colors.textSecondary,
+      fontSize: 17,
+      fontWeight: '600',
+    },
+    disabled: {
+      opacity: 0.4,
+    },
+    header: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      height: 88,
+      justifyContent: 'space-between',
+      paddingHorizontal: 18,
+    },
+    headerPlaceholder: {
+      width: 48,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: 23,
+      fontWeight: '700',
+    },
+    homeButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 28,
+      height: 62,
+      justifyContent: 'center',
+      marginBottom: 18,
+      marginHorizontal: 28,
+    },
+    homeButtonText: {
+      color: colors.onPrimary,
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    illustration: {
+      height: 250,
+      marginTop: 8,
+      width: 250,
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    retryButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 28,
+      justifyContent: 'center',
+      marginTop: 26,
+      minHeight: 58,
+      paddingHorizontal: 40,
+    },
+    retryButtonText: {
+      color: colors.onPrimary,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    screen: {
+      backgroundColor: colors.background,
+      flex: 1,
+    },
+    summaryCard: {
+      ...shadow,
+      marginTop: 18,
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      width: '100%',
+    },
+    summaryLabel: {
+      color: colors.textSecondary,
+      fontSize: 20,
+    },
+    summaryRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+    },
+    summaryValue: {
+      color: colors.text,
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    statusContent: {
+      alignItems: 'center',
+      flex: 1,
+      justifyContent: 'center',
+      paddingBottom: 80,
+      paddingHorizontal: 18,
+    },
+    statusMessage: {
+      color: colors.textSecondary,
+      fontSize: 18,
+      lineHeight: 28,
+      marginTop: 14,
+      textAlign: 'center',
+    },
+    statusTitle: {
+      color: colors.text,
+      fontSize: 28,
+      fontWeight: '700',
+      marginTop: 20,
+      textAlign: 'center',
+    },
+    title: {
+      color: colors.text,
+      fontSize: 42,
+      fontWeight: '800',
+    },
+  });

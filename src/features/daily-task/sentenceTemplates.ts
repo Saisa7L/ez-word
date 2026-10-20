@@ -41,7 +41,9 @@ export function buildClozeSentence(
   return trimmedSentence.replace(pattern, '______');
 }
 
-export function buildDailyTaskQuestions(words: TaskWord[]): DailyTaskQuestion[] {
+export function buildDailyTaskQuestions(
+  words: TaskWord[],
+): DailyTaskQuestion[] {
   return words.map((word) => ({
     sentence:
       buildClozeSentence(word.exampleSentence, word.word) ??

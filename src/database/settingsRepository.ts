@@ -74,7 +74,9 @@ export function normalizeListeningRate(value: number): number {
   }
 
   return LISTENING_RATES.reduce((closest, candidate) =>
-    Math.abs(candidate - value) < Math.abs(closest - value) ? candidate : closest,
+    Math.abs(candidate - value) < Math.abs(closest - value)
+      ? candidate
+      : closest,
   );
 }
 
@@ -138,8 +140,7 @@ export async function getDailyTaskSettings(
 
   return {
     advanceOnMistakes: row.advance_on_mistakes === 1,
-    autoRemoveCorrectWrongReview:
-      row.auto_remove_correct_wrong_review === 1,
+    autoRemoveCorrectWrongReview: row.auto_remove_correct_wrong_review === 1,
     dailyWordLimit: normalizeDailyWordLimit(row.daily_word_limit),
     listeningDefaultRate: normalizeListeningRate(row.listening_default_rate),
     listeningWordIntervalSeconds: normalizeListeningWordInterval(
@@ -151,9 +152,7 @@ export async function getDailyTaskSettings(
       row.review_reminder_interval_days,
     ),
     wrongReviewRandom: row.wrong_review_random === 1,
-    wrongReviewWordLimit: normalizeReviewWordLimit(
-      row.wrong_review_word_limit,
-    ),
+    wrongReviewWordLimit: normalizeReviewWordLimit(row.wrong_review_word_limit),
     wordReviewWordLimit: normalizeReviewWordLimit(row.word_review_word_limit),
   };
 }
@@ -205,8 +204,9 @@ export async function saveDailyTaskSettings(
        word_review_word_limit = excluded.word_review_word_limit`,
     {
       $advanceOnMistakes: settings.advanceOnMistakes ? 1 : 0,
-      $autoRemoveCorrectWrongReview:
-        settings.autoRemoveCorrectWrongReview ? 1 : 0,
+      $autoRemoveCorrectWrongReview: settings.autoRemoveCorrectWrongReview
+        ? 1
+        : 0,
       $dailyWordLimit: normalizeDailyWordLimit(settings.dailyWordLimit),
       $listeningDefaultRate: normalizeListeningRate(
         settings.listeningDefaultRate,

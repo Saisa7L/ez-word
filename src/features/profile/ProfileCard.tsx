@@ -1,10 +1,5 @@
 import type { RefObject } from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { OutlinedText } from '@/components/OutlinedText';
 import {
@@ -57,9 +52,7 @@ export function ProfileCard({
   textStrokeWidth,
 }: ProfileCardProps) {
   const styles = useThemedStyles(createStyles);
-  const avatarSource = avatarData
-    ? { uri: avatarData }
-    : uiAssets.avatars.user;
+  const avatarSource = avatarData ? { uri: avatarData } : uiAssets.avatars.user;
   const displayNameLines = splitDisplayName(displayName);
 
   return (
@@ -105,10 +98,7 @@ export function ProfileCard({
           accessibilityLabel="修改用户名"
           accessibilityRole="button"
           onPress={onNamePress}
-          style={({ pressed }) => [
-            styles.nameBlock,
-            pressed && styles.pressed,
-          ]}
+          style={({ pressed }) => [styles.nameBlock, pressed && styles.pressed]}
         >
           <View style={styles.nameLines}>
             {displayNameLines.map((line, index) => (
@@ -164,10 +154,7 @@ export function ProfileCard({
           </OutlinedText>
         </View>
         <View
-          style={[
-            styles.statDivider,
-            { backgroundColor: cardContentColor },
-          ]}
+          style={[styles.statDivider, { backgroundColor: cardContentColor }]}
         />
         <View style={styles.statItem}>
           <BookStatIcon color={cardContentColor} size={48} />
@@ -196,10 +183,7 @@ export function ProfileCard({
         accessibilityLabel="修改个人简介"
         accessibilityRole="button"
         onPress={onBioPress}
-        style={({ pressed }) => [
-          styles.bioBlock,
-          pressed && styles.pressed,
-        ]}
+        style={({ pressed }) => [styles.bioBlock, pressed && styles.pressed]}
       >
         <OutlinedText
           fillColor={cardContentColor}

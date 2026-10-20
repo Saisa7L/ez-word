@@ -19,9 +19,7 @@ export type UserProfile = {
   updatedAt: string;
 };
 
-export async function getUserProfile(
-  db: SQLiteDatabase,
-): Promise<UserProfile> {
+export async function getUserProfile(db: SQLiteDatabase): Promise<UserProfile> {
   const row = await db.getFirstAsync<{
     avatar_data: string;
     background_data: string;
@@ -53,10 +51,7 @@ export async function getUserProfile(
       row?.text_stroke_color ?? DEFAULT_PROFILE_TEXT_STROKE_COLOR,
     textStrokeWidth: Math.min(
       PROFILE_TEXT_STROKE_MAX_WIDTH,
-      Math.max(
-        0,
-        row?.text_stroke_width ?? DEFAULT_PROFILE_TEXT_STROKE_WIDTH,
-      ),
+      Math.max(0, row?.text_stroke_width ?? DEFAULT_PROFILE_TEXT_STROKE_WIDTH),
     ),
     updatedAt: row?.updated_at ?? new Date(0).toISOString(),
   };

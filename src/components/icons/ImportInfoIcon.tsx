@@ -5,10 +5,7 @@ type ImportInfoIconProps = {
   size?: number;
 };
 
-export function ImportInfoIcon({
-  color,
-  size = 28,
-}: ImportInfoIconProps) {
+export function ImportInfoIcon({ color, size = 28 }: ImportInfoIconProps) {
   return (
     <Svg height={size} viewBox="0 0 1024 1024" width={size}>
       <Path

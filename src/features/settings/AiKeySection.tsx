@@ -9,10 +9,7 @@ import {
 } from 'react-native';
 
 import { radii, type ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type AiKeySectionProps = {
   apiKeyInput: string;

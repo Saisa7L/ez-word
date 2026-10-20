@@ -118,9 +118,7 @@ const PRIMARY_KEYS: Record<string, string> = {
   wrong_book_words: 'word_id',
 };
 
-function buildSummary(
-  tables: Record<string, ArchiveRow[]>,
-): ArchiveSummary {
+function buildSummary(tables: Record<string, ArchiveRow[]>): ArchiveSummary {
   return {
     checkins: tables.study_sessions?.length ?? 0,
     displayName: String(tables.user_profile?.[0]?.display_name ?? 'User'),
@@ -155,9 +153,7 @@ export async function createArchiveSnapshot(
 
 function isArchiveValue(value: unknown): value is ArchiveValue {
   return (
-    value === null ||
-    typeof value === 'string' ||
-    typeof value === 'number'
+    value === null || typeof value === 'string' || typeof value === 'number'
   );
 }
 
@@ -186,10 +182,9 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
   }
   if (
     typeof archive.databaseVersion !== 'number' ||
-    ![
-      ...LEGACY_DATABASE_VERSIONS,
-      DATABASE_VERSION,
-    ].includes(archive.databaseVersion)
+    ![...LEGACY_DATABASE_VERSIONS, DATABASE_VERSION].includes(
+      archive.databaseVersion,
+    )
   ) {
     throw new Error('存档数据库版本与当前 App 不匹配');
   }
@@ -225,8 +220,7 @@ export function parseArchiveSnapshot(content: string): ArchiveSnapshot {
           databaseVersion,
         );
         const value =
-          source[column] === undefined &&
-          legacyDefault !== undefined
+          source[column] === undefined && legacyDefault !== undefined
             ? legacyDefault
             : source[column];
         if (!isArchiveValue(value)) {
@@ -297,9 +291,7 @@ function getLegacyColumnDefault(
   return undefined;
 }
 
-function validateArchiveTables(
-  tables: Record<string, ArchiveRow[]>,
-): void {
+function validateArchiveTables(tables: Record<string, ArchiveRow[]>): void {
   for (const table of ARCHIVE_TABLES) {
     const rows = tables[table.name] ?? [];
     const primaryKey = PRIMARY_KEYS[table.name];
@@ -307,20 +299,13 @@ function validateArchiveTables(
 
     rows.forEach((row, rowIndex) => {
       for (const column of table.columns) {
-        validateArchiveValue(
-          table.name,
-          column,
-          row[column],
-          rowIndex,
-        );
+        validateArchiveValue(table.name, column, row[column], rowIndex);
       }
 
       if (primaryKey) {
         const primaryValue = row[primaryKey];
         if (primaryValues.has(primaryValue)) {
-          throw new Error(
-            `${table.name} 第 ${rowIndex + 1} 行主键重复`,
-          );
+          throw new Error(`${table.name} 第 ${rowIndex + 1} 行主键重复`);
         }
         primaryValues.add(primaryValue);
       }
@@ -343,21 +328,14 @@ function validateArchiveTables(
   for (const tableName of ['word_learning_state', 'wrong_book_words']) {
     for (const [rowIndex, row] of (tables[tableName] ?? []).entries()) {
       if (!wordIds.has(row.word_id)) {
-        throw new Error(
-          `${tableName} 第 ${rowIndex + 1} 行引用了不存在的单词`,
-        );
+        throw new Error(`${tableName} 第 ${rowIndex + 1} 行引用了不存在的单词`);
       }
     }
   }
 
   for (const [rowIndex, word] of words.entries()) {
-    if (
-      word.learning_status === 'wrong' &&
-      !wrongWordIds.has(word.id)
-    ) {
-      throw new Error(
-        `words 第 ${rowIndex + 1} 行错题状态缺少错题记录`,
-      );
+    if (word.learning_status === 'wrong' && !wrongWordIds.has(word.id)) {
+      throw new Error(`words 第 ${rowIndex + 1} 行错题状态缺少错题记录`);
     }
   }
 }
@@ -437,10 +415,7 @@ function validateArchiveValue(
   ) {
     throw new Error(`${rowLabel} 不是有效学习状态`);
   }
-  if (
-    field === 'words.example_source' &&
-    !['', 'csv', 'ai'].includes(value)
-  ) {
+  if (field === 'words.example_source' && !['', 'csv', 'ai'].includes(value)) {
     throw new Error(`${rowLabel} 不是有效例句来源`);
   }
   if (field === 'wrong_book_words.sources') {
@@ -505,9 +480,7 @@ export async function restoreArchiveSnapshot(
       }
 
       for (const row of snapshot.tables[tableName] ?? []) {
-        const placeholders = table.columns.map(
-          (_, index) => `$value${index}`,
-        );
+        const placeholders = table.columns.map((_, index) => `$value${index}`);
         const params: Record<string, ArchiveValue> = {};
         table.columns.forEach((column, index) => {
           params[`$value${index}`] = row[column] ?? null;

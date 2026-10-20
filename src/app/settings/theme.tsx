@@ -16,10 +16,7 @@ import {
   type ThemeColors,
   type ThemeMode,
 } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 const THEME_OPTIONS: {
@@ -49,12 +46,7 @@ const THEME_OPTIONS: {
 ];
 
 export default function ThemeSettingsScreen() {
-  const {
-    colors,
-    mode,
-    primaryColor,
-    saveTheme,
-  } = useAppTheme();
+  const { colors, mode, primaryColor, saveTheme } = useAppTheme();
   const { showNotice } = useAppFeedback();
   const handleBack = useSettingsBackNavigation();
   const [draftMode, setDraftMode] = useState(mode);
@@ -114,9 +106,7 @@ export default function ThemeSettingsScreen() {
                 >
                   <Icon
                     color={
-                      selected
-                        ? previewColors.onPrimary
-                        : colors.textSecondary
+                      selected ? previewColors.onPrimary : colors.textSecondary
                     }
                     size={24}
                     strokeWidth={2.2}
@@ -151,7 +141,6 @@ export default function ThemeSettingsScreen() {
               onInteractionChange={setPaletteTouching}
               value={draftPrimary}
             />
-
           </View>
         ) : null}
 
@@ -183,10 +172,7 @@ export default function ThemeSettingsScreen() {
             易词通 Ez Word
           </Text>
           <Text
-            style={[
-              styles.previewBody,
-              { color: previewColors.textSecondary },
-            ]}
+            style={[styles.previewBody, { color: previewColors.textSecondary }]}
           >
             页面背景、卡片、文字和按钮会随主题一起变化。
           </Text>

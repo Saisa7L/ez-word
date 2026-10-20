@@ -1,9 +1,5 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import {
-  Download,
-  FileArchive,
-  Upload,
-} from 'lucide-react-native';
+import { Download, FileArchive, Upload } from 'lucide-react-native';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -23,15 +19,9 @@ import {
   stringifyArchive,
   type ArchiveSummary,
 } from '@/features/archive/archiveSnapshot';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
-import {
-  exportArchiveFile,
-  pickArchiveFile,
-} from '@/services/archiveFiles';
+import { exportArchiveFile, pickArchiveFile } from '@/services/archiveFiles';
 
 export default function ArchiveSettingsScreen() {
   const db = useSQLiteContext();
@@ -111,10 +101,7 @@ export default function ArchiveSettingsScreen() {
       try {
         await restoreArchiveSnapshot(db, snapshot);
       } catch {
-        showNotice(
-          '导入失败',
-          '无法恢复存档，当前数据未被修改',
-        );
+        showNotice('导入失败', '无法恢复存档，当前数据未被修改');
         return;
       }
 
@@ -137,10 +124,7 @@ export default function ArchiveSettingsScreen() {
   }
 
   return (
-    <GreenSheetScreen
-      onBack={handleBack}
-      title="本地存档"
-    >
+    <GreenSheetScreen onBack={handleBack} title="本地存档">
       <View style={styles.content}>
         <View style={styles.intro}>
           <View style={styles.iconBox}>
@@ -148,8 +132,8 @@ export default function ArchiveSettingsScreen() {
           </View>
           <Text style={styles.title}>离线迁移本地数据</Text>
           <Text style={styles.hint}>
-            存档包含词库、例句、学习记录、错题本、个人资料和通用设置。
-            DeepSeek API Key 不会写入存档。
+            存档包含词库、例句、学习记录、错题本、个人资料和通用设置。 DeepSeek
+            API Key 不会写入存档。
           </Text>
         </View>
 
@@ -237,108 +221,108 @@ export default function ArchiveSettingsScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  content: {
-    paddingHorizontal: 22,
-    paddingTop: 24,
-  },
-  disabledButton: {
-    backgroundColor: colors.disabled,
-    borderColor: colors.disabled,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  iconBox: {
-    alignItems: 'center',
-    backgroundColor: colors.mint,
-    borderRadius: 22,
-    height: 66,
-    justifyContent: 'center',
-    width: 66,
-  },
-  intro: {
-    alignItems: 'center',
-    paddingHorizontal: 14,
-  },
-  pressed: {
-    opacity: 0.68,
-  },
-  primaryButton: {
-    alignItems: 'center',
-    backgroundColor: colors.graySoft,
-    borderRadius: 28,
-    flexDirection: 'row',
-    gap: 9,
-    height: 58,
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  primaryText: {
-    color: colors.accentText,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    alignItems: 'center',
-    borderColor: colors.accentText,
-    borderRadius: 28,
-    borderWidth: 1.5,
-    flexDirection: 'row',
-    gap: 9,
-    height: 58,
-    justifyContent: 'center',
-    marginTop: 14,
-  },
-  secondaryText: {
-    color: colors.accentText,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  summaryLabel: {
-    color: colors.textSecondary,
-    fontSize: 16,
-  },
-  summaryPanel: {
-    backgroundColor: colors.graySoft,
-    borderRadius: radii.md,
-    marginTop: 24,
-    padding: 18,
-  },
-  summaryRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  summaryTitle: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  summaryValue: {
-    color: colors.text,
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  title: {
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: '700',
-    marginTop: 18,
-  },
-  warning: {
-    backgroundColor: colors.orangeSoft,
-    borderRadius: radii.md,
-    marginTop: 24,
-    padding: 16,
-  },
-  warningText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 22,
-  },
-});
+    content: {
+      paddingHorizontal: 22,
+      paddingTop: 24,
+    },
+    disabledButton: {
+      backgroundColor: colors.disabled,
+      borderColor: colors.disabled,
+    },
+    hint: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      lineHeight: 24,
+      marginTop: 10,
+      textAlign: 'center',
+    },
+    iconBox: {
+      alignItems: 'center',
+      backgroundColor: colors.mint,
+      borderRadius: 22,
+      height: 66,
+      justifyContent: 'center',
+      width: 66,
+    },
+    intro: {
+      alignItems: 'center',
+      paddingHorizontal: 14,
+    },
+    pressed: {
+      opacity: 0.68,
+    },
+    primaryButton: {
+      alignItems: 'center',
+      backgroundColor: colors.graySoft,
+      borderRadius: 28,
+      flexDirection: 'row',
+      gap: 9,
+      height: 58,
+      justifyContent: 'center',
+      marginTop: 30,
+    },
+    primaryText: {
+      color: colors.accentText,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    secondaryButton: {
+      alignItems: 'center',
+      borderColor: colors.accentText,
+      borderRadius: 28,
+      borderWidth: 1.5,
+      flexDirection: 'row',
+      gap: 9,
+      height: 58,
+      justifyContent: 'center',
+      marginTop: 14,
+    },
+    secondaryText: {
+      color: colors.accentText,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    summaryLabel: {
+      color: colors.textSecondary,
+      fontSize: 16,
+    },
+    summaryPanel: {
+      backgroundColor: colors.graySoft,
+      borderRadius: radii.md,
+      marginTop: 24,
+      padding: 18,
+    },
+    summaryRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 10,
+    },
+    summaryTitle: {
+      color: colors.text,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    summaryValue: {
+      color: colors.text,
+      fontSize: 17,
+      fontWeight: '700',
+    },
+    title: {
+      color: colors.text,
+      fontSize: 24,
+      fontWeight: '700',
+      marginTop: 18,
+    },
+    warning: {
+      backgroundColor: colors.orangeSoft,
+      borderRadius: radii.md,
+      marginTop: 24,
+      padding: 16,
+    },
+    warningText: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 22,
+    },
+  });

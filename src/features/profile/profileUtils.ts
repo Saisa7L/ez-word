@@ -28,9 +28,7 @@ export function splitDisplayName(displayName: string): string[] {
   const lines: string[] = [];
 
   for (let index = 0; index < characters.length; index += NAME_CHARS_PER_LINE) {
-    lines.push(
-      characters.slice(index, index + NAME_CHARS_PER_LINE).join(''),
-    );
+    lines.push(characters.slice(index, index + NAME_CHARS_PER_LINE).join(''));
   }
 
   return lines;

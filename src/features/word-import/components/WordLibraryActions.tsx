@@ -8,10 +8,7 @@ import {
 } from 'react-native';
 
 import type { ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type WordLibraryActionsProps = {
   activeWordCount: number | null;
@@ -41,10 +38,7 @@ export function WordLibraryActions({
       <Pressable
         accessibilityRole="button"
         onPress={onViewLibrary}
-        style={({ pressed }) => [
-          styles.viewButton,
-          pressed && styles.pressed,
-        ]}
+        style={({ pressed }) => [styles.viewButton, pressed && styles.pressed]}
       >
         <BookOpen color={colors.accentText} size={24} strokeWidth={2.2} />
         <Text style={styles.viewText}>查看当前词库</Text>

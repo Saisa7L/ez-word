@@ -13,10 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppFeedbackProvider } from '@/components/AppFeedbackProvider';
-import {
-  colors as defaultColors,
-  type ThemeColors,
-} from '@/constants/theme';
+import { colors as defaultColors, type ThemeColors } from '@/constants/theme';
 import { DATABASE_NAME, migrateDatabase } from '@/database/database';
 import { DailyTaskProvider } from '@/features/daily-task/DailyTaskProvider';
 import {
@@ -28,11 +25,7 @@ import {
   completeNavigationLock,
   isNavigationLocked,
 } from '@/utils/backNavigation';
-import {
-  backOnce,
-  canGoBack,
-  dismissToOnce,
-} from '@/utils/navigationActions';
+import { backOnce, canGoBack, dismissToOnce } from '@/utils/navigationActions';
 
 export default function RootLayout() {
   return (
@@ -148,55 +141,55 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  errorCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    maxWidth: 420,
-    padding: 28,
-    width: '86%',
-  },
-  errorMessage: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 12,
-  },
-  errorScreen: {
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  errorTitle: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '700',
-  },
-  loadingScreen: {
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  loadingText: {
-    color: colors.textSecondary,
-    fontSize: 17,
-    marginTop: 14,
-  },
-  pressed: {
-    opacity: 0.68,
-  },
-  retryButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 24,
-    height: 56,
-    justifyContent: 'center',
-    marginTop: 24,
-  },
-  retryText: {
-    color: colors.onPrimary,
-    fontSize: 19,
-    fontWeight: '700',
-  },
-});
+    errorCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 24,
+      maxWidth: 420,
+      padding: 28,
+      width: '86%',
+    },
+    errorMessage: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      lineHeight: 24,
+      marginTop: 12,
+    },
+    errorScreen: {
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      flex: 1,
+      justifyContent: 'center',
+    },
+    errorTitle: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '700',
+    },
+    loadingScreen: {
+      alignItems: 'center',
+      backgroundColor: colors.background,
+      flex: 1,
+      justifyContent: 'center',
+    },
+    loadingText: {
+      color: colors.textSecondary,
+      fontSize: 17,
+      marginTop: 14,
+    },
+    pressed: {
+      opacity: 0.68,
+    },
+    retryButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 24,
+      height: 56,
+      justifyContent: 'center',
+      marginTop: 24,
+    },
+    retryText: {
+      color: colors.onPrimary,
+      fontSize: 19,
+      fontWeight: '700',
+    },
+  });

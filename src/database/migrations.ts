@@ -248,12 +248,7 @@ export const MIGRATIONS: readonly DatabaseMigration[] = [
         'example_source',
         "TEXT NOT NULL DEFAULT ''",
       );
-      await ensureColumn(
-        db,
-        'words',
-        'example_generated_at',
-        'TEXT',
-      );
+      await ensureColumn(db, 'words', 'example_generated_at', 'TEXT');
       await ensureColumn(
         db,
         'app_settings',
@@ -302,12 +297,7 @@ export const MIGRATIONS: readonly DatabaseMigration[] = [
     description: '增加简介、头像和名片背景',
     to: 12,
     up: async (db) => {
-      await ensureColumn(
-        db,
-        'user_profile',
-        'bio',
-        "TEXT NOT NULL DEFAULT ''",
-      );
+      await ensureColumn(db, 'user_profile', 'bio', "TEXT NOT NULL DEFAULT ''");
       await ensureColumn(
         db,
         'user_profile',

@@ -49,7 +49,9 @@ type TaskMistakesContextValue = {
 };
 
 const TaskSessionContext = createContext<TaskSessionContextValue | null>(null);
-const TaskMistakesContext = createContext<TaskMistakesContextValue | null>(null);
+const TaskMistakesContext = createContext<TaskMistakesContextValue | null>(
+  null,
+);
 
 type DailyTaskProviderProps = {
   children: ReactNode;
@@ -119,10 +121,7 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
   );
   const wrongWordIds = useMemo(
     () =>
-      new Set([
-        ...state.fillMistakeWordIds,
-        ...state.listeningMistakeWordIds,
-      ]),
+      new Set([...state.fillMistakeWordIds, ...state.listeningMistakeWordIds]),
     [state.fillMistakeWordIds, state.listeningMistakeWordIds],
   );
 
@@ -190,7 +189,9 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
 export function useDailyTaskSession(): TaskSessionContextValue {
   const context = useContext(TaskSessionContext);
   if (!context) {
-    throw new Error('useDailyTaskSession must be used inside DailyTaskProvider');
+    throw new Error(
+      'useDailyTaskSession must be used inside DailyTaskProvider',
+    );
   }
   return context;
 }
@@ -198,7 +199,9 @@ export function useDailyTaskSession(): TaskSessionContextValue {
 export function useDailyTaskMistakes(): TaskMistakesContextValue {
   const context = useContext(TaskMistakesContext);
   if (!context) {
-    throw new Error('useDailyTaskMistakes must be used inside DailyTaskProvider');
+    throw new Error(
+      'useDailyTaskMistakes must be used inside DailyTaskProvider',
+    );
   }
   return context;
 }

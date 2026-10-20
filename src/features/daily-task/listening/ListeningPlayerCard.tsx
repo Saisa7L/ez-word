@@ -1,12 +1,15 @@
 import { Gauge, Play, RotateCcw, Square } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View, type DimensionValue } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type DimensionValue,
+} from 'react-native';
 
 import { radii, shadow, type ThemeColors } from '@/constants/theme';
 import { formatListeningRate } from '@/features/daily-task/taskPresentation';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type ListeningPlayerCardProps = {
   currentRead: number;

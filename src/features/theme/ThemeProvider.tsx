@@ -40,9 +40,7 @@ type ThemeProviderProps = {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const db = useSQLiteContext();
   const [mode, setMode] = useState<ThemeMode>(DEFAULT_THEME_MODE);
-  const [primaryColor, setPrimaryColor] = useState(
-    DEFAULT_THEME_PRIMARY_COLOR,
-  );
+  const [primaryColor, setPrimaryColor] = useState(DEFAULT_THEME_PRIMARY_COLOR);
   const [isReady, setIsReady] = useState(false);
 
   const reloadTheme = useCallback(async () => {
@@ -80,10 +78,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [db]);
 
   const saveTheme = useCallback(
-    async (
-      nextMode: ThemeMode,
-      nextPrimaryColor: string,
-    ) => {
+    async (nextMode: ThemeMode, nextPrimaryColor: string) => {
       await saveThemeSettings(db, {
         mode: nextMode,
         primaryColor: nextPrimaryColor,
@@ -108,14 +103,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       saveTheme,
       statusBarStyle: mode === 'night' ? 'light' : 'dark',
     }),
-    [
-      colors,
-      isReady,
-      mode,
-      primaryColor,
-      reloadTheme,
-      saveTheme,
-    ],
+    [colors, isReady, mode, primaryColor, reloadTheme, saveTheme],
   );
 
   return (
@@ -135,9 +123,7 @@ export function useOptionalAppTheme(): ThemeContextValue | null {
   return useContext(ThemeContext);
 }
 
-export function useThemedStyles<T>(
-  factory: (colors: ThemeColors) => T,
-): T {
+export function useThemedStyles<T>(factory: (colors: ThemeColors) => T): T {
   const { colors } = useAppTheme();
   return useMemo(() => factory(colors), [colors, factory]);
 }

@@ -1,12 +1,7 @@
 import * as Speech from 'expo-speech';
 import { ArrowLeft } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
@@ -29,23 +24,15 @@ import { ListeningPlayerCard } from '@/features/daily-task/listening/ListeningPl
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
 import { useTaskPhaseNavigation } from '@/hooks/useTaskPhaseNavigation';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { playWordSequence } from '@/services/speech';
 
 export default function ListeningScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
-  const {
-    finishTask,
-    listeningWords,
-    startedAt,
-    taskMode,
-    taskSettings,
-  } = useDailyTaskSession();
+  const { finishTask, listeningWords, startedAt, taskMode, taskSettings } =
+    useDailyTaskSession();
   const { recordListeningMistakes } = useDailyTaskMistakes();
   const exitGuard = useDailyTaskExitGuard();
   const taskReady = useDailyTaskPhaseGuard('listening');
@@ -85,9 +72,7 @@ export default function ListeningScreen() {
     listeningWords.length,
     Math.floor(currentRead / 2) + 1,
   );
-  const allAnswered = listeningWords.every(
-    (word) => answers[word.id]?.trim(),
-  );
+  const allAnswered = listeningWords.every((word) => answers[word.id]?.trim());
   const progress =
     listeningWords.length === 0
       ? 0
@@ -230,7 +215,10 @@ export default function ListeningScreen() {
           accessibilityRole="button"
           hitSlop={12}
           onPress={exitGuard.requestExit}
-          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.backButton,
+            pressed && styles.pressed,
+          ]}
         >
           <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.2} />
         </Pressable>
@@ -283,41 +271,41 @@ export default function ListeningScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    height: 48,
-    justifyContent: 'center',
-    width: 48,
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: 88,
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-  },
-  headerPlaceholder: {
-    width: 48,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 23,
-    fontWeight: '700',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  submitButton: {
-    height: 60,
-    marginBottom: 16,
-    marginHorizontal: 24,
-    marginTop: 18,
-  },
-  submitText: {
-    fontSize: 22,
-  },
-});
+    backButton: {
+      alignItems: 'center',
+      height: 48,
+      justifyContent: 'center',
+      width: 48,
+    },
+    header: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      height: 88,
+      justifyContent: 'space-between',
+      paddingHorizontal: 18,
+    },
+    headerPlaceholder: {
+      width: 48,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: 23,
+      fontWeight: '700',
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    screen: {
+      backgroundColor: colors.background,
+      flex: 1,
+    },
+    submitButton: {
+      height: 60,
+      marginBottom: 16,
+      marginHorizontal: 24,
+      marginTop: 18,
+    },
+    submitText: {
+      fontSize: 22,
+    },
+  });

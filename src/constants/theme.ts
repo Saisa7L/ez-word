@@ -43,9 +43,7 @@ export const DEFAULT_CUSTOM_ACCENT_COLOR = DEFAULT_THEME_PRIMARY_COLOR;
 export const DEFAULT_CUSTOM_BACKGROUND_COLOR = '#F0F0F8';
 
 function normalizeHex(value: string, fallback: string): string {
-  return /^#[0-9A-F]{6}$/i.test(value)
-    ? value.toUpperCase()
-    : fallback;
+  return /^#[0-9A-F]{6}$/i.test(value) ? value.toUpperCase() : fallback;
 }
 
 function hexToRgb(value: string): [number, number, number] {
@@ -68,11 +66,7 @@ function rgbToHex(red: number, green: number, blue: number): string {
     .toUpperCase()}`;
 }
 
-function mixColors(
-  base: string,
-  blend: string,
-  blendWeight: number,
-): string {
+function mixColors(base: string, blend: string, blendWeight: number): string {
   const [baseRed, baseGreen, baseBlue] = hexToRgb(base);
   const [blendRed, blendGreen, blendBlue] = hexToRgb(blend);
   const weight = Math.min(1, Math.max(0, blendWeight));
@@ -86,8 +80,7 @@ function mixColors(
 
 function getContrastColor(background: string): string {
   const [red, green, blue] = hexToRgb(background);
-  const luminance =
-    (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
   return luminance > 0.58 ? '#000000' : '#FFFFFF';
 }
 
@@ -102,7 +95,10 @@ function createLightPalette(
   primaryColor: string,
   keepSoftColor = false,
 ): ThemeColors {
-  const primary = normalizeThemeColor(primaryColor, DEFAULT_THEME_PRIMARY_COLOR);
+  const primary = normalizeThemeColor(
+    primaryColor,
+    DEFAULT_THEME_PRIMARY_COLOR,
+  );
 
   return {
     accentText: '#000000',
@@ -112,9 +108,7 @@ function createLightPalette(
     border: '#E4E7EF',
     disabled: '#B9C0CA',
     graySoft: '#EEF0F5',
-    mint: keepSoftColor
-      ? mixColors(primary, '#FFFFFF', 0.84)
-      : '#EEF0F5',
+    mint: keepSoftColor ? mixColors(primary, '#FFFFFF', 0.84) : '#EEF0F5',
     onPrimary: getContrastColor(primary),
     orange: '#F1A173',
     orangeSoft: '#FCE9DD',

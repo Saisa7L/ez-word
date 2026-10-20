@@ -18,8 +18,7 @@ export async function ensureAppSettings(
      )`,
     {
       $dailyWordLimit: DEFAULT_DAILY_TASK_SETTINGS.dailyWordLimit,
-      $listeningDefaultRate:
-        DEFAULT_DAILY_TASK_SETTINGS.listeningDefaultRate,
+      $listeningDefaultRate: DEFAULT_DAILY_TASK_SETTINGS.listeningDefaultRate,
     },
   );
 }

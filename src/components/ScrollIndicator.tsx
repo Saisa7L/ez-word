@@ -61,31 +61,30 @@ export function ScrollIndicator({
   const thumbTop = Math.min(maxThumbTop, (scrollY / scrollRange) * maxThumbTop);
 
   return (
-    <Animated.View
-      pointerEvents="none"
-      style={[styles.track, { opacity }]}
-    >
-      <Animated.View style={[styles.thumb, { height: thumbHeight, top: thumbTop }]} />
+    <Animated.View pointerEvents="none" style={[styles.track, { opacity }]}>
+      <Animated.View
+        style={[styles.thumb, { height: thumbHeight, top: thumbTop }]}
+      />
     </Animated.View>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  thumb: {
-    backgroundColor: colors.accentText,
-    borderRadius: 2,
-    position: 'absolute',
-    right: 0,
-    width: 4,
-  },
-  track: {
-    backgroundColor: colors.border,
-    borderRadius: 2,
-    bottom: 8,
-    position: 'absolute',
-    right: 7,
-    top: 8,
-    width: 4,
-  },
-});
+    thumb: {
+      backgroundColor: colors.accentText,
+      borderRadius: 2,
+      position: 'absolute',
+      right: 0,
+      width: 4,
+    },
+    track: {
+      backgroundColor: colors.border,
+      borderRadius: 2,
+      bottom: 8,
+      position: 'absolute',
+      right: 7,
+      top: 8,
+      width: 4,
+    },
+  });

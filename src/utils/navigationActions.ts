@@ -7,20 +7,14 @@ export { runNavigationOnce };
 type PrepareAction = () => void;
 
 export type AppNavigation = {
-  reset: (state: {
-    index: number;
-    routes: { name: string }[];
-  }) => void;
+  reset: (state: { index: number; routes: { name: string }[] }) => void;
 };
 
 export function canGoBack(): boolean {
   return router.canGoBack();
 }
 
-export function pushOnce(
-  href: Href,
-  prepareAction?: PrepareAction,
-): boolean {
+export function pushOnce(href: Href, prepareAction?: PrepareAction): boolean {
   return runNavigationOnce(() => {
     prepareAction?.();
     router.push(href);

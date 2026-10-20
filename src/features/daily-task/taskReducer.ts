@@ -7,11 +7,7 @@ import type { TaskWord } from '@/domain/word/taskWord';
 import type { DailyTaskMode } from './types';
 
 export type TaskPhase =
-  | 'idle'
-  | 'learning'
-  | 'filling'
-  | 'listening'
-  | 'completed';
+  'idle' | 'learning' | 'filling' | 'listening' | 'completed';
 
 export type TaskState = {
   durationSeconds: number;
@@ -62,10 +58,7 @@ export function createInitialTaskState(): TaskState {
   };
 }
 
-export function taskReducer(
-  state: TaskState,
-  action: TaskAction,
-): TaskState {
+export function taskReducer(state: TaskState, action: TaskAction): TaskState {
   switch (action.type) {
     case 'START_TASK': {
       const { mode, settings, ...taskPayload } = action.payload;

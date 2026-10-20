@@ -9,10 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type TabIconProps = {
   color: ColorValue;
@@ -80,22 +77,22 @@ export default function TabsLayout() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  icon: {
-    height: 25,
-    width: 25,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  tabBar: {
-    backgroundColor: colors.surface,
-    borderTopColor: colors.border,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 8,
-    shadowColor: colors.shadow,
-    shadowOffset: { height: -3, width: 0 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-  },
-});
+    icon: {
+      height: 25,
+      width: 25,
+    },
+    label: {
+      fontSize: 12,
+      fontWeight: '500',
+    },
+    tabBar: {
+      backgroundColor: colors.surface,
+      borderTopColor: colors.border,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      paddingTop: 8,
+      shadowColor: colors.shadow,
+      shadowOffset: { height: -3, width: 0 },
+      shadowOpacity: 0.12,
+      shadowRadius: 12,
+    },
+  });

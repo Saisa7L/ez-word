@@ -1,13 +1,7 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
@@ -26,10 +20,7 @@ import {
   type PickedCsvFile,
   type WordImportSummary,
 } from '@/features/word-import/types';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 import { pickWordCsvFile } from '@/services/wordCsvFiles';
@@ -49,7 +40,10 @@ export default function ImportWordsScreen() {
 
   const importDisabled = !file || isImporting || isClearing;
   const clearDisabled =
-    isImporting || isClearing || activeWordCount === null || activeWordCount === 0;
+    isImporting ||
+    isClearing ||
+    activeWordCount === null ||
+    activeWordCount === 0;
 
   useEffect(() => {
     let active = true;

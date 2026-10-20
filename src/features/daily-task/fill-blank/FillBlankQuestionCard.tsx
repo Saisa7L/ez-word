@@ -43,9 +43,7 @@ export function FillBlankQuestionCard({
         <ScrollView
           contentContainerStyle={styles.questionContent}
           onContentSizeChange={(_, height) => setContentHeight(height)}
-          onScroll={(event) =>
-            setScrollY(event.nativeEvent.contentOffset.y)
-          }
+          onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           style={styles.scrollView}

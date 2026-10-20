@@ -15,9 +15,7 @@ import {
 } from '@/features/ai/generateWordExamples';
 import { AiExampleGenerationSection } from '@/features/settings/AiExampleGenerationSection';
 import { AiKeySection } from '@/features/settings/AiKeySection';
-import {
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 import {
   clearDeepSeekApiKey,
@@ -208,10 +206,7 @@ export default function AiSettingsScreen() {
 
   return (
     <>
-      <GreenSheetScreen
-        onBack={handleBack}
-        title="AI 设置"
-      >
+      <GreenSheetScreen onBack={handleBack} title="AI 设置">
         <View style={styles.content}>
           <AiKeySection
             apiKeyInput={apiKeyInput}

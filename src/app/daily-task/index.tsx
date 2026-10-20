@@ -18,10 +18,7 @@ import { loadDailyTaskSelection } from '@/application/daily-task/startTaskSelect
 import type { DailyTaskSettings } from '@/database/settingsRepository';
 import type { TaskWord } from '@/domain/word/taskWord';
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 import { returnToHome, type AppNavigation } from '@/utils/navigation';
 import { pushOnce } from '@/utils/navigationActions';
@@ -34,7 +31,9 @@ export default function DailyTaskStartScreen() {
   const navigation = useNavigation<AppNavigation>('/');
   const handleBack = useSafeBackNavigation();
   const [availableWords, setAvailableWords] = useState<TaskWord[] | null>(null);
-  const [taskSettings, setTaskSettings] = useState<DailyTaskSettings | null>(null);
+  const [taskSettings, setTaskSettings] = useState<DailyTaskSettings | null>(
+    null,
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -68,9 +67,8 @@ export default function DailyTaskStartScreen() {
       return;
     }
 
-    pushOnce(
-      '/daily-task/learn',
-      () => startTask(availableWords, taskSettings),
+    pushOnce('/daily-task/learn', () =>
+      startTask(availableWords, taskSettings),
     );
   }
 
@@ -89,7 +87,10 @@ export default function DailyTaskStartScreen() {
           accessibilityRole="button"
           hitSlop={12}
           onPress={handleBack}
-          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.backButton,
+            pressed && styles.pressed,
+          ]}
         >
           <ArrowLeft color={colors.accentText} size={34} strokeWidth={2.3} />
         </Pressable>
@@ -132,7 +133,9 @@ export default function DailyTaskStartScreen() {
           pressed && styles.pressed,
         ]}
       >
-        <Text style={styles.startButtonText}>{isEmpty ? '返回主界面' : '开始'}</Text>
+        <Text style={styles.startButtonText}>
+          {isEmpty ? '返回主界面' : '开始'}
+        </Text>
       </Pressable>
     </SafeAreaView>
   );
@@ -140,72 +143,72 @@ export default function DailyTaskStartScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    height: 48,
-    justifyContent: 'center',
-    width: 48,
-  },
-  content: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    paddingBottom: 80,
-    paddingHorizontal: 36,
-  },
-  description: {
-    color: colors.textSecondary,
-    fontSize: 22,
-    marginTop: 34,
-    textAlign: 'center',
-  },
-  emptyHint: {
-    color: colors.textMuted,
-    fontSize: 16,
-    marginTop: 12,
-    textAlign: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: 92,
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-  },
-  headerPlaceholder: {
-    width: 48,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '700',
-  },
-  illustration: {
-    height: 250,
-    width: '100%',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  startButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: radii.xl,
-    height: 68,
-    justifyContent: 'center',
-    marginBottom: 20,
-    marginHorizontal: spacing.lg,
-  },
-  startButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  startButtonText: {
-    color: colors.onPrimary,
-    fontSize: 24,
-    fontWeight: '700',
-  },
-});
+    backButton: {
+      alignItems: 'center',
+      height: 48,
+      justifyContent: 'center',
+      width: 48,
+    },
+    content: {
+      alignItems: 'center',
+      flex: 1,
+      justifyContent: 'center',
+      paddingBottom: 80,
+      paddingHorizontal: 36,
+    },
+    description: {
+      color: colors.textSecondary,
+      fontSize: 22,
+      marginTop: 34,
+      textAlign: 'center',
+    },
+    emptyHint: {
+      color: colors.textMuted,
+      fontSize: 16,
+      marginTop: 12,
+      textAlign: 'center',
+    },
+    header: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      height: 92,
+      justifyContent: 'space-between',
+      paddingHorizontal: 18,
+    },
+    headerPlaceholder: {
+      width: 48,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '700',
+    },
+    illustration: {
+      height: 250,
+      width: '100%',
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    screen: {
+      backgroundColor: colors.background,
+      flex: 1,
+    },
+    startButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: radii.xl,
+      height: 68,
+      justifyContent: 'center',
+      marginBottom: 20,
+      marginHorizontal: spacing.lg,
+    },
+    startButtonDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    startButtonText: {
+      color: colors.onPrimary,
+      fontSize: 24,
+      fontWeight: '700',
+    },
+  });

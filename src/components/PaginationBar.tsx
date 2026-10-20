@@ -10,10 +10,7 @@ import {
 } from 'react-native';
 
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type PaginationBarProps = {
   disabled?: boolean;
@@ -161,108 +158,108 @@ export function PaginationBar({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  arrowButton: {
-    alignItems: 'center',
-    borderColor: colors.accentText,
-    borderRadius: 26,
-    borderWidth: 1.2,
-    height: 50,
-    justifyContent: 'center',
-    width: 50,
-  },
-  cancelButton: {
-    backgroundColor: colors.graySoft,
-  },
-  cancelText: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  confirmButton: {
-    backgroundColor: colors.primary,
-  },
-  confirmText: {
-    color: colors.onPrimary,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  container: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 22,
-  },
-  dialog: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    maxWidth: 400,
-    padding: 24,
-    width: '84%',
-  },
-  dialogActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  dialogButton: {
-    alignItems: 'center',
-    borderRadius: 22,
-    flex: 1,
-    height: 50,
-    justifyContent: 'center',
-  },
-  dialogHint: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    marginTop: 8,
-  },
-  dialogTitle: {
-    color: colors.text,
-    fontSize: 23,
-    fontWeight: '700',
-  },
-  disabled: {
-    opacity: 0.35,
-  },
-  error: {
-    color: colors.red,
-    fontSize: 14,
-    marginTop: 8,
-  },
-  input: {
-    backgroundColor: colors.graySoft,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: '700',
-    height: 58,
-    marginTop: 18,
-    paddingHorizontal: 16,
-    textAlign: 'center',
-  },
-  overlay: {
-    alignItems: 'center',
-    backgroundColor: colors.overlay,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  pageButton: {
-    alignItems: 'center',
-    borderRadius: 18,
-    minWidth: 100,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  pageText: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-  pressed: {
-    opacity: 0.65,
-  },
-});
+    arrowButton: {
+      alignItems: 'center',
+      borderColor: colors.accentText,
+      borderRadius: 26,
+      borderWidth: 1.2,
+      height: 50,
+      justifyContent: 'center',
+      width: 50,
+    },
+    cancelButton: {
+      backgroundColor: colors.graySoft,
+    },
+    cancelText: {
+      color: colors.text,
+      fontSize: 18,
+      fontWeight: '600',
+    },
+    confirmButton: {
+      backgroundColor: colors.primary,
+    },
+    confirmText: {
+      color: colors.onPrimary,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    container: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 22,
+    },
+    dialog: {
+      backgroundColor: colors.surface,
+      borderRadius: radii.xl,
+      maxWidth: 400,
+      padding: 24,
+      width: '84%',
+    },
+    dialogActions: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 20,
+    },
+    dialogButton: {
+      alignItems: 'center',
+      borderRadius: 22,
+      flex: 1,
+      height: 50,
+      justifyContent: 'center',
+    },
+    dialogHint: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      marginTop: 8,
+    },
+    dialogTitle: {
+      color: colors.text,
+      fontSize: 23,
+      fontWeight: '700',
+    },
+    disabled: {
+      opacity: 0.35,
+    },
+    error: {
+      color: colors.red,
+      fontSize: 14,
+      marginTop: 8,
+    },
+    input: {
+      backgroundColor: colors.graySoft,
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      color: colors.text,
+      fontSize: 24,
+      fontWeight: '700',
+      height: 58,
+      marginTop: 18,
+      paddingHorizontal: 16,
+      textAlign: 'center',
+    },
+    overlay: {
+      alignItems: 'center',
+      backgroundColor: colors.overlay,
+      flex: 1,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.lg,
+    },
+    pageButton: {
+      alignItems: 'center',
+      borderRadius: 18,
+      minWidth: 100,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    pageText: {
+      color: colors.text,
+      fontSize: 18,
+      fontWeight: '600',
+      textDecorationLine: 'underline',
+    },
+    pressed: {
+      opacity: 0.65,
+    },
+  });

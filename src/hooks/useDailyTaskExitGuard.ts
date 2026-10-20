@@ -3,10 +3,7 @@ import { useCallback, useState } from 'react';
 import { BackHandler } from 'react-native';
 
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
-import {
-  resetToHomeOnce,
-  type AppNavigation,
-} from '@/utils/navigationActions';
+import { resetToHomeOnce, type AppNavigation } from '@/utils/navigationActions';
 
 export function useDailyTaskExitGuard() {
   const { resetTask } = useDailyTaskSession();

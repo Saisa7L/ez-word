@@ -15,10 +15,7 @@ type ImportInfoModalProps = {
   visible: boolean;
 };
 
-export function ImportInfoModal({
-  onClose,
-  visible,
-}: ImportInfoModalProps) {
+export function ImportInfoModal({ onClose, visible }: ImportInfoModalProps) {
   const styles = useThemedStyles(createStyles);
 
   return (
@@ -46,10 +43,8 @@ export function ImportInfoModal({
 
             <Text style={styles.sectionTitle}>文件要求</Text>
             <Text style={styles.text}>
-              • 文件扩展名必须为 .csv{'\n'}
-              • 文件编码使用 UTF-8{'\n'}
-              • 第一行必须是列名{'\n'}
-              • 每一行代表一个单词
+              • 文件扩展名必须为 .csv{'\n'}• 文件编码使用 UTF-8{'\n'}•
+              第一行必须是列名{'\n'}• 每一行代表一个单词
             </Text>
 
             <Text style={styles.sectionTitle}>数据格式</Text>
@@ -67,11 +62,9 @@ export function ImportInfoModal({
 
             <Text style={styles.sectionTitle}>导入规则</Text>
             <Text style={styles.text}>
-              • 单词和释义不能为空{'\n'}
-              • 音标列必须存在，但单元格可留空{'\n'}
-              • 同一个文件内重复单词会跳过{'\n'}
-              • 已存在的单词会更新释义和音标{'\n'}
-              • 有问题的行会跳过，不影响其他合法行
+              • 单词和释义不能为空{'\n'}• 音标列必须存在，但单元格可留空{'\n'}•
+              同一个文件内重复单词会跳过{'\n'}• 已存在的单词会更新释义和音标
+              {'\n'}• 有问题的行会跳过，不影响其他合法行
             </Text>
 
             <Pressable

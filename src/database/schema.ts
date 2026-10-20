@@ -128,17 +128,17 @@ export const DATABASE_TABLE_SCHEMAS = [
       'wrong_count',
       'sources',
     ],
-    columns: [
-      'word_id',
-      'added_at',
-      'last_wrong_at',
-      'wrong_count',
-      'sources',
-    ],
+    columns: ['word_id', 'added_at', 'last_wrong_at', 'wrong_count', 'sources'],
     name: 'wrong_book_words',
   },
   {
-    archiveColumns: ['id', 'completed_at', 'study_date', 'word_count', 'wrong_count'],
+    archiveColumns: [
+      'id',
+      'completed_at',
+      'study_date',
+      'word_count',
+      'wrong_count',
+    ],
     columns: ['id', 'completed_at', 'study_date', 'word_count', 'wrong_count'],
     name: 'study_sessions',
   },
@@ -165,9 +165,7 @@ export async function validateDatabaseSchema(
     const actualColumns = rows.map((row) => row.name);
     const matches =
       actualColumns.length === table.columns.length &&
-      actualColumns.every(
-        (column, index) => column === table.columns[index],
-      );
+      actualColumns.every((column, index) => column === table.columns[index]);
 
     if (!matches) {
       throw new Error(

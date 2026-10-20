@@ -3,14 +3,8 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import type { TaskWord } from '@/domain/word/taskWord';
 import type { WordImportRow } from '@/features/word-import/types';
 
-import {
-  mapTaskWordRow,
-  type TaskWordRow,
-} from './taskWordMapper';
-import {
-  selectTaskWordColumns,
-  selectWordColumns,
-} from './sqlFragments';
+import { mapTaskWordRow, type TaskWordRow } from './taskWordMapper';
+import { selectTaskWordColumns, selectWordColumns } from './sqlFragments';
 
 export type WordRecord = {
   example_generated_at: string | null;
@@ -284,9 +278,7 @@ export async function listUnlearnedActiveWords(
   limit: number,
   randomize = false,
 ): Promise<TaskWord[]> {
-  const orderBy = randomize
-    ? 'RANDOM()'
-    : 'words.word COLLATE NOCASE ASC';
+  const orderBy = randomize ? 'RANDOM()' : 'words.word COLLATE NOCASE ASC';
 
   const rows = await db.getAllAsync<TaskWordRow>(
     `SELECT ${selectTaskWordColumns('words')}

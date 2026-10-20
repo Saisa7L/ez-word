@@ -54,28 +54,28 @@ export function ExitTaskModal({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  actions: {
-    flexDirection: 'row',
-    gap: 20,
-    marginTop: 34,
-    width: '100%',
-  },
-  button: {
-    flex: 1,
-    minWidth: 0,
-  },
-  buttonText: {
-    fontSize: 22,
-  },
-  dialog: {
-    alignItems: 'center',
-    paddingHorizontal: 34,
-    paddingVertical: 40,
-    width: '82%',
-  },
-  title: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '700',
-  },
-});
+    actions: {
+      flexDirection: 'row',
+      gap: 20,
+      marginTop: 34,
+      width: '100%',
+    },
+    button: {
+      flex: 1,
+      minWidth: 0,
+    },
+    buttonText: {
+      fontSize: 22,
+    },
+    dialog: {
+      alignItems: 'center',
+      paddingHorizontal: 34,
+      paddingVertical: 40,
+      width: '82%',
+    },
+    title: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '700',
+    },
+  });

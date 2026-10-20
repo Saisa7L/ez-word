@@ -41,10 +41,7 @@ import {
   type EditMode,
   type ImageTarget,
 } from '@/features/profile/profileUtils';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 export default function ProfileScreen() {
@@ -227,12 +224,11 @@ export default function ProfileScreen() {
         result: 'tmpfile',
       });
       const base64 = await new File(tempUri).base64();
-      const fileUri =
-        await FileSystem.StorageAccessFramework.createFileAsync(
-          permission.directoryUri,
-          buildCardFileName(),
-          'image/png',
-        );
+      const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+        permission.directoryUri,
+        buildCardFileName(),
+        'image/png',
+      );
       await FileSystem.StorageAccessFramework.writeAsStringAsync(
         fileUri,
         base64,
@@ -251,10 +247,7 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <GreenSheetScreen
-        onBack={handleBack}
-        title="个人资料"
-      >
+      <GreenSheetScreen onBack={handleBack} title="个人资料">
         <View style={styles.content}>
           {isLoading ? (
             <View style={styles.loading}>

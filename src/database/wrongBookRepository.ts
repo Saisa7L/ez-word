@@ -2,15 +2,9 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { TaskWord } from '@/domain/word/taskWord';
 
-import {
-  mapTaskWordRow,
-  type TaskWordRow,
-} from './taskWordMapper';
+import { mapTaskWordRow, type TaskWordRow } from './taskWordMapper';
 import type { WordRecord } from './wordsRepository';
-import {
-  selectTaskWordColumns,
-  selectWordColumns,
-} from './sqlFragments';
+import { selectTaskWordColumns, selectWordColumns } from './sqlFragments';
 
 export type WrongBookSource = 'fill' | 'listening' | 'manual';
 

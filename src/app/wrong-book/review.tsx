@@ -20,10 +20,7 @@ import type { DailyTaskSettings } from '@/database/settingsRepository';
 import type { TaskWord } from '@/domain/word/taskWord';
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 
 export default function WrongBookReviewStartScreen() {
@@ -34,8 +31,9 @@ export default function WrongBookReviewStartScreen() {
   const { startTask } = useDailyTaskSession();
   const handleBack = useSafeBackNavigation();
   const [wrongCount, setWrongCount] = useState<number | null>(null);
-  const [taskSettings, setTaskSettings] =
-    useState<DailyTaskSettings | null>(null);
+  const [taskSettings, setTaskSettings] = useState<DailyTaskSettings | null>(
+    null,
+  );
   const [loadError, setLoadError] = useState(false);
   const [loadRevision, setLoadRevision] = useState(0);
   const [isStarting, setIsStarting] = useState(false);
@@ -82,9 +80,8 @@ export default function WrongBookReviewStartScreen() {
 
     setIsStarting(true);
     try {
-      pushOnce(
-        '/daily-task/learn',
-        () => startTask(reviewWords, taskSettings, 'wrongReview'),
+      pushOnce('/daily-task/learn', () =>
+        startTask(reviewWords, taskSettings, 'wrongReview'),
       );
     } catch {
       showNotice('无法开始回顾', '请稍后重试');
@@ -176,88 +173,88 @@ export default function WrongBookReviewStartScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    height: 48,
-    justifyContent: 'center',
-    width: 48,
-  },
-  content: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    paddingBottom: 80,
-    paddingHorizontal: 36,
-  },
-  description: {
-    color: colors.textSecondary,
-    fontSize: 22,
-    marginTop: 34,
-    textAlign: 'center',
-  },
-  emptyHint: {
-    color: colors.textMuted,
-    fontSize: 16,
-    marginTop: 12,
-    textAlign: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: 92,
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-  },
-  headerPlaceholder: {
-    width: 48,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '700',
-  },
-  illustration: {
-    aspectRatio: 382 / 354,
-    maxHeight: 300,
-    width: '100%',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  retryButton: {
-    alignItems: 'center',
-    borderColor: colors.accentText,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    height: 48,
-    justifyContent: 'center',
-    marginTop: 22,
-    paddingHorizontal: 28,
-  },
-  retryText: {
-    color: colors.accentText,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  startButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: radii.xl,
-    height: 68,
-    justifyContent: 'center',
-    marginBottom: 20,
-    marginHorizontal: spacing.lg,
-  },
-  startButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  startButtonText: {
-    color: colors.onPrimary,
-    fontSize: 24,
-    fontWeight: '700',
-  },
-});
+    backButton: {
+      alignItems: 'center',
+      height: 48,
+      justifyContent: 'center',
+      width: 48,
+    },
+    content: {
+      alignItems: 'center',
+      flex: 1,
+      justifyContent: 'center',
+      paddingBottom: 80,
+      paddingHorizontal: 36,
+    },
+    description: {
+      color: colors.textSecondary,
+      fontSize: 22,
+      marginTop: 34,
+      textAlign: 'center',
+    },
+    emptyHint: {
+      color: colors.textMuted,
+      fontSize: 16,
+      marginTop: 12,
+      textAlign: 'center',
+    },
+    header: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      height: 92,
+      justifyContent: 'space-between',
+      paddingHorizontal: 18,
+    },
+    headerPlaceholder: {
+      width: 48,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '700',
+    },
+    illustration: {
+      aspectRatio: 382 / 354,
+      maxHeight: 300,
+      width: '100%',
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    retryButton: {
+      alignItems: 'center',
+      borderColor: colors.accentText,
+      borderRadius: 22,
+      borderWidth: 1.5,
+      height: 48,
+      justifyContent: 'center',
+      marginTop: 22,
+      paddingHorizontal: 28,
+    },
+    retryText: {
+      color: colors.accentText,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    screen: {
+      backgroundColor: colors.background,
+      flex: 1,
+    },
+    startButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: radii.xl,
+      height: 68,
+      justifyContent: 'center',
+      marginBottom: 20,
+      marginHorizontal: spacing.lg,
+    },
+    startButtonDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    startButtonText: {
+      color: colors.onPrimary,
+      fontSize: 24,
+      fontWeight: '700',
+    },
+  });

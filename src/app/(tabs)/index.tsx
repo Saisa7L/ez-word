@@ -6,12 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { HomeActionCard } from '@/components/HomeActionCard';
-import {
-  radii,
-  shadow,
-  spacing,
-  type ThemeColors,
-} from '@/constants/theme';
+import { radii, shadow, spacing, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
 import {
   getHomeStats,
@@ -21,10 +16,7 @@ import {
 } from '@/database/statsRepository';
 import { getDailyTaskSettings } from '@/database/settingsRepository';
 import { getUserProfile } from '@/database/userProfileRepository';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 
 export default function HomeScreen() {
@@ -108,9 +100,7 @@ export default function HomeScreen() {
               />
             </View>
             <View style={styles.welcomeCopy}>
-              <Text style={styles.welcomeTitle}>
-                欢迎回来，{displayName}！
-              </Text>
+              <Text style={styles.welcomeTitle}>欢迎回来，{displayName}！</Text>
               <Text style={styles.welcomeSubtitle}>
                 您已经学习了 {homeStats?.studyDays ?? 0} 天
               </Text>
@@ -122,7 +112,9 @@ export default function HomeScreen() {
               <View key={item.label} style={styles.statItem}>
                 <Text style={styles.statValue}>{item.value}</Text>
                 <Text style={styles.statLabel}>{item.label}</Text>
-                {index < stats.length - 1 ? <View style={styles.statDivider} /> : null}
+                {index < stats.length - 1 ? (
+                  <View style={styles.statDivider} />
+                ) : null}
               </View>
             ))}
           </View>
@@ -176,89 +168,89 @@ export default function HomeScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  actions: {
-    gap: 18,
-    marginTop: 26,
-  },
-  avatar: {
-    height: '100%',
-    width: '100%',
-  },
-  avatarRing: {
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderColor: colors.mint,
-    borderRadius: 40,
-    borderWidth: 3,
-    height: 68,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    width: 68,
-  },
-  content: {
-    paddingBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
-    paddingTop: 32,
-  },
-  safeArea: {
-    backgroundColor: colors.background,
-    flex: 1,
-  },
-  statDivider: {
-    backgroundColor: colors.border,
-    bottom: 3,
-    position: 'absolute',
-    right: -11,
-    top: 3,
-    width: StyleSheet.hairlineWidth,
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-    position: 'relative',
-  },
-  statLabel: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    marginTop: 6,
-  },
-  statsPanel: {
-    ...shadow,
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radii.md,
-    flexDirection: 'row',
-    marginTop: 28,
-    paddingVertical: 18,
-  },
-  statValue: {
-    color: colors.text,
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  welcomeCard: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.xl,
-    padding: 24,
-  },
-  welcomeCopy: {
-    flex: 1,
-    marginLeft: 18,
-  },
-  welcomeHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  welcomeSubtitle: {
-    color: colors.onPrimary,
-    fontSize: 17,
-    marginTop: 8,
-    opacity: 0.82,
-  },
-  welcomeTitle: {
-    color: colors.onPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-    lineHeight: 30,
-  },
-});
+    actions: {
+      gap: 18,
+      marginTop: 26,
+    },
+    avatar: {
+      height: '100%',
+      width: '100%',
+    },
+    avatarRing: {
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderColor: colors.mint,
+      borderRadius: 40,
+      borderWidth: 3,
+      height: 68,
+      justifyContent: 'center',
+      overflow: 'hidden',
+      width: 68,
+    },
+    content: {
+      paddingBottom: spacing.xl,
+      paddingHorizontal: spacing.lg,
+      paddingTop: 32,
+    },
+    safeArea: {
+      backgroundColor: colors.background,
+      flex: 1,
+    },
+    statDivider: {
+      backgroundColor: colors.border,
+      bottom: 3,
+      position: 'absolute',
+      right: -11,
+      top: 3,
+      width: StyleSheet.hairlineWidth,
+    },
+    statItem: {
+      alignItems: 'center',
+      flex: 1,
+      position: 'relative',
+    },
+    statLabel: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      marginTop: 6,
+    },
+    statsPanel: {
+      ...shadow,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radii.md,
+      flexDirection: 'row',
+      marginTop: 28,
+      paddingVertical: 18,
+    },
+    statValue: {
+      color: colors.text,
+      fontSize: 28,
+      fontWeight: '700',
+    },
+    welcomeCard: {
+      backgroundColor: colors.primary,
+      borderRadius: radii.xl,
+      padding: 24,
+    },
+    welcomeCopy: {
+      flex: 1,
+      marginLeft: 18,
+    },
+    welcomeHeader: {
+      alignItems: 'center',
+      flexDirection: 'row',
+    },
+    welcomeSubtitle: {
+      color: colors.onPrimary,
+      fontSize: 17,
+      marginTop: 8,
+      opacity: 0.82,
+    },
+    welcomeTitle: {
+      color: colors.onPrimary,
+      fontSize: 22,
+      fontWeight: '700',
+      lineHeight: 30,
+    },
+  });

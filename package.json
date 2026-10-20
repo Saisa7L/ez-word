@@ -2,6 +2,9 @@
   "name": "vocab-app",
   "version": "1.0.0",
   "main": "expo-router/entry",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "dependencies": {
     "expo": "~57.0.30",
     "expo-constants": "~57.0.21",
@@ -32,6 +35,7 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.2",
+    "prettier": "^3.9.10",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
@@ -40,12 +44,17 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:data && npm run test:task && npm run test:navigation",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts",
     "test:data": "tsx --test tests/data.test.ts",
     "test:task": "tsx --test tests/taskReducer.test.ts",
-    "test:navigation": "tsx --test tests/navigationLock.test.ts"
+    "test:navigation": "tsx --test tests/navigationLock.test.ts",
+    "doctor": "npx --yes expo-doctor@latest",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage && npm run doctor"
   },
   "private": true
 }

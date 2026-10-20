@@ -20,10 +20,7 @@ import {
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import { useLongPressStep } from '@/hooks/useLongPressStep';
 import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 
 const REVIEW_DAYS_MIN = 1;
@@ -84,14 +81,8 @@ export default function ReviewStartScreen() {
     selectedDays !== null && selectedDays > REVIEW_DAYS_MIN;
   const canIncreaseDays =
     selectedDays !== null && selectedDays < REVIEW_DAYS_MAX;
-  const decreaseDays = useLongPressStep(
-    () => changeDays(-1),
-    canDecreaseDays,
-  );
-  const increaseDays = useLongPressStep(
-    () => changeDays(1),
-    canIncreaseDays,
-  );
+  const decreaseDays = useLongPressStep(() => changeDays(-1), canDecreaseDays);
+  const increaseDays = useLongPressStep(() => changeDays(1), canIncreaseDays);
 
   async function handleStart() {
     if (!settings || isStarting) {
@@ -100,10 +91,7 @@ export default function ReviewStartScreen() {
 
     setIsStarting(true);
     try {
-      const selection = await loadWordReviewSelection(
-        db,
-        selectedDays,
-      );
+      const selection = await loadWordReviewSelection(db, selectedDays);
       if (selection.words.length === 0) {
         setNotice({
           message: '当前范围内没有已学习的单词',
@@ -112,13 +100,10 @@ export default function ReviewStartScreen() {
         return;
       }
 
-      pushOnce(
-        '/daily-task/fill-blank',
-        () => {
-          setSettings(selection.settings);
-          startTask(selection.words, selection.settings, 'wordReview');
-        },
-      );
+      pushOnce('/daily-task/fill-blank', () => {
+        setSettings(selection.settings);
+        startTask(selection.words, selection.settings, 'wordReview');
+      });
     } catch {
       setNotice({
         message: '无法读取复习单词，请稍后重试',
@@ -131,112 +116,111 @@ export default function ReviewStartScreen() {
 
   return (
     <>
-      <GreenSheetScreen
-        onBack={handleBack}
-        title="单词再练"
-      >
+      <GreenSheetScreen onBack={handleBack} title="单词再练">
         <View style={styles.content}>
-        <Text style={styles.title}>选择复习范围</Text>
-        <Text style={styles.hint}>
-          从选择的范围内随机抽取单词，练习时跳过认识单词，直接进行填空和听力。
-        </Text>
+          <Text style={styles.title}>选择复习范围</Text>
+          <Text style={styles.hint}>
+            从选择的范围内随机抽取单词，练习时跳过认识单词，直接进行填空和听力。
+          </Text>
 
-        <View style={styles.rangeStepper}>
-          <Pressable
-            accessibilityLabel="减少复习范围天数"
-            accessibilityRole="button"
-            disabled={!canDecreaseDays}
-            onPressIn={decreaseDays.start}
-            onPressOut={decreaseDays.stop}
-            style={({ pressed }) => [
-              styles.stepButton,
-              !canDecreaseDays && styles.stepButtonDisabled,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
-          </Pressable>
-          <View style={styles.rangeValue}>
-            <Text style={styles.rangeNumber}>
-              {selectedDays === null ? '全部' : selectedDays}
-            </Text>
-            <Text style={styles.rangeUnit}>
-              {selectedDays === null ? '已学单词' : '天'}
-            </Text>
+          <View style={styles.rangeStepper}>
+            <Pressable
+              accessibilityLabel="减少复习范围天数"
+              accessibilityRole="button"
+              disabled={!canDecreaseDays}
+              onPressIn={decreaseDays.start}
+              onPressOut={decreaseDays.stop}
+              style={({ pressed }) => [
+                styles.stepButton,
+                !canDecreaseDays && styles.stepButtonDisabled,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Minus color={colors.accentText} size={30} strokeWidth={2.4} />
+            </Pressable>
+            <View style={styles.rangeValue}>
+              <Text style={styles.rangeNumber}>
+                {selectedDays === null ? '全部' : selectedDays}
+              </Text>
+              <Text style={styles.rangeUnit}>
+                {selectedDays === null ? '已学单词' : '天'}
+              </Text>
+            </View>
+            <Pressable
+              accessibilityLabel="增加复习范围天数"
+              accessibilityRole="button"
+              disabled={!canIncreaseDays}
+              onPressIn={increaseDays.start}
+              onPressOut={increaseDays.stop}
+              style={({ pressed }) => [
+                styles.stepButton,
+                !canIncreaseDays && styles.stepButtonDisabled,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
+            </Pressable>
           </View>
           <Pressable
-            accessibilityLabel="增加复习范围天数"
             accessibilityRole="button"
-            disabled={!canIncreaseDays}
-            onPressIn={increaseDays.start}
-            onPressOut={increaseDays.stop}
+            onPress={() => {
+              if (selectedDays === null) {
+                selectedDaysRef.current = lastNumericDaysRef.current;
+                setSelectedDays(lastNumericDaysRef.current);
+              } else {
+                selectedDaysRef.current = null;
+                lastNumericDaysRef.current = selectedDays;
+                setSelectedDays(null);
+              }
+            }}
+            style={[
+              styles.allButton,
+              selectedDays === null && styles.allButtonActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.allButtonText,
+                selectedDays === null && styles.allButtonTextActive,
+              ]}
+            >
+              全部已学单词
+            </Text>
+          </Pressable>
+
+          <View style={styles.countPanel}>
+            {settings ? (
+              <>
+                <Text style={styles.countNumber}>
+                  {settings.wordReviewWordLimit}
+                </Text>
+                <Text style={styles.countLabel}>
+                  个单词/次，开始后可随机抽取
+                </Text>
+              </>
+            ) : (
+              <ActivityIndicator color={colors.accentText} size="large" />
+            )}
+          </View>
+
+          <Pressable
+            accessibilityRole="button"
+            disabled={!settings || isStarting}
+            onPress={() => {
+              void handleStart();
+            }}
             style={({ pressed }) => [
-              styles.stepButton,
-              !canIncreaseDays && styles.stepButtonDisabled,
+              styles.startButton,
+              (!settings || isStarting) && styles.startButtonDisabled,
               pressed && styles.pressed,
             ]}
           >
-            <Plus color={colors.accentText} size={30} strokeWidth={2.4} />
+            {isStarting ? (
+              <ActivityIndicator color={colors.onPrimary} />
+            ) : (
+              <Text style={styles.startText}>开始复习</Text>
+            )}
           </Pressable>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => {
-            if (selectedDays === null) {
-              selectedDaysRef.current = lastNumericDaysRef.current;
-              setSelectedDays(lastNumericDaysRef.current);
-            } else {
-              selectedDaysRef.current = null;
-              lastNumericDaysRef.current = selectedDays;
-              setSelectedDays(null);
-            }
-          }}
-          style={[
-            styles.allButton,
-            selectedDays === null && styles.allButtonActive,
-          ]}
-        >
-          <Text
-            style={[
-              styles.allButtonText,
-              selectedDays === null && styles.allButtonTextActive,
-            ]}
-          >
-            全部已学单词
-          </Text>
-        </Pressable>
-
-        <View style={styles.countPanel}>
-          {settings ? (
-            <>
-              <Text style={styles.countNumber}>
-                {settings.wordReviewWordLimit}
-              </Text>
-              <Text style={styles.countLabel}>个单词/次，开始后可随机抽取</Text>
-            </>
-          ) : (
-            <ActivityIndicator color={colors.accentText} size="large" />
-          )}
-        </View>
-
-        <Pressable
-          accessibilityRole="button"
-          disabled={!settings || isStarting}
-          onPress={() => {
-            void handleStart();
-          }}
-          style={({ pressed }) => [
-            styles.startButton,
-            (!settings || isStarting) && styles.startButtonDisabled,
-            pressed && styles.pressed,
-          ]}
-        >
-          {isStarting ? (
-            <ActivityIndicator color={colors.onPrimary} />
-          ) : (
-            <Text style={styles.startText}>开始复习</Text>
-          )}
-        </Pressable>
         </View>
       </GreenSheetScreen>
       <ActionOptionModal
@@ -258,106 +242,106 @@ export default function ReviewStartScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  allButton: {
-    alignItems: 'center',
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    height: 50,
-    justifyContent: 'center',
-    marginTop: 12,
-  },
-  allButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.accentText,
-  },
-  allButtonText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  allButtonTextActive: {
-    color: colors.onPrimary,
-  },
-  content: {
-    paddingHorizontal: 22,
-    paddingTop: 24,
-  },
-  countLabel: {
-    color: colors.textSecondary,
-    fontSize: 17,
-    marginTop: 4,
-  },
-  countNumber: {
-    color: colors.text,
-    fontSize: 50,
-    fontWeight: '800',
-  },
-  countPanel: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 140,
-  },
-  hint: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 8,
-  },
-  pressed: {
-    opacity: 0.68,
-  },
-  rangeNumber: {
-    color: colors.text,
-    fontSize: 42,
-    fontWeight: '800',
-  },
-  rangeStepper: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 24,
-  },
-  rangeUnit: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    marginTop: 2,
-  },
-  rangeValue: {
-    alignItems: 'center',
-    minWidth: 120,
-  },
-  startButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
-    height: 60,
-    justifyContent: 'center',
-    marginTop: 18,
-  },
-  startButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  startText: {
-    color: colors.onPrimary,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  stepButton: {
-    alignItems: 'center',
-    backgroundColor: colors.mint,
-    borderRadius: 32,
-    height: 64,
-    justifyContent: 'center',
-    width: 64,
-  },
-  stepButtonDisabled: {
-    backgroundColor: colors.graySoft,
-    opacity: 0.5,
-  },
-  title: {
-    color: colors.text,
-    fontSize: 25,
-    fontWeight: '700',
-  },
-});
+    allButton: {
+      alignItems: 'center',
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      height: 50,
+      justifyContent: 'center',
+      marginTop: 12,
+    },
+    allButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.accentText,
+    },
+    allButtonText: {
+      color: colors.text,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    allButtonTextActive: {
+      color: colors.onPrimary,
+    },
+    content: {
+      paddingHorizontal: 22,
+      paddingTop: 24,
+    },
+    countLabel: {
+      color: colors.textSecondary,
+      fontSize: 17,
+      marginTop: 4,
+    },
+    countNumber: {
+      color: colors.text,
+      fontSize: 50,
+      fontWeight: '800',
+    },
+    countPanel: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 140,
+    },
+    hint: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      lineHeight: 24,
+      marginTop: 8,
+    },
+    pressed: {
+      opacity: 0.68,
+    },
+    rangeNumber: {
+      color: colors.text,
+      fontSize: 42,
+      fontWeight: '800',
+    },
+    rangeStepper: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 24,
+    },
+    rangeUnit: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      marginTop: 2,
+    },
+    rangeValue: {
+      alignItems: 'center',
+      minWidth: 120,
+    },
+    startButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 28,
+      height: 60,
+      justifyContent: 'center',
+      marginTop: 18,
+    },
+    startButtonDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    startText: {
+      color: colors.onPrimary,
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    stepButton: {
+      alignItems: 'center',
+      backgroundColor: colors.mint,
+      borderRadius: 32,
+      height: 64,
+      justifyContent: 'center',
+      width: 64,
+    },
+    stepButtonDisabled: {
+      backgroundColor: colors.graySoft,
+      opacity: 0.5,
+    },
+    title: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '700',
+    },
+  });

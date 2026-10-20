@@ -22,10 +22,7 @@ import {
   countAvailableWordsForWrongBook,
   listAvailableWordsForWrongBook,
 } from '@/database/wrongBookRepository';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 
@@ -117,10 +114,7 @@ export default function AddWrongBookWordScreen() {
   }
 
   return (
-    <GreenSheetScreen
-      onBack={handleBack}
-      title="添加错题"
-    >
+    <GreenSheetScreen onBack={handleBack} title="添加错题">
       <View style={styles.content}>
         <View style={styles.segmentedControl}>
           <Pressable
@@ -188,12 +182,12 @@ export default function AddWrongBookWordScreen() {
                         pressed && styles.pressed,
                       ]}
                     >
-                    <View style={styles.wordCopy}>
-                      <Text style={styles.word}>{word.word}</Text>
-                      <Text numberOfLines={2} style={styles.meaning}>
-                        {word.meaning}
-                      </Text>
-                    </View>
+                      <View style={styles.wordCopy}>
+                        <Text style={styles.word}>{word.word}</Text>
+                        <Text numberOfLines={2} style={styles.meaning}>
+                          {word.meaning}
+                        </Text>
+                      </View>
                       <SelectionMarker
                         checkSize={23}
                         index={index}
@@ -274,146 +268,146 @@ export default function AddWrongBookWordScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  content: {
-    paddingHorizontal: 22,
-    paddingTop: 22,
-  },
-  addSelectedButton: {
-    alignItems: 'center',
-    backgroundColor: colors.graySoft,
-    borderRadius: 28,
-    height: 58,
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  addSelectedButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  addSelectedText: {
-    color: colors.accentText,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  emptyHint: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 70,
-  },
-  emptyTitle: {
-    color: colors.text,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  fieldLabel: {
-    color: colors.text,
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 18,
-  },
-  input: {
-    backgroundColor: colors.graySoft,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    color: colors.text,
-    fontSize: 18,
-    height: 54,
-    paddingHorizontal: 16,
-  },
-  listPanel: {
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    minHeight: 380,
-    overflow: 'hidden',
-    marginTop: 18,
-  },
-  loading: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 380,
-  },
-  manualAddButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
-    height: 58,
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  manualAddButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  manualAddText: {
-    color: colors.onPrimary,
-    fontSize: 21,
-    fontWeight: '700',
-  },
-  manualForm: {
-    marginTop: 6,
-  },
-  meaning: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 23,
-    marginTop: 6,
-  },
-  pressed: {
-    opacity: 0.68,
-  },
-  segmentButton: {
-    alignItems: 'center',
-    borderRadius: radii.md,
-    flex: 1,
-    height: 48,
-    justifyContent: 'center',
-  },
-  segmentButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  segmentedControl: {
-    backgroundColor: colors.graySoft,
-    borderRadius: radii.md,
-    flexDirection: 'row',
-    padding: 4,
-  },
-  segmentText: {
-    color: colors.textSecondary,
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  segmentTextActive: {
-    color: colors.onPrimary,
-  },
-  word: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  wordCopy: {
-    flex: 1,
-    marginRight: 16,
-  },
-  wordRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    minHeight: 76,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  wordRowBorder: {
-    borderBottomColor: colors.border,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  wordRowSelected: {
-    backgroundColor: colors.mint,
-  },
-});
+    content: {
+      paddingHorizontal: 22,
+      paddingTop: 22,
+    },
+    addSelectedButton: {
+      alignItems: 'center',
+      backgroundColor: colors.graySoft,
+      borderRadius: 28,
+      height: 58,
+      justifyContent: 'center',
+      marginTop: 20,
+    },
+    addSelectedButtonDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    addSelectedText: {
+      color: colors.accentText,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    emptyHint: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      lineHeight: 24,
+      marginTop: 10,
+      textAlign: 'center',
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 70,
+    },
+    emptyTitle: {
+      color: colors.text,
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    fieldLabel: {
+      color: colors.text,
+      fontSize: 17,
+      fontWeight: '600',
+      marginBottom: 8,
+      marginTop: 18,
+    },
+    input: {
+      backgroundColor: colors.graySoft,
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      color: colors.text,
+      fontSize: 18,
+      height: 54,
+      paddingHorizontal: 16,
+    },
+    listPanel: {
+      borderColor: colors.border,
+      borderRadius: radii.md,
+      borderWidth: 1,
+      minHeight: 380,
+      overflow: 'hidden',
+      marginTop: 18,
+    },
+    loading: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 380,
+    },
+    manualAddButton: {
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      borderRadius: 28,
+      height: 58,
+      justifyContent: 'center',
+      marginTop: 30,
+    },
+    manualAddButtonDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    manualAddText: {
+      color: colors.onPrimary,
+      fontSize: 21,
+      fontWeight: '700',
+    },
+    manualForm: {
+      marginTop: 6,
+    },
+    meaning: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      lineHeight: 23,
+      marginTop: 6,
+    },
+    pressed: {
+      opacity: 0.68,
+    },
+    segmentButton: {
+      alignItems: 'center',
+      borderRadius: radii.md,
+      flex: 1,
+      height: 48,
+      justifyContent: 'center',
+    },
+    segmentButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    segmentedControl: {
+      backgroundColor: colors.graySoft,
+      borderRadius: radii.md,
+      flexDirection: 'row',
+      padding: 4,
+    },
+    segmentText: {
+      color: colors.textSecondary,
+      fontSize: 17,
+      fontWeight: '600',
+    },
+    segmentTextActive: {
+      color: colors.onPrimary,
+    },
+    word: {
+      color: colors.text,
+      fontSize: 20,
+      fontWeight: '700',
+    },
+    wordCopy: {
+      flex: 1,
+      marginRight: 16,
+    },
+    wordRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      minHeight: 76,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
+    wordRowBorder: {
+      borderBottomColor: colors.border,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    wordRowSelected: {
+      backgroundColor: colors.mint,
+    },
+  });

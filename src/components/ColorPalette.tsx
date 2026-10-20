@@ -1,7 +1,4 @@
-import {
-  useId,
-  useState,
-} from 'react';
+import { useId, useState } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -9,12 +6,7 @@ import {
   type GestureResponderEvent,
   type LayoutChangeEvent,
 } from 'react-native';
-import Svg, {
-  Defs,
-  LinearGradient,
-  Rect,
-  Stop,
-} from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import type { ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
@@ -64,9 +56,9 @@ function parseColorInput(value: string): string | null {
     return null;
   }
 
-  const channels = rgbMatch.slice(1).map((channel) =>
-    Math.min(255, Number(channel)),
-  );
+  const channels = rgbMatch
+    .slice(1)
+    .map((channel) => Math.min(255, Number(channel)));
   return `#${channels
     .map((channel) => channel.toString(16).padStart(2, '0'))
     .join('')
@@ -107,13 +99,9 @@ function hexToHsv(value: string): HsvColor {
   };
 }
 
-function hsvToHex({
-  hue,
-  saturation,
-  value,
-}: HsvColor): string {
+function hsvToHex({ hue, saturation, value }: HsvColor): string {
   const chroma = value * saturation;
-  const sector = ((hue % 360) + 360) % 360 / 60;
+  const sector = (((hue % 360) + 360) % 360) / 60;
   const second = chroma * (1 - Math.abs((sector % 2) - 1));
 
   let red = 0;
@@ -248,10 +236,7 @@ export function ColorPalette({
     <View>
       <View style={styles.previewRow}>
         <View
-          style={[
-            styles.previewSwatch,
-            { backgroundColor: currentColor },
-          ]}
+          style={[styles.previewSwatch, { backgroundColor: currentColor }]}
         />
         <TextInput
           autoCapitalize="characters"
@@ -295,13 +280,7 @@ export function ColorPalette({
               <Stop offset="0" stopColor="#FFFFFF" />
               <Stop offset="1" stopColor={hueColor} />
             </LinearGradient>
-            <LinearGradient
-              id={valueGradientId}
-              x1="0"
-              x2="0"
-              y1="0"
-              y2="1"
-            >
+            <LinearGradient id={valueGradientId} x1="0" x2="0" y1="0" y2="1">
               <Stop offset="0" stopColor="#000000" stopOpacity="0" />
               <Stop offset="1" stopColor="#000000" stopOpacity="1" />
             </LinearGradient>
@@ -325,16 +304,8 @@ export function ColorPalette({
             styles.squareCursor,
             {
               backgroundColor: currentColor,
-              left: getCursorPosition(
-                hsv.saturation,
-                squareLayout.width,
-                10,
-              ),
-              top: getCursorPosition(
-                1 - hsv.value,
-                squareLayout.height,
-                10,
-              ),
+              left: getCursorPosition(hsv.saturation, squareLayout.width, 10),
+              top: getCursorPosition(1 - hsv.value, squareLayout.height, 10),
             },
           ]}
         />
@@ -359,13 +330,7 @@ export function ColorPalette({
       >
         <Svg height="100%" width="100%">
           <Defs>
-            <LinearGradient
-              id={hueGradientId}
-              x1="0"
-              x2="1"
-              y1="0"
-              y2="0"
-            >
+            <LinearGradient id={hueGradientId} x1="0" x2="1" y1="0" y2="0">
               <Stop offset="0" stopColor="#FF0000" />
               <Stop offset="0.17" stopColor="#FFFF00" />
               <Stop offset="0.33" stopColor="#00FF00" />
@@ -388,11 +353,7 @@ export function ColorPalette({
             styles.hueCursor,
             {
               backgroundColor: hueColor,
-              left: getCursorPosition(
-                hsv.hue / 360,
-                hueLayout.width,
-                10,
-              ),
+              left: getCursorPosition(hsv.hue / 360, hueLayout.width, 10),
             },
           ]}
         />
@@ -403,68 +364,68 @@ export function ColorPalette({
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  hueCursor: {
-    borderColor: '#FFFFFF',
-    borderRadius: 10,
-    borderWidth: 2,
-    height: 20,
-    marginLeft: -10,
-    marginTop: -10,
-    position: 'absolute',
-    top: '50%',
-    width: 20,
-  },
-  hueTrack: {
-    borderColor: colors.border,
-    borderRadius: 16,
-    borderWidth: 1,
-    height: 32,
-    marginTop: 14,
-    overflow: 'visible',
-    position: 'relative',
-  },
-  previewRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 12,
-  },
-  previewSwatch: {
-    borderColor: colors.border,
-    borderRadius: 12,
-    borderWidth: 1,
-    height: 34,
-    width: 34,
-  },
-  previewInput: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#000000',
-    borderRadius: 10,
-    borderWidth: 1,
-    color: '#000000',
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
-    height: 38,
-    paddingHorizontal: 12,
-  },
-  square: {
-    aspectRatio: 1,
-    borderColor: colors.border,
-    borderRadius: 18,
-    borderWidth: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    width: '100%',
-  },
-  squareCursor: {
-    borderColor: '#FFFFFF',
-    borderRadius: 10,
-    borderWidth: 2,
-    height: 20,
-    marginLeft: -10,
-    marginTop: -10,
-    position: 'absolute',
-    width: 20,
-  },
-});
+    hueCursor: {
+      borderColor: '#FFFFFF',
+      borderRadius: 10,
+      borderWidth: 2,
+      height: 20,
+      marginLeft: -10,
+      marginTop: -10,
+      position: 'absolute',
+      top: '50%',
+      width: 20,
+    },
+    hueTrack: {
+      borderColor: colors.border,
+      borderRadius: 16,
+      borderWidth: 1,
+      height: 32,
+      marginTop: 14,
+      overflow: 'visible',
+      position: 'relative',
+    },
+    previewRow: {
+      alignItems: 'center',
+      flexDirection: 'row',
+      gap: 10,
+      marginBottom: 12,
+    },
+    previewSwatch: {
+      borderColor: colors.border,
+      borderRadius: 12,
+      borderWidth: 1,
+      height: 34,
+      width: 34,
+    },
+    previewInput: {
+      backgroundColor: '#FFFFFF',
+      borderColor: '#000000',
+      borderRadius: 10,
+      borderWidth: 1,
+      color: '#000000',
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '600',
+      height: 38,
+      paddingHorizontal: 12,
+    },
+    square: {
+      aspectRatio: 1,
+      borderColor: colors.border,
+      borderRadius: 18,
+      borderWidth: 1,
+      overflow: 'hidden',
+      position: 'relative',
+      width: '100%',
+    },
+    squareCursor: {
+      borderColor: '#FFFFFF',
+      borderRadius: 10,
+      borderWidth: 2,
+      height: 20,
+      marginLeft: -10,
+      marginTop: -10,
+      position: 'absolute',
+      width: 20,
+    },
+  });

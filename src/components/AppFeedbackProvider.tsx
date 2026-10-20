@@ -7,10 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import {
-  ActionOptionModal,
-  type ActionOption,
-} from './ActionOptionModal';
+import { ActionOptionModal, type ActionOption } from './ActionOptionModal';
 
 type ConfirmOptions = {
   cancelLabel?: string;
@@ -38,9 +35,7 @@ type AppFeedbackProviderProps = {
   children: ReactNode;
 };
 
-export function AppFeedbackProvider({
-  children,
-}: AppFeedbackProviderProps) {
+export function AppFeedbackProvider({ children }: AppFeedbackProviderProps) {
   const [modal, setModal] = useState<ModalState>(null);
 
   const showNotice = useCallback((title: string, message?: string) => {

@@ -30,9 +30,12 @@ function clearFallbackTimer() {
 
 function scheduleLockRelease(delayMs: number) {
   clearFallbackTimer();
-  navigationLock.fallbackTimer = setTimeout(() => {
-    forceCompleteNavigationLock();
-  }, Math.max(0, delayMs));
+  navigationLock.fallbackTimer = setTimeout(
+    () => {
+      forceCompleteNavigationLock();
+    },
+    Math.max(0, delayMs),
+  );
 }
 
 export function beginNavigationLock(now = Date.now()): boolean {
@@ -48,9 +51,7 @@ export function beginNavigationLock(now = Date.now()): boolean {
     pending: true,
     startedAt: now,
   };
-  scheduleLockRelease(
-    navigationLock.startedAt + NAVIGATION_MAX_LOCK_MS - now,
-  );
+  scheduleLockRelease(navigationLock.startedAt + NAVIGATION_MAX_LOCK_MS - now);
   return true;
 }
 

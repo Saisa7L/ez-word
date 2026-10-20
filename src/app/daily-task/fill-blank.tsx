@@ -18,10 +18,7 @@ import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
 import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
 import { useTaskPhaseNavigation } from '@/hooks/useTaskPhaseNavigation';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 export default function FillBlankScreen() {
   const { colors } = useAppTheme();
@@ -37,10 +34,7 @@ export default function FillBlankScreen() {
   const [wrongWordIds, setWrongWordIds] = useState<Set<number>>(new Set());
   const [errorWordIds, setErrorWordIds] = useState<number[]>([]);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const usedWordIds = useMemo(
-    () => new Set(Object.values(answers)),
-    [answers],
-  );
+  const usedWordIds = useMemo(() => new Set(Object.values(answers)), [answers]);
 
   if (!taskReady) {
     return <TaskPhasePlaceholder />;

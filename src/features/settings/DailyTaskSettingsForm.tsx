@@ -211,16 +211,10 @@ export function DailyTaskSettingsForm({
               accessibilityRole="button"
               key={rate}
               onPress={() => update({ listeningDefaultRate: rate })}
-              style={[
-                styles.rateButton,
-                selected && styles.rateButtonSelected,
-              ]}
+              style={[styles.rateButton, selected && styles.rateButtonSelected]}
             >
               <Text
-                style={[
-                  styles.rateText,
-                  selected && styles.rateTextSelected,
-                ]}
+                style={[styles.rateText, selected && styles.rateTextSelected]}
               >
                 {formatListeningRate(rate)}
               </Text>
@@ -267,12 +261,10 @@ export function DailyTaskSettingsForm({
         <>
           <SettingStepper
             canDecrease={
-              settings.reviewReminderIntervalDays >
-              REVIEW_REMINDER_INTERVAL_MIN
+              settings.reviewReminderIntervalDays > REVIEW_REMINDER_INTERVAL_MIN
             }
             canIncrease={
-              settings.reviewReminderIntervalDays <
-              REVIEW_REMINDER_INTERVAL_MAX
+              settings.reviewReminderIntervalDays < REVIEW_REMINDER_INTERVAL_MAX
             }
             decreaseLabel="减少复习提醒间隔"
             increaseLabel="增加复习提醒间隔"
@@ -282,8 +274,8 @@ export function DailyTaskSettingsForm({
             value={String(settings.reviewReminderIntervalDays)}
           />
           <Text style={styles.rangeHint}>
-            可设置 {REVIEW_REMINDER_INTERVAL_MIN}-
-            {REVIEW_REMINDER_INTERVAL_MAX} 天
+            可设置 {REVIEW_REMINDER_INTERVAL_MIN}-{REVIEW_REMINDER_INTERVAL_MAX}{' '}
+            天
           </Text>
         </>
       ) : null}

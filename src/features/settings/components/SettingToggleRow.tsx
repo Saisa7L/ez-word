@@ -1,10 +1,7 @@
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import type { ThemeColors } from '@/constants/theme';
-import {
-  useAppTheme,
-  useThemedStyles,
-} from '@/features/theme/ThemeProvider';
+import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
 type SettingToggleRowProps = {
   hint: string;

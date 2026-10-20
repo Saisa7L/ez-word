@@ -41,11 +41,7 @@ export function ImportFileCard({
 
       <View style={styles.fileRow}>
         <View style={styles.fileIconBox}>
-          <FileSpreadsheet
-            color={DEFAULT_GREEN}
-            size={42}
-            strokeWidth={1.8}
-          />
+          <FileSpreadsheet color={DEFAULT_GREEN} size={42} strokeWidth={1.8} />
           <Text style={styles.csvBadge}>CSV</Text>
         </View>
 
