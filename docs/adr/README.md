@@ -1,6 +1,6 @@
 # 架构决策记录
 
-最后更新：2026-10-20 22:12
+最后更新：2026-10-20 22:24
 
 ADR 用于记录会影响多个模块、数据兼容或长期维护的决策。
 
@@ -18,6 +18,7 @@ ADR 用于记录会影响多个模块、数据兼容或长期维护的决策。
 | `0001-android-only.md` | 已接受 | 项目只正式支持 Android |
 | `0002-unified-navigation-lock.md` | 已接受 | 所有导航动作经过统一锁入口 |
 | `0003-normalized-data-model.md` | 已接受 | 设置、错题来源和学习状态使用 v19-v21 规范化模型 |
+| `0004-open-source-android-release.md` | 已接受 | GitHub 开源、国内 Android、Releases APK 的发布目标 |
 
 ## 何时新增 ADR
 

@@ -1,6 +1,6 @@
 # 文档索引
 
-最后更新：2026-10-20 22:12
+最后更新：2026-10-20 22:24
 
 ## 主文档
 
@@ -15,6 +15,7 @@
 | `DATABASE.md` | SQLite 表、迁移、仓库映射和存档关系 |
 | `QUALITY_AND_TECH_DEBT.md` | 质量门槛、测试缺口、内聚耦合评估和技术债优先级 |
 | `PERFORMANCE_BUDGET.md` | 自动性能预算、当前基线和真机采集项 |
+| `OPEN_SOURCE_RELEASE_PLAN.md` | 最终开源目标、发布完成标准、R1-R6 执行批次 |
 | `ASSETS.md` | 资源目录、命名、格式和新增资源流程 |
 | `THEME_GUIDE.md` | 主题模式、颜色令牌和页面应用规则 |
 | `DEVELOPMENT_GUIDE.md` | 环境、启动、检查、Git、调试和协作流程 |
@@ -32,6 +33,7 @@
 | `adr/0001-android-only.md` | Android-only 平台决策 |
 | `adr/0002-unified-navigation-lock.md` | 统一导航锁决策 |
 | `adr/0003-normalized-data-model.md` | v19-v21 规范化数据模型决策 |
+| `adr/0004-open-source-android-release.md` | GitHub 开源 Android 发布目标 |
 
 ## 资源和证据
 

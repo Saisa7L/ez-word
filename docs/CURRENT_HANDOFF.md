@@ -1,16 +1,17 @@
 # 当前交接
 
-最后更新：2026-10-20 22:12
+最后更新：2026-10-20 22:24
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`38c9fb9 Add automated Android performance budgets`
-- 当前阶段：P2-12 文档治理已完成自动验证，随本批提交
+- 已提交基线：`4e7bfdd Add documentation checks and architecture decision records`
+- 当前阶段：开源发布规划与交接已完成，等待下一窗口开始 R1
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：自动文档检查、交接/ADR 模板和关键架构决策记录
-- P6 不包含 EAS、APK、签名和发布
+- 当前工作：最终开源目标、发布完成标准和 R1-R6 执行批次已写入文档
+- 最终目标：GitHub 开源发布，主要面向国内 Android 用户；后续再考虑多语言、多平台和更多功能
+- P6 不包含 EAS、APK、签名和发布；正式发布工作转入 R1-R6
 
 ## 接手先做
 
@@ -30,25 +31,41 @@ git log --oneline --decorate -5
 6. `docs/DATABASE.md`
 7. `docs/QUALITY_AND_TECH_DEBT.md`
 8. `docs/P6_PROGRESS.md`
+9. `docs/OPEN_SOURCE_RELEASE_PLAN.md`
 
 ## 当前规则
 
+- 架构重构主体已收口，不再以继续拆页面或增加业务功能为当前目标。
+- 下一阶段按 `docs/OPEN_SOURCE_RELEASE_PLAN.md` 执行 R1-R6。
 - 不重新设计已收口的 P5 主题 UI。
-- 不新增业务功能。
-- 不进行打包、签名或发布。
-- 修改前先查同类实现；优先复用或扩展现有模式，不为一次性需求新增抽象。
-- 每次只整理一个明确边界。
-- 改完运行 `npm test`、`npm run typecheck`、`npm run lint` 和 Android 离线导出。
+- 修改前先查同类实现；优先复用或扩展现有模式。
+- 每次只完成一个可回滚发布批次。
+- 代码改动运行 `npm run check:release`。
 - 稳定后按批次提交 Git。
 
-## 下一轮重构
+## 下一窗口直接开始 R1
 
-- 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
-- P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
+1. 完善 README：功能、截图、下载、安装、权限、数据位置、构建和测试。
+2. 新增 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板和 Release notes 模板。
+3. 确认 LICENSE 和第三方依赖声明。
+4. 检查 GitHub Actions 配置，准备远程仓库接入。
+5. R1 完成后再进入 R2 的正式包名、版本、签名和 APK Release。
+
+开始前需要用户确认：
+
+- GitHub owner 和仓库名。
+- 最终 Android 包名。
+- 签名密钥保管方式。
+- 隐私问题联系渠道。
+
+## 架构重构完成情况
+
+- P0/P1/P2 主体重构已完成。
+- P2-8 i18n 明确暂缓，不作为第一阶段 Android 发布阻塞项。
 - v21 数据库迁移和 P2-7 两批已完成真机验收。
-- P2-9、P2-10 第一批、P2-11 已完成；P2-12 文档治理已接入统一门禁。
-- 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
-- 下一阶段不得回退统一导航入口和现有真机验收结果。
+- P2-9、P2-10 第一批、P2-11、P2-12 已完成。
+- 正式 APK、签名、覆盖升级、E2E、真机 Perfetto 和安全边界仍属于 R1-R6。
+- 后续不得回退统一导航入口、数据库兼容和现有真机验收结果。
 
 ## P2-6 工程化门禁结果
 
@@ -383,7 +400,7 @@ git log --oneline --decorate -5
 - 当前代码和文档已达到可分析、可交接和可小步修改的状态。
 - 迁移 SQL 保持显式，使用真实 SQLite 测试和运行时 schema 校验防漂移。
 - 页面交互测试、端到端 UI 测试和进一步领域层重构不属于 P6。
-- 下一阶段需要由用户重新指定目标。
+- P6 结论属于架构整理阶段；当前下一阶段已明确为 R1-R6 开源发布硬化。
 
 ## 给其他 AI 的推荐材料
 
@@ -414,16 +431,17 @@ F:\English vocabulary app\Project\vocab-app
 
 请先读取 docs/README.md、CURRENT_HANDOFF.md、PROJECT_CONTEXT.md、
 ARCHITECTURE.md、MODULE_REFERENCE.md、DATA_FLOW.md、DATABASE.md、
-QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
+QUALITY_AND_TECH_DEBT.md、P6_PROGRESS.md 和 OPEN_SOURCE_RELEASE_PLAN.md。
 
 然后运行：
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-12 文档治理已完成自动验证，等待随本批提交。
-请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
-不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
+当前最终目标是 GitHub 开源发布，主要面向国内 Android 用户。
+架构重构主体已完成，下一批直接开始 R1 GitHub 开源基础。
+不要重新设计 P5 主题 UI，不要跳过 R1 直接发布 APK，
+不要把签名、API Key 或用户数据提交到 Git，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、P2-12 文档检查结果和剩余 P2 工作。
+请先说明当前 Git 状态、R1 任务清单和需要用户确认的仓库/包名/签名信息。
 ```

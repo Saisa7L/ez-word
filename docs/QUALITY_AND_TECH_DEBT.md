@@ -1,6 +1,6 @@
 # 质量与技术债
 
-最后更新：2026-10-20 22:12
+最后更新：2026-10-20 22:24
 
 ## 当前质量门槛
 
@@ -192,6 +192,17 @@ npm run doctor
 - 文档检查已加入 `npm run check`。
 - 新增交接与 ADR 模板，避免每批交接结构漂移。
 - 新增 Android-only、统一导航锁和规范化数据模型 ADR。
+
+### 发布阶段剩余阻塞项
+
+- 需要 GitHub 远程仓库并实际运行 CI。
+- 需要正式 Android 包名、versionCode、签名 APK 和 GitHub Release。
+- 需要 Maestro/E2E 和真实 APK 覆盖升级验收。
+- 需要真机 Perfetto 性能数据。
+- 需要处理 30 个 Expo/Metro/Router 传递依赖告警的发布结论。
+- 需要确认 Android 备份策略、数据库明文和用户图片数据边界。
+- 需要 7 天个人实跑和 1–2 名外部 Android 用户闭测。
+- 完整执行标准见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
 
 ### 已解决：P0 数据与任务主链路
 
