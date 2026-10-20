@@ -556,8 +556,8 @@ test('persists daily task state only in one completion step', async () => {
   const result = await completeTaskSession(db, {
     autoRemoveCorrectWrongReview: false,
     completedAt: new Date(now),
-    fillWrongWordIds: [1],
-    listeningWrongWordIds: [1, 2],
+    fillMistakeWordIds: [1],
+    listeningMistakeWordIds: [1, 2],
     mode: 'daily',
     wordIds: [1, 2],
   });
@@ -637,8 +637,8 @@ test('applies wrong-review removal only when the task is finalized', async () =>
   await completeTaskSession(db, {
     autoRemoveCorrectWrongReview: true,
     completedAt: new Date(now),
-    fillWrongWordIds: [1],
-    listeningWrongWordIds: [],
+    fillMistakeWordIds: [1],
+    listeningMistakeWordIds: [],
     mode: 'wrongReview',
     wordIds: [1, 2],
   });

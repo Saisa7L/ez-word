@@ -17,10 +17,7 @@ import {
   taskReducer,
   type TaskPhase,
 } from './taskReducer';
-import type {
-  DailyTaskMode,
-  ListeningAnswerMap,
-} from './types';
+import type { DailyTaskMode } from './types';
 
 type TaskSessionContextValue = {
   durationSeconds: number;
@@ -43,19 +40,16 @@ type TaskSessionContextValue = {
   words: TaskWord[];
 };
 
-type TaskAnswersContextValue = {
+type TaskMistakesContextValue = {
   fillMistakeWordIds: Set<number>;
-  listeningAnswers: ListeningAnswerMap;
   listeningMistakeWordIds: Set<number>;
-  listeningWrongWordIds: Set<number>;
   recordFillMistakes: (wordIds: number[]) => void;
-  setListeningAnswer: (wordId: number, answer: string) => void;
-  setListeningWrongWordIds: (wordIds: number[]) => void;
+  recordListeningMistakes: (wordIds: number[]) => void;
   wrongWordIds: Set<number>;
 };
 
 const TaskSessionContext = createContext<TaskSessionContextValue | null>(null);
-const TaskAnswersContext = createContext<TaskAnswersContextValue | null>(null);
+const TaskMistakesContext = createContext<TaskMistakesContextValue | null>(null);
 
 type DailyTaskProviderProps = {
   children: ReactNode;
@@ -111,16 +105,12 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
     dispatch({ phase, type: 'ENTER_PHASE' });
   }, []);
 
-  const setListeningAnswer = useCallback((wordId: number, answer: string) => {
-    dispatch({ answer, type: 'SET_LISTENING_ANSWER', wordId });
-  }, []);
-
   const recordFillMistakes = useCallback((wordIds: number[]) => {
     dispatch({ type: 'ADD_FILL_MISTAKE_IDS', wordIds });
   }, []);
 
-  const setListeningWrongWordIds = useCallback((wordIds: number[]) => {
-    dispatch({ type: 'SET_LISTENING_WRONG_IDS', wordIds });
+  const recordListeningMistakes = useCallback((wordIds: number[]) => {
+    dispatch({ type: 'ADD_LISTENING_MISTAKE_IDS', wordIds });
   }, []);
 
   const questions = useMemo(
@@ -171,34 +161,28 @@ export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
     ],
   );
 
-  const answersValue = useMemo<TaskAnswersContextValue>(
+  const mistakesValue = useMemo<TaskMistakesContextValue>(
     () => ({
       fillMistakeWordIds: state.fillMistakeWordIds,
-      listeningAnswers: state.listeningAnswers,
       listeningMistakeWordIds: state.listeningMistakeWordIds,
-      listeningWrongWordIds: state.listeningWrongWordIds,
       recordFillMistakes,
-      setListeningAnswer,
-      setListeningWrongWordIds,
+      recordListeningMistakes,
       wrongWordIds,
     }),
     [
       recordFillMistakes,
-      setListeningAnswer,
-      setListeningWrongWordIds,
+      recordListeningMistakes,
       state.fillMistakeWordIds,
-      state.listeningAnswers,
       state.listeningMistakeWordIds,
-      state.listeningWrongWordIds,
       wrongWordIds,
     ],
   );
 
   return (
     <TaskSessionContext.Provider value={sessionValue}>
-      <TaskAnswersContext.Provider value={answersValue}>
+      <TaskMistakesContext.Provider value={mistakesValue}>
         {children}
-      </TaskAnswersContext.Provider>
+      </TaskMistakesContext.Provider>
     </TaskSessionContext.Provider>
   );
 }
@@ -211,10 +195,10 @@ export function useDailyTaskSession(): TaskSessionContextValue {
   return context;
 }
 
-export function useDailyTaskAnswers(): TaskAnswersContextValue {
-  const context = useContext(TaskAnswersContext);
+export function useDailyTaskMistakes(): TaskMistakesContextValue {
+  const context = useContext(TaskMistakesContext);
   if (!context) {
-    throw new Error('useDailyTaskAnswers must be used inside DailyTaskProvider');
+    throw new Error('useDailyTaskMistakes must be used inside DailyTaskProvider');
   }
   return context;
 }

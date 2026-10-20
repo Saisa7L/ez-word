@@ -18,7 +18,7 @@ import { shadow, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
 import { completeTaskSession } from '@/database/taskCompletionRepository';
 import {
-  useDailyTaskAnswers,
+  useDailyTaskMistakes,
   useDailyTaskSession,
 } from '@/features/daily-task/DailyTaskProvider';
 import { getTaskTitle } from '@/features/daily-task/taskPresentation';
@@ -53,7 +53,7 @@ export default function DailyTaskCompleteScreen() {
     fillMistakeWordIds,
     listeningMistakeWordIds,
     wrongWordIds,
-  } = useDailyTaskAnswers();
+  } = useDailyTaskMistakes();
   const navigation = useNavigation<AppNavigation>('/');
   const taskReady = useDailyTaskPhaseGuard('completed');
   const completionStartedRef = useRef(false);
@@ -78,8 +78,8 @@ export default function DailyTaskCompleteScreen() {
       await completeTaskSession(db, {
         autoRemoveCorrectWrongReview:
           taskSettings.autoRemoveCorrectWrongReview,
-        fillWrongWordIds: [...fillMistakeWordIds],
-        listeningWrongWordIds: [...listeningMistakeWordIds],
+        fillMistakeWordIds: [...fillMistakeWordIds],
+        listeningMistakeWordIds: [...listeningMistakeWordIds],
         mode: taskMode,
         wordIds: words.map((word) => word.id),
       });

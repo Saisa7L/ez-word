@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-20 13:34
+最后更新：2026-10-20 13:44
 
 ## 使用方式
 
@@ -30,17 +30,18 @@
 Provider 内部分成两个 Context：
 
 - `TaskSessionContext`：任务模式、设置快照、阶段、单词顺序、计时和题目
-- `TaskAnswersContext`：填空/听力答案、环节错误集合和任务错题集合
-- 填空答案和当前页错误标记已局部化到填空页面，Provider 只保留最终填空错词
+- `TaskMistakesContext`：填空/听力最终错词集合和合并后的任务错题集合
+- 填空和听力答案及当前页错误标记均已局部化到对应页面
 
 读取入口：
 
 - `useDailyTaskSession()`：只订阅任务会话字段
-- `useDailyTaskAnswers()`：只订阅答案和错误字段
+- `useDailyTaskMistakes()`：只订阅任务错词和记录方法
 - `startTask(words, settings, mode)`：初始化任务和随机顺序
 - `enterPhase(phase)`：显式推进任务阶段
 - `finishTask()`、`resetTask()`
 - 答案和错误集合由对应 Context 的 setter 更新
+- `recordFillMistakes`、`recordListeningMistakes` 只累计最终确认错词
 - 任务单词统一为 `TaskWord`，不再向任务页面暴露数据库行字段
 
 ### taskReducer

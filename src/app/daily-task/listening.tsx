@@ -15,7 +15,7 @@ import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { type ThemeColors } from '@/constants/theme';
 import { LISTENING_RATES } from '@/database/settingsRepository';
 import {
-  useDailyTaskAnswers,
+  useDailyTaskMistakes,
   useDailyTaskSession,
 } from '@/features/daily-task/DailyTaskProvider';
 import {
@@ -44,12 +44,7 @@ export default function ListeningScreen() {
     taskMode,
     taskSettings,
   } = useDailyTaskSession();
-  const {
-    listeningAnswers,
-    listeningWrongWordIds,
-    setListeningAnswer,
-    setListeningWrongWordIds,
-  } = useDailyTaskAnswers();
+  const { recordListeningMistakes } = useDailyTaskMistakes();
   const exitGuard = useDailyTaskExitGuard();
   const taskReady = useDailyTaskPhaseGuard('listening');
   const navigateToTaskPhase = useTaskPhaseNavigation();
@@ -58,6 +53,8 @@ export default function ListeningScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentRead, setCurrentRead] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [wrongWordIds, setWrongWordIds] = useState<Set<number>>(new Set());
   const [speedOverride, setSpeedOverride] = useState<{
     speed: number;
     startedAt: number | null;
@@ -87,7 +84,7 @@ export default function ListeningScreen() {
     Math.floor(currentRead / 2) + 1,
   );
   const allAnswered = listeningWords.every(
-    (word) => listeningAnswers[word.id]?.trim(),
+    (word) => answers[word.id]?.trim(),
   );
   const progress =
     listeningWords.length === 0
@@ -169,18 +166,19 @@ export default function ListeningScreen() {
     const wrongIds = listeningWords
       .filter(
         (word) =>
-          listeningAnswers[word.id]?.trim().toLocaleLowerCase('en-US') !==
+          answers[word.id]?.trim().toLocaleLowerCase('en-US') !==
           word.word.toLocaleLowerCase('en-US'),
       )
       .map((word) => word.id);
 
     if (wrongIds.length > 0) {
+      setWrongWordIds(new Set(wrongIds));
       setErrorWordIds(wrongIds);
       setErrorModalVisible(true);
       return;
     }
 
-    setListeningWrongWordIds([]);
+    setWrongWordIds(new Set());
     goToComplete();
   }
 
@@ -197,11 +195,29 @@ export default function ListeningScreen() {
   }
 
   function handleErrorConfirm() {
-    setListeningWrongWordIds(errorWordIds);
+    recordListeningMistakes(errorWordIds);
+    setWrongWordIds(new Set(errorWordIds));
     setErrorModalVisible(false);
     if (taskSettings.advanceOnMistakes) {
       goToComplete();
     }
+  }
+
+  function handleAnswerChange(wordId: number, answer: string) {
+    setAnswers((current) => {
+      const next = { ...current };
+      if (answer) {
+        next[wordId] = answer;
+      } else {
+        delete next[wordId];
+      }
+      return next;
+    });
+    setWrongWordIds((current) => {
+      const next = new Set(current);
+      next.delete(wordId);
+      return next;
+    });
   }
 
   return (
@@ -232,10 +248,10 @@ export default function ListeningScreen() {
       />
 
       <ListeningAnswerList
-        answers={listeningAnswers}
-        onChangeAnswer={setListeningAnswer}
+        answers={answers}
+        onChangeAnswer={handleAnswerChange}
         words={listeningWords}
-        wrongWordIds={listeningWrongWordIds}
+        wrongWordIds={wrongWordIds}
       />
 
       <Pressable

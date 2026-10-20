@@ -13,8 +13,8 @@ export type TaskCompletionMode = 'daily' | 'wrongReview' | 'wordReview';
 export type CompleteTaskSessionOptions = {
   autoRemoveCorrectWrongReview: boolean;
   completedAt?: Date;
-  fillWrongWordIds: number[];
-  listeningWrongWordIds: number[];
+  fillMistakeWordIds: number[];
+  listeningMistakeWordIds: number[];
   mode: TaskCompletionMode;
   wordIds: number[];
 };
@@ -28,8 +28,8 @@ export async function completeTaskSession(
   {
     autoRemoveCorrectWrongReview,
     completedAt = new Date(),
-    fillWrongWordIds,
-    listeningWrongWordIds,
+    fillMistakeWordIds,
+    listeningMistakeWordIds,
     mode,
     wordIds,
   }: CompleteTaskSessionOptions,
@@ -47,8 +47,8 @@ export async function completeTaskSession(
     }
   };
 
-  addSources(fillWrongWordIds, 'fill');
-  addSources(listeningWrongWordIds, 'listening');
+  addSources(fillMistakeWordIds, 'fill');
+  addSources(listeningMistakeWordIds, 'listening');
 
   const wrongWordIds = new Set(sourcesByWordId.keys());
   const finalizedSources = new Map<number, readonly WrongBookSource[]>();

@@ -72,7 +72,7 @@ test('tracks phase, answers, mistakes and duration', () => {
     wordIds: [1],
   });
   state = taskReducer(state, {
-    type: 'SET_LISTENING_WRONG_IDS',
+    type: 'ADD_LISTENING_MISTAKE_IDS',
     wordIds: [1, 2],
   });
   state = taskReducer(state, {

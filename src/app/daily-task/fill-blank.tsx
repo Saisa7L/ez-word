@@ -7,7 +7,7 @@ import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { type ThemeColors } from '@/constants/theme';
 import {
-  useDailyTaskAnswers,
+  useDailyTaskMistakes,
   useDailyTaskSession,
 } from '@/features/daily-task/DailyTaskProvider';
 import { FillBlankQuestionCard } from '@/features/daily-task/fill-blank/FillBlankQuestionCard';
@@ -26,7 +26,7 @@ export default function FillBlankScreen() {
   const styles = useThemedStyles(createStyles);
   const { questions, taskMode, taskSettings, wordBank, words } =
     useDailyTaskSession();
-  const { recordFillMistakes } = useDailyTaskAnswers();
+  const { recordFillMistakes } = useDailyTaskMistakes();
   const exitGuard = useDailyTaskExitGuard();
   const taskReady = useDailyTaskPhaseGuard('filling');
   const navigateToTaskPhase = useTaskPhaseNavigation();
@@ -88,6 +88,7 @@ export default function FillBlankScreen() {
       .map((word) => word.id);
 
     if (nextWrongWordIds.length > 0) {
+      setWrongWordIds(new Set(nextWrongWordIds));
       setErrorWordIds(nextWrongWordIds);
       setErrorModalVisible(true);
       return;
