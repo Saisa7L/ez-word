@@ -111,9 +111,11 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: 28,
       flexDirection: 'row',
       gap: 9,
-      height: 58,
       justifyContent: 'center',
       marginTop: 22,
+      minHeight: 58,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
     },
     generateButtonDisabled: {
       backgroundColor: colors.disabled,

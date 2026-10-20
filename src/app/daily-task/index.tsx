@@ -198,10 +198,12 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       backgroundColor: colors.primary,
       borderRadius: radii.xl,
-      height: 68,
       justifyContent: 'center',
       marginBottom: 20,
       marginHorizontal: spacing.lg,
+      minHeight: 68,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
     },
     startButtonDisabled: {
       backgroundColor: colors.disabled,

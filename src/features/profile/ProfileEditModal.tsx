@@ -10,6 +10,7 @@ import {
 import { PROFILE_USERNAME_MAX_LENGTH } from '@/constants/profile';
 import { radii, type ThemeColors } from '@/constants/theme';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 import { BIO_MAX_LENGTH, type EditMode } from './profileUtils';
 
@@ -32,11 +33,12 @@ export function ProfileEditModal({
 }: ProfileEditModalProps) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
   const isBio = mode === 'bio';
 
   return (
     <Modal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
       transparent
       visible={mode !== null}

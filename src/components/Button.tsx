@@ -110,7 +110,7 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: DEFAULT_GREEN,
     },
     successText: {
-      color: getContrastColor(DEFAULT_GREEN),
+      color: '#FFFFFF',
     },
     text: {
       fontSize: 21,

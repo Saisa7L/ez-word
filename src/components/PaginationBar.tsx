@@ -11,6 +11,7 @@ import {
 
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type PaginationBarProps = {
   disabled?: boolean;
@@ -27,6 +28,7 @@ export function PaginationBar({
 }: PaginationBarProps) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
   const [modalVisible, setModalVisible] = useState(false);
   const [pageInput, setPageInput] = useState(String(pageIndex + 1));
   const [error, setError] = useState('');
@@ -103,7 +105,7 @@ export function PaginationBar({
       </View>
 
       <Modal
-        animationType="fade"
+        animationType={reduceMotion ? 'none' : 'fade'}
         onRequestClose={() => setModalVisible(false)}
         transparent
         visible={modalVisible}

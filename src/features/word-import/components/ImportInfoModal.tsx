@@ -9,6 +9,7 @@ import {
 
 import { radii, type ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type ImportInfoModalProps = {
   onClose: () => void;
@@ -17,10 +18,11 @@ type ImportInfoModalProps = {
 
 export function ImportInfoModal({ onClose, visible }: ImportInfoModalProps) {
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
 
   return (
     <Modal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
       transparent
       visible={visible}

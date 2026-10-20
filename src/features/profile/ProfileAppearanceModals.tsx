@@ -10,6 +10,7 @@ import {
 import { ColorPalette } from '@/components/ColorPalette';
 import { radii, type ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 import { TEXT_STROKE_WIDTHS } from './profileUtils';
 
@@ -33,10 +34,11 @@ export function ProfileColorModal({
   visible,
 }: ColorModalProps) {
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
 
   return (
     <Modal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
       transparent
       visible={visible}
@@ -96,10 +98,11 @@ export function ProfileStrokeModal({
   width,
 }: StrokeModalProps) {
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
 
   return (
     <Modal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
       transparent
       visible={visible}

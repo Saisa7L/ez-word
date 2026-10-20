@@ -109,8 +109,10 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       borderRadius: 28,
       flex: 1,
-      height: 58,
       justifyContent: 'center',
+      minHeight: 58,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
     },
     actions: {
       flexDirection: 'row',

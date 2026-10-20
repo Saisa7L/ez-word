@@ -21,6 +21,7 @@ import {
   useAppTheme,
   useOptionalAppTheme,
 } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import {
   completeNavigationLock,
   isNavigationLocked,
@@ -47,13 +48,19 @@ export default function RootLayout() {
 
 function ThemedApp() {
   const { statusBarStyle } = useAppTheme();
+  const reduceMotion = useReducedMotion();
 
   return (
     <>
       <StatusBar style={statusBarStyle} />
       <AppFeedbackProvider>
         <HardwareBackController />
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack
+          screenOptions={{
+            animation: reduceMotion ? 'none' : 'default',
+            headerShown: false,
+          }}
+        />
       </AppFeedbackProvider>
     </>
   );

@@ -78,8 +78,10 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       backgroundColor: colors.graySoft,
       borderRadius: 24,
-      height: 54,
       justifyContent: 'center',
+      minHeight: 54,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
     },
     optionDanger: {
       backgroundColor: colors.redSoft,

@@ -181,8 +181,10 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.surface,
       borderRadius: 28,
       flex: 1,
-      height: 58,
       justifyContent: 'center',
+      minHeight: 58,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
     },
     actionButtonDisabled: {
       opacity: 0.45,

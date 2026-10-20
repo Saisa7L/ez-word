@@ -9,6 +9,7 @@ import {
 
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type DialogProps = {
   children: ReactNode;
@@ -24,10 +25,11 @@ export function Dialog({
   visible,
 }: DialogProps) {
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
 
   return (
     <Modal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onRequestClose}
       transparent
       visible={visible}

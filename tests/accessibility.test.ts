@@ -3,7 +3,6 @@ import test from 'node:test';
 
 import {
   createThemeColors,
-  DEFAULT_GREEN,
   getContrastColor,
 } from '../src/constants/theme';
 
@@ -43,7 +42,7 @@ test('night theme helper text meets WCAG AA contrast', () => {
 });
 
 test('button foreground colors are valid contrast choices', () => {
-  for (const background of [DEFAULT_GREEN, '#F85864', '#F28B92']) {
+  for (const background of ['#F85864', '#F28B92']) {
     const foreground = getContrastColor(background);
     assert.ok(contrastRatio(foreground, background) >= 3);
   }

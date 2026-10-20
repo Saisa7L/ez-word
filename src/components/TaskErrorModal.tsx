@@ -49,9 +49,11 @@ const createStyles = (colors: ThemeColors) =>
       alignSelf: 'stretch',
       backgroundColor: colors.primary,
       borderRadius: 28,
-      height: 58,
       justifyContent: 'center',
       marginTop: 30,
+      minHeight: 58,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
     },
     dialog: {
       padding: 28,

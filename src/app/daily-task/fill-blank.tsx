@@ -193,9 +193,9 @@ const createStyles = (colors: ThemeColors) =>
       flex: 1,
     },
     submitButton: {
-      height: 60,
       marginBottom: 16,
       marginHorizontal: 24,
+      minHeight: 60,
     },
     submitText: {
       fontSize: 22,

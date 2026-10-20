@@ -4,6 +4,7 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import type { WordImportSummary } from '@/features/word-import/types';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type ImportResultModalProps = {
   onConfirm: () => void;
@@ -34,10 +35,11 @@ export function ImportResultModal({
 }: ImportResultModalProps) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
 
   return (
     <Modal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onConfirm}
       transparent
       visible={visible}
@@ -84,7 +86,8 @@ const createStyles = (colors: ThemeColors) =>
       alignSelf: 'stretch',
       backgroundColor: colors.primary,
       borderRadius: 28,
-      height: 58,
+      minHeight: 58,
+      paddingVertical: 12,
       justifyContent: 'center',
       marginTop: 28,
     },

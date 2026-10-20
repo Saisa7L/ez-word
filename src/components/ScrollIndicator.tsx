@@ -3,6 +3,7 @@ import { Animated, StyleSheet } from 'react-native';
 
 import type { ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type ScrollIndicatorProps = {
   contentHeight: number;
@@ -16,12 +17,26 @@ export function ScrollIndicator({
   viewportHeight,
 }: ScrollIndicatorProps) {
   const styles = useThemedStyles(createStyles);
+  const reduceMotion = useReducedMotion();
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [opacity] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     if (contentHeight <= viewportHeight || scrollY <= 0) {
       return;
+    }
+
+    if (reduceMotion) {
+      opacity.setValue(1);
+      if (hideTimer.current) {
+        clearTimeout(hideTimer.current);
+      }
+      hideTimer.current = setTimeout(() => opacity.setValue(0), 800);
+      return () => {
+        if (hideTimer.current) {
+          clearTimeout(hideTimer.current);
+        }
+      };
     }
 
     Animated.timing(opacity, {
@@ -45,7 +60,7 @@ export function ScrollIndicator({
         clearTimeout(hideTimer.current);
       }
     };
-  }, [contentHeight, opacity, scrollY, viewportHeight]);
+  }, [contentHeight, opacity, reduceMotion, scrollY, viewportHeight]);
 
   if (contentHeight <= viewportHeight || viewportHeight <= 0) {
     return null;
