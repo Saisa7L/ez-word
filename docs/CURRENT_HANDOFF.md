@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 21:42
+最后更新：2026-10-20 21:47
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`c365118 Scale long words on the learning screen`
-- 当前阶段：P2-1 v21 学习次数列清理已完成自动验证，等待真机迁移验收
+- 已提交基线：`225931b Remove unused learned count from learning state`
+- 当前阶段：P2-9 Android-only 平台收口已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：删除未使用的 `word_learning_state.learned_count`，保留学习时间
+- 当前工作：移除 iOS/Web 启动入口、平台配置和 Web 专用资源
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -45,8 +45,8 @@ git log --oneline --decorate -5
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
 - P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
-- 长单词自动缩放已完成真机复查。
-- 下一批在 v21 验收后进入 P2-7/P2-9 无障碍与平台收口。
+- v21 数据库迁移已完成真机验收。
+- P2-9 已完成；下一批进入 P2-7 无障碍与字号布局。
 - 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -145,6 +145,16 @@ git log --oneline --decorate -5
 - 当前存档不再包含学习次数；v20 旧存档中的旧字段会被安全忽略。
 - 数据测试增加到 34 项，全项目共 48 项。
 - 已通过类型检查与数据测试，等待真机迁移验收。
+
+## P2-9 Android-only 平台收口
+
+- 删除 `ios` 和 `web` npm 启动脚本。
+- 删除 `app.json` 中的 `ios` 与 `web` 配置。
+- 移除 Web 专用的 `.vscode/launch.json` 和 `assets/app/favicon.png`。
+- 移除直接依赖 `react-dom` 和 `react-native-web`。
+- 保留 Expo Router 必需的 `expo-linking`。
+- README 和开发指南明确项目仅支持 Android，不提供 Web/iOS 调试入口。
+- 已通过依赖检查、完整门禁和 Android 导出。
 
 ## P0 批次 0-3 结果
 
@@ -360,10 +370,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-1 v21 学习次数列清理已完成自动验证，等待真机迁移验收。
+当前 P2-9 Android-only 平台收口已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、v21 数据库迁移结果和下一批 P2-7/P2-9 边界。
+请先说明当前 Git 状态、P2-9 平台收口结果和 P2-7 无障碍边界。
 ```

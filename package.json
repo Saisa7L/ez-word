@@ -20,13 +20,11 @@
     "lucide-react-native": "^1.58.0",
     "papaparse": "^5.7.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3",
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
-    "react-native-view-shot": "5.1.0",
-    "react-native-web": "^0.21.2"
+    "react-native-view-shot": "5.1.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
@@ -41,8 +39,6 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
     "lint": "expo lint",

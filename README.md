@@ -1,8 +1,8 @@
 # English Vocabulary App
 
-最后更新：2026-10-20 20:26
+最后更新：2026-10-20 21:47
 
-面向大学生记忆英语单词的 Android App。
+面向大学生记忆英语单词的 Android App，仅支持 Android。
 
 ## 当前状态
 
@@ -11,6 +11,7 @@
 - TypeScript 6
 - Node.js 22.5+
 - Expo Router
+- 不提供 iOS 和 Web 运行入口
 - 第一版使用本地 SQLite，不连接云端数据库
 - DeepSeek API Key 由用户在 App 内填写
 

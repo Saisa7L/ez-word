@@ -7,9 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/app/icon.png",
     "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "versionCode": 1,
       "adaptiveIcon": {
@@ -17,9 +14,6 @@
         "foregroundImage": "./assets/app/icon.png"
       },
       "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/app/favicon.png"
     },
     "experiments": {
       "typedRoutes": true

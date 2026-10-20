@@ -1,6 +1,6 @@
 # 质量与技术债
 
-最后更新：2026-10-20 21:42
+最后更新：2026-10-20 21:47
 
 ## 当前质量门槛
 
@@ -142,6 +142,15 @@ npm run doctor
 - 所有学习状态写入路径停止更新学习次数。
 - v20 存档兼容，旧 `learned_count` 字段解析时忽略。
 - 新增 v20→v21 数据保留、列删除和旧存档忽略测试。
+
+### P2 已完成：Android-only 平台收口
+
+- 删除 iOS/Web 启动脚本和 `app.json` 平台配置。
+- 删除 Web 调试配置和 favicon。
+- 移除不再直接需要的 `react-dom`、`react-native-web` 依赖。
+- `expo-linking` 保留，因为它是 Expo Router 的必需 peer dependency。
+- README 与开发指南明确只支持 Android。
+- Android 打包和 Expo Doctor 继续通过。
 
 ### 已解决：P0 数据与任务主链路
 

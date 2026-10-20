@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-20 20:26
+最后更新：2026-10-20 21:47
 
 ## 环境
 
@@ -8,6 +8,7 @@
 - VS Code
 - Node.js 22.5 或更高版本
 - Expo SDK 57
+- 仅支持 Android
 - Android 真机：一加 Ace 2，Android 16
 - 项目路径：`F:\English vocabulary app\Project\vocab-app`
 
@@ -65,7 +66,6 @@ CI 使用 Node 22，并执行与 `npm run check` 相同的质量门禁。
 - `.vscode/settings.json`
 - `.vscode/extensions.json`
 - `.vscode/tasks.json`
-- `.vscode/launch.json`
 
 推荐扩展：Expo Tools、ESLint、React Native Tools。
 
@@ -78,7 +78,7 @@ CI 使用 Node 22，并执行与 `npm run check` 相同的质量门禁。
 - `Ctrl + Shift + B`：运行 TypeScript 检查
 - `F5`：浏览器调试
 
-浏览器调试无法覆盖 SQLite 原生行为、图片裁剪、SAF 目录、TTS 和截图，最终验收以 Android 真机为准。
+项目不提供 Web/iOS 调试入口，最终验收以 Android 真机为准。
 
 ## Git 流程
 
