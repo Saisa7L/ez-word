@@ -1,6 +1,6 @@
 # 质量与技术债
 
-最后更新：2026-10-20 20:26
+最后更新：2026-10-20 20:35
 
 ## 当前质量门槛
 
@@ -70,6 +70,16 @@ npm run doctor
 - 新增 Expo Doctor 脚本和 GitHub Actions CI。
 - `npm run check` 成为本地统一质量入口。
 - 下一批依赖审计和删包仍应单独提交，不在本批处理 `npm audit` 结果。
+
+### P2 已完成：依赖清理
+
+- 移除未使用的 `expo-document-picker`。
+- `expo-linking` 保留，因为它是 `expo-router` 的 peer dependency。
+- `react-dom`、`react-native-web` 保留，因为它们是 Expo Router/Expo web peer；平台是否正式支持在 P2-9 单独收口。
+- `npx expo install --check`、`npm run check` 和 Android 导出均通过。
+- `npm audit --omit=dev` 当前仍报告 30 个传递依赖审计项：`braces`、`decode-uri-component`、`node-forge`、`uuid`，来源为 Expo/Metro/Router。
+- `npm audit fix --force` 会要求降级 Expo 44 或升级 Expo Router 58，均超出当前 SDK 57 兼容边界，禁止直接执行。
+- 后续依赖更新应等待同一 Expo SDK 内的上游修复，或单独立项做跨 SDK 升级和真机回归。
 
 ### 已解决：P0 数据与任务主链路
 

@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 20:26
+最后更新：2026-10-20 20:35
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`d33ccaf Guard all navigation transitions against duplicate actions`
-- 当前阶段：P2-6 工程化门禁已完成自动验证，随本批提交
+- 已提交基线：`97a2649 Add reproducible engineering quality gates`
+- 当前阶段：P2-5 依赖清理已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：Prettier、Node 版本约束、覆盖率阈值、CI 和 Expo Doctor 已接入
+- 当前工作：已移除未使用的 `expo-document-picker`，并确认 Router 必需依赖
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -44,7 +44,7 @@ git log --oneline --decorate -5
 ## 下一轮重构
 
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
-- P2-6 已完成；下一批优先做 P2-5 依赖清理，单独验证兼容性。
+- P2-6、P2-5 已完成；下一批进入 P2-4 资源优化。
 - P2-1/P2-3 schema 清理必须等旧数据库和旧存档迁移方案明确后单独执行。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -59,6 +59,16 @@ git log --oneline --decorate -5
 - 新增 `.github/workflows/ci.yml`，依次执行格式、类型、Lint、覆盖率和 Doctor。
 - 已通过 `npm run check` 和 Android 离线导出。
 - 本批为纯工程化改动，不改变业务行为。
+
+## P2-5 依赖清理结果
+
+- 搜索确认 `expo-document-picker` 没有源码、配置或文档引用。
+- 已从 `package.json` 和 `package-lock.json` 移除 `expo-document-picker`，依赖树减少 1 个包。
+- `expo-linking` 是 `expo-router` 的 peer dependency，保留。
+- `react-dom` 和 `react-native-web` 是 Expo Router/Expo 的 web peer，保留到平台收口批次再决定。
+- `npx expo install --check` 显示依赖全部匹配。
+- 已通过 `npm run check` 和 Android 离线导出。
+- `npm audit --omit=dev` 仍报告 30 个传递依赖审计项，来源为 Expo/Metro/Router；强制修复会要求 Expo 44 降级或 Router 58 跨大版本升级，本批不执行。
 
 ## P0 批次 0-3 结果
 
@@ -274,10 +284,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-6 工程化门禁已完成自动验证，等待随本批提交。
+当前 P2-5 依赖清理已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、P2 工程化验证结果和下一批边界。
+请先说明当前 Git 状态、P2 依赖验证结果和下一批边界。
 ```
