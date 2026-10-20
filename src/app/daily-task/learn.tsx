@@ -1,7 +1,7 @@
-import { router } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import * as Speech from 'expo-speech';
 import { ArrowLeft, Volume2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -17,9 +17,11 @@ import {
   shadow,
   type ThemeColors,
 } from '@/constants/theme';
-import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import { getTaskTitle } from '@/features/daily-task/taskPresentation';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
+import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
+import { useTaskPhaseNavigation } from '@/hooks/useTaskPhaseNavigation';
 import {
   useAppTheme,
   useThemedStyles,
@@ -28,17 +30,22 @@ import {
 export default function LearnWordsScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const { taskMode, words } = useDailyTask();
+  const { taskMode, words } = useDailyTaskSession();
   const [index, setIndex] = useState(0);
   const exitGuard = useDailyTaskExitGuard();
+  const taskReady = useDailyTaskPhaseGuard('learning');
+  const navigateToTaskPhase = useTaskPhaseNavigation();
 
-  useEffect(() => {
-    if (words.length === 0) {
-      router.replace('/daily-task');
-    }
-  }, [words.length]);
+  useFocusEffect(
+    useCallback(
+      () => () => {
+        void Speech.stop();
+      },
+      [],
+    ),
+  );
 
-  if (words.length === 0) {
+  if (!taskReady) {
     return null;
   }
 
@@ -57,7 +64,7 @@ export default function LearnWordsScreen() {
 
   function handleNext() {
     if (isLast) {
-      router.push('/daily-task/fill-blank');
+      navigateToTaskPhase('filling');
       return;
     }
     setIndex((current) => current + 1);

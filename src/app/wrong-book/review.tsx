@@ -12,53 +12,53 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
-import { getDailyTaskSettings } from '@/database/settingsRepository';
-import { listAllWrongBookWords } from '@/database/wrongBookRepository';
-import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { loadWrongReviewSelection } from '@/application/daily-task/startTaskSelection';
+import type { DailyTaskSettings } from '@/database/settingsRepository';
+import type { TaskWord } from '@/domain/word/taskWord';
+import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
-import { shuffle } from '@/utils/shuffle';
 
 export default function WrongBookReviewStartScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const { startTask } = useDailyTask();
+  const { showNotice } = useAppFeedback();
+  const { startTask } = useDailyTaskSession();
   const [wrongCount, setWrongCount] = useState<number | null>(null);
-  const [reviewWords, setReviewWords] = useState<
-    Awaited<ReturnType<typeof listAllWrongBookWords>>
-  >([]);
+  const [taskSettings, setTaskSettings] =
+    useState<DailyTaskSettings | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [loadRevision, setLoadRevision] = useState(0);
+  const [isStarting, setIsStarting] = useState(false);
+  const [reviewWords, setReviewWords] = useState<TaskWord[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
+      const requestedRevision = loadRevision;
+      setLoadError(false);
 
       async function loadWrongWords() {
         try {
-          const [settings, words] = await Promise.all([
-            getDailyTaskSettings(db),
-            listAllWrongBookWords(db),
-          ]);
-          if (!active) {
+          const selection = await loadWrongReviewSelection(db);
+          if (!active || requestedRevision !== loadRevision) {
             return;
           }
 
-          const orderedWords = settings.wrongReviewRandom
-            ? shuffle(words)
-            : words;
-          const selectedWords = orderedWords.slice(
-            0,
-            settings.wrongReviewWordLimit,
-          );
-          setReviewWords(selectedWords);
-          setWrongCount(selectedWords.length);
+          setTaskSettings(selection.settings);
+          setReviewWords(selection.words);
+          setWrongCount(selection.words.length);
         } catch {
           if (active) {
-            setWrongCount(0);
+            setTaskSettings(null);
+            setWrongCount(null);
+            setLoadError(true);
             setReviewWords([]);
           }
         }
@@ -69,18 +69,23 @@ export default function WrongBookReviewStartScreen() {
       return () => {
         active = false;
       };
-    }, [db]),
+    }, [db, loadRevision]),
   );
 
-  function handleStart() {
-    if (!wrongCount) {
+  async function handleStart() {
+    if (!wrongCount || !taskSettings || isStarting) {
       return;
     }
 
-    void getDailyTaskSettings(db).then((settings) => {
-      startTask(reviewWords, settings, 'wrongReview');
+    setIsStarting(true);
+    try {
+      startTask(reviewWords, taskSettings, 'wrongReview');
       router.push('/daily-task/learn');
-    });
+    } catch {
+      showNotice('无法开始回顾', '请稍后重试');
+    } finally {
+      setIsStarting(false);
+    }
   }
 
   return (
@@ -108,7 +113,21 @@ export default function WrongBookReviewStartScreen() {
           source={uiAssets.wrongBook.reviewStart}
           style={styles.illustration}
         />
-        {wrongCount === null ? (
+        {loadError ? (
+          <>
+            <Text style={styles.description}>错题读取失败</Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setLoadRevision((current) => current + 1)}
+              style={({ pressed }) => [
+                styles.retryButton,
+                pressed && styles.pressed,
+              ]}
+            >
+              <Text style={styles.retryText}>重新加载</Text>
+            </Pressable>
+          </>
+        ) : wrongCount === null ? (
           <ActivityIndicator color={colors.accentText} size="large" />
         ) : (
           <>
@@ -128,11 +147,18 @@ export default function WrongBookReviewStartScreen() {
 
       <Pressable
         accessibilityRole="button"
-        disabled={wrongCount === null || wrongCount === 0}
-        onPress={handleStart}
+        disabled={
+          loadError || wrongCount === null || wrongCount === 0 || isStarting
+        }
+        onPress={() => {
+          void handleStart();
+        }}
         style={({ pressed }) => [
           styles.startButton,
-          (wrongCount === null || wrongCount === 0) &&
+          (loadError ||
+            wrongCount === null ||
+            wrongCount === 0 ||
+            isStarting) &&
             styles.startButtonDisabled,
           pressed && styles.pressed,
         ]}
@@ -192,6 +218,21 @@ const createStyles = (colors: ThemeColors) =>
   },
   pressed: {
     opacity: 0.7,
+  },
+  retryButton: {
+    alignItems: 'center',
+    borderColor: colors.accentText,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    height: 48,
+    justifyContent: 'center',
+    marginTop: 22,
+    paddingHorizontal: 28,
+  },
+  retryText: {
+    color: colors.accentText,
+    fontSize: 18,
+    fontWeight: '700',
   },
   screen: {
     backgroundColor: colors.background,

@@ -3,263 +3,218 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
+  useReducer,
   type ReactNode,
 } from 'react';
 
-import type { WordRecord } from '@/database/wordsRepository';
-import {
-  DEFAULT_DAILY_TASK_SETTINGS,
-  type DailyTaskSettings,
-} from '@/database/settingsRepository';
+import type { DailyTaskSettings } from '@/database/settingsRepository';
+import type { TaskWord } from '@/domain/word/taskWord';
 import { shuffle } from '@/utils/shuffle';
 
 import { buildDailyTaskQuestions } from './sentenceTemplates';
+import {
+  createInitialTaskState,
+  taskReducer,
+  type TaskPhase,
+} from './taskReducer';
 import type {
   DailyTaskMode,
-  FillAnswerMap,
   ListeningAnswerMap,
 } from './types';
 
-type DailyTaskContextValue = {
-  clearFillAnswer: (questionWordId: number) => void;
+type TaskSessionContextValue = {
   durationSeconds: number;
-  fillAnswers: FillAnswerMap;
-  fillWords: WordRecord[];
+  enterPhase: (phase: TaskPhase) => void;
+  fillWords: TaskWord[];
   finishTask: () => void;
-  fillWrongWordIds: Set<number>;
-  listeningAnswers: ListeningAnswerMap;
-  listeningWords: WordRecord[];
-  listeningWrongWordIds: Set<number>;
+  listeningWords: TaskWord[];
+  phase: TaskPhase;
   questions: ReturnType<typeof buildDailyTaskQuestions>;
   resetTask: () => void;
-  setFillAnswer: (questionWordId: number, selectedWordId: number) => void;
-  setFillWrongWordIds: (wordIds: number[]) => void;
-  setListeningAnswer: (wordId: number, answer: string) => void;
-  setListeningWrongWordIds: (wordIds: number[]) => void;
   startedAt: number | null;
   startTask: (
-    words: WordRecord[],
+    words: TaskWord[],
     settings: DailyTaskSettings,
     mode?: DailyTaskMode,
   ) => void;
   taskMode: DailyTaskMode;
   taskSettings: DailyTaskSettings;
-  wordBank: WordRecord[];
-  words: WordRecord[];
+  wordBank: TaskWord[];
+  words: TaskWord[];
+};
+
+type TaskAnswersContextValue = {
+  fillMistakeWordIds: Set<number>;
+  listeningAnswers: ListeningAnswerMap;
+  listeningMistakeWordIds: Set<number>;
+  listeningWrongWordIds: Set<number>;
+  recordFillMistakes: (wordIds: number[]) => void;
+  setListeningAnswer: (wordId: number, answer: string) => void;
+  setListeningWrongWordIds: (wordIds: number[]) => void;
   wrongWordIds: Set<number>;
 };
 
-const DailyTaskContext = createContext<DailyTaskContextValue | null>(null);
+const TaskSessionContext = createContext<TaskSessionContextValue | null>(null);
+const TaskAnswersContext = createContext<TaskAnswersContextValue | null>(null);
 
 type DailyTaskProviderProps = {
   children: ReactNode;
 };
 
 export function DailyTaskProvider({ children }: DailyTaskProviderProps) {
-  const [words, setWords] = useState<WordRecord[]>([]);
-  const [fillWords, setFillWords] = useState<WordRecord[]>([]);
-  const [listeningWords, setListeningWords] = useState<WordRecord[]>([]);
-  const [wordBank, setWordBank] = useState<WordRecord[]>([]);
-  const [fillAnswers, setFillAnswers] = useState<FillAnswerMap>({});
-  const [listeningAnswers, setListeningAnswers] = useState<ListeningAnswerMap>({});
-  const [fillWrongWordIds, setFillWrongWordIdSet] = useState<Set<number>>(new Set());
-  const [listeningWrongWordIds, setListeningWrongWordIdSet] = useState<Set<number>>(
-    new Set(),
+  const [state, dispatch] = useReducer(
+    taskReducer,
+    undefined,
+    createInitialTaskState,
   );
-  const [fillMistakeWordIds, setFillMistakeWordIdSet] = useState<Set<number>>(
-    new Set(),
-  );
-  const [listeningMistakeWordIds, setListeningMistakeWordIdSet] = useState<
-    Set<number>
-  >(new Set());
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [durationSeconds, setDurationSeconds] = useState(0);
-  const [taskSettings, setTaskSettings] = useState<DailyTaskSettings>({
-    ...DEFAULT_DAILY_TASK_SETTINGS,
-  });
-  const [taskMode, setTaskMode] = useState<DailyTaskMode>('daily');
 
   const startTask = useCallback(
     (
-      nextWords: WordRecord[],
+      nextWords: TaskWord[],
       settings: DailyTaskSettings,
       mode: DailyTaskMode = 'daily',
     ) => {
-      const limitedWords = [...nextWords];
-      setWords(limitedWords);
-      setFillWords(shuffle(limitedWords));
-      setListeningWords(shuffle(limitedWords));
-      setWordBank(shuffle(limitedWords));
-      setFillAnswers({});
-      setListeningAnswers({});
-      setFillWrongWordIdSet(new Set());
-      setListeningWrongWordIdSet(new Set());
-      setFillMistakeWordIdSet(new Set());
-      setListeningMistakeWordIdSet(new Set());
-      setStartedAt(Date.now());
-      setDurationSeconds(0);
-      setTaskSettings(settings);
-      setTaskMode(mode);
+      const words = [...nextWords];
+      dispatch({
+        payload: {
+          fillWords: shuffle(words),
+          listeningWords: shuffle(words),
+          mode,
+          settings,
+          startedAt: Date.now(),
+          wordBank: shuffle(words),
+          words,
+        },
+        type: 'START_TASK',
+      });
     },
     [],
   );
 
   const finishTask = useCallback(() => {
-    if (startedAt !== null) {
-      setDurationSeconds(Math.max(0, Math.round((Date.now() - startedAt) / 1000)));
+    if (state.startedAt !== null) {
+      dispatch({
+        durationSeconds: Math.max(
+          0,
+          Math.round((Date.now() - state.startedAt) / 1000),
+        ),
+        type: 'FINISH_TASK',
+      });
     }
-  }, [startedAt]);
+  }, [state.startedAt]);
 
   const resetTask = useCallback(() => {
-    setWords([]);
-    setFillWords([]);
-    setListeningWords([]);
-    setWordBank([]);
-    setFillAnswers({});
-    setListeningAnswers({});
-    setFillWrongWordIdSet(new Set());
-    setListeningWrongWordIdSet(new Set());
-    setFillMistakeWordIdSet(new Set());
-    setListeningMistakeWordIdSet(new Set());
-    setStartedAt(null);
-    setDurationSeconds(0);
-    setTaskSettings({ ...DEFAULT_DAILY_TASK_SETTINGS });
-    setTaskMode('daily');
+    dispatch({ type: 'RESET_TASK' });
   }, []);
 
-  const setFillAnswer = useCallback(
-    (questionWordId: number, selectedWordId: number) => {
-      setFillAnswers((current) => {
-        const next = { ...current };
-        for (const [wordId, answerWordId] of Object.entries(next)) {
-          if (answerWordId === selectedWordId) {
-            delete next[Number(wordId)];
-          }
-        }
-        next[questionWordId] = selectedWordId;
-        return next;
-      });
-      setFillWrongWordIdSet((current) => {
-        const next = new Set(current);
-        next.delete(questionWordId);
-        return next;
-      });
-    },
-    [],
-  );
-
-  const clearFillAnswer = useCallback((questionWordId: number) => {
-    setFillAnswers((current) => {
-      const next = { ...current };
-      delete next[questionWordId];
-      return next;
-    });
-    setFillWrongWordIdSet((current) => {
-      const next = new Set(current);
-      next.delete(questionWordId);
-      return next;
-    });
+  const enterPhase = useCallback((phase: TaskPhase) => {
+    dispatch({ phase, type: 'ENTER_PHASE' });
   }, []);
 
   const setListeningAnswer = useCallback((wordId: number, answer: string) => {
-    setListeningAnswers((current) => {
-      const next = { ...current };
-      if (answer) {
-        next[wordId] = answer;
-      } else {
-        delete next[wordId];
-      }
-      return next;
-    });
-    setListeningWrongWordIdSet((current) => {
-      const next = new Set(current);
-      next.delete(wordId);
-      return next;
-    });
+    dispatch({ answer, type: 'SET_LISTENING_ANSWER', wordId });
   }, []);
 
-  const setFillWrongWordIds = useCallback((wordIds: number[]) => {
-    setFillWrongWordIdSet(new Set(wordIds));
-    setFillMistakeWordIdSet((current) => new Set([...current, ...wordIds]));
+  const recordFillMistakes = useCallback((wordIds: number[]) => {
+    dispatch({ type: 'ADD_FILL_MISTAKE_IDS', wordIds });
   }, []);
 
   const setListeningWrongWordIds = useCallback((wordIds: number[]) => {
-    setListeningWrongWordIdSet(new Set(wordIds));
-    if (wordIds.length > 0) {
-      setListeningMistakeWordIdSet(
-        (current) => new Set([...current, ...wordIds]),
-      );
-    }
+    dispatch({ type: 'SET_LISTENING_WRONG_IDS', wordIds });
   }, []);
 
   const questions = useMemo(
-    () => buildDailyTaskQuestions(fillWords),
-    [fillWords],
+    () => buildDailyTaskQuestions(state.fillWords),
+    [state.fillWords],
   );
   const wrongWordIds = useMemo(
-    () => new Set([...fillMistakeWordIds, ...listeningMistakeWordIds]),
-    [fillMistakeWordIds, listeningMistakeWordIds],
+    () =>
+      new Set([
+        ...state.fillMistakeWordIds,
+        ...state.listeningMistakeWordIds,
+      ]),
+    [state.fillMistakeWordIds, state.listeningMistakeWordIds],
   );
 
-  const value = useMemo<DailyTaskContextValue>(
+  const sessionValue = useMemo<TaskSessionContextValue>(
     () => ({
-      clearFillAnswer,
-      durationSeconds,
-      fillAnswers,
-      fillWords,
+      durationSeconds: state.durationSeconds,
+      enterPhase,
+      fillWords: state.fillWords,
       finishTask,
-      fillWrongWordIds,
-      listeningAnswers,
-      listeningWords,
-      listeningWrongWordIds,
+      listeningWords: state.listeningWords,
+      phase: state.phase,
       questions,
       resetTask,
-      setFillAnswer,
-      setFillWrongWordIds,
+      startedAt: state.startedAt,
+      startTask,
+      taskMode: state.taskMode,
+      taskSettings: state.taskSettings,
+      wordBank: state.wordBank,
+      words: state.words,
+    }),
+    [
+      enterPhase,
+      finishTask,
+      questions,
+      resetTask,
+      startTask,
+      state.durationSeconds,
+      state.fillWords,
+      state.listeningWords,
+      state.phase,
+      state.startedAt,
+      state.taskMode,
+      state.taskSettings,
+      state.wordBank,
+      state.words,
+    ],
+  );
+
+  const answersValue = useMemo<TaskAnswersContextValue>(
+    () => ({
+      fillMistakeWordIds: state.fillMistakeWordIds,
+      listeningAnswers: state.listeningAnswers,
+      listeningMistakeWordIds: state.listeningMistakeWordIds,
+      listeningWrongWordIds: state.listeningWrongWordIds,
+      recordFillMistakes,
       setListeningAnswer,
       setListeningWrongWordIds,
-      startedAt,
-      startTask,
-      taskMode,
-      taskSettings,
-      wordBank,
-      words,
       wrongWordIds,
     }),
     [
-      clearFillAnswer,
-      durationSeconds,
-      fillAnswers,
-      fillWords,
-      finishTask,
-      fillWrongWordIds,
-      listeningAnswers,
-      listeningWords,
-      listeningWrongWordIds,
-      questions,
-      resetTask,
-      setFillAnswer,
-      setFillWrongWordIds,
+      recordFillMistakes,
       setListeningAnswer,
       setListeningWrongWordIds,
-      startedAt,
-      startTask,
-      taskMode,
-      taskSettings,
-      wordBank,
-      words,
+      state.fillMistakeWordIds,
+      state.listeningAnswers,
+      state.listeningMistakeWordIds,
+      state.listeningWrongWordIds,
       wrongWordIds,
     ],
   );
 
-  return <DailyTaskContext.Provider value={value}>{children}</DailyTaskContext.Provider>;
+  return (
+    <TaskSessionContext.Provider value={sessionValue}>
+      <TaskAnswersContext.Provider value={answersValue}>
+        {children}
+      </TaskAnswersContext.Provider>
+    </TaskSessionContext.Provider>
+  );
 }
 
-export function useDailyTask(): DailyTaskContextValue {
-  const context = useContext(DailyTaskContext);
+export function useDailyTaskSession(): TaskSessionContextValue {
+  const context = useContext(TaskSessionContext);
   if (!context) {
-    throw new Error('useDailyTask must be used inside DailyTaskProvider');
+    throw new Error('useDailyTaskSession must be used inside DailyTaskProvider');
+  }
+  return context;
+}
+
+export function useDailyTaskAnswers(): TaskAnswersContextValue {
+  const context = useContext(TaskAnswersContext);
+  if (!context) {
+    throw new Error('useDailyTaskAnswers must be used inside DailyTaskProvider');
   }
   return context;
 }

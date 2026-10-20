@@ -1,8 +1,8 @@
-import type { WordRecord } from '@/database/wordsRepository';
+import type { TaskWord } from '@/domain/word/taskWord';
 
 export type DailyTaskQuestion = {
   sentence: string;
-  word: WordRecord;
+  word: TaskWord;
 };
 
 export type FillAnswerMap = Record<number, number>;

@@ -1,17 +1,19 @@
 # 本地数据库说明
 
-最后更新：2026-10-19 18:26
+最后更新：2026-10-20 12:50
 
 ## 基本信息
 
 - 数据库文件：`vocabulary.db`
-- 当前版本：`17`
+- 当前版本：`18`
 - 初始化入口：`src/database/database.ts`
 - 当前 schema 定义：`src/database/schema.ts`
-- 迁移方式：读取 `PRAGMA user_version`，按版本顺序执行
+- 迁移方式：读取 `PRAGMA user_version`，通过 `src/database/migrations.ts` 的版本注册表执行
 - 连接设置：WAL 日志模式、开启外键
 
-每次迁移完成后会使用 `PRAGMA table_info` 校验当前六张业务表的字段顺序；校验失败会阻止 App 继续启动。
+所有待执行迁移在同一个主连接事务中按版本顺序运行，每一步成功后立即写入对应的 `PRAGMA user_version`。迁移中断会整体回滚；旧版本异常中断留下“schema 已前进但版本号未前进”时，列检查保护会跳过已存在字段并继续完成迁移。数据库版本高于 App 支持版本或遇到不支持的版本（例如 v11）会显式报错。
+
+迁移完成后会使用 `PRAGMA table_info` 校验当前六张业务表的字段顺序，并调用 `ensureAppSettings` 补齐缺失的 `app_settings` 单行。校验失败会阻止 App 继续启动。
 
 ## 数据表
 
@@ -118,19 +120,31 @@
 | 14 → 15 | 增加主题模式和主题色 |
 | 15 → 16 | 增加旧主题表面色和背景色 |
 | 16 → 17 | 增加当前主题主色并迁移自定义主题 |
+| 17 → 18 | 增加任务选词、复习、错题和统计查询索引 |
 
 版本 11 没有独立迁移步骤。数据库 v11 不在存档兼容范围内。
+
+迁移实现约束：
+
+- 每个版本是 `MIGRATIONS` 中的独立条目。
+- `ALTER TABLE ADD COLUMN` 先检查 `PRAGMA table_info`，重复启动不会再次加列。
+- 创建表、创建索引和默认行写入均使用幂等 SQL。
+- 版本号与对应迁移位于同一事务，不再统一等到全部迁移结束后写入。
 
 ## 仓库映射
 
 | 数据域 | 文件 |
 |---|---|
-| 建表和迁移 | `src/database/database.ts` |
+| 数据库初始化与迁移调度 | `src/database/database.ts` |
+| 版本迁移注册表 | `src/database/migrations.ts` |
+| 设置单行自愈 | `src/database/appSettings.ts` |
 | 当前字段和结构校验 | `src/database/schema.ts` |
 | 共享查询字段 | `src/database/sqlFragments.ts` |
 | 单词 | `src/database/wordsRepository.ts` |
 | 错题与学习状态 | `src/database/wrongBookRepository.ts` |
-| 完成记录 | `src/database/studyRepository.ts` |
+| 任务完成事务 | `src/database/taskCompletionRepository.ts` |
+| 底层完成记录 | `src/database/studyRepository.ts` |
+| 任务单词行映射 | `src/database/taskWordMapper.ts` |
 | 首页统计和提醒 | `src/database/statsRepository.ts` |
 | 每日任务设置 | `src/database/settingsRepository.ts` |
 | 复习查询 | `src/database/reviewRepository.ts` |
@@ -149,7 +163,7 @@
 - `wrong_book_words`
 - `study_sessions`
 
-恢复时按上述依赖顺序删除和插入，并使用独占事务。任何表字段变化都必须同步：
+恢复时按上述依赖顺序删除和插入，并使用同一主连接事务，使该连接已开启的外键约束生效。恢复结束后在同一事务内调用 `ensureAppSettings`。解析和恢复前都会检查字段类型、数值范围、字符串长度、图片 URI、主键重复和引用完整性。任何表字段变化都必须同步：
 
 1. `src/database/schema.ts` 中的 `DATABASE_TABLE_SCHEMAS`
 2. 旧版本默认值
@@ -164,3 +178,35 @@
 4. 更新存档字段和旧版本默认值。
 5. 更新本文件。
 6. 运行类型检查、lint 和 Android 离线导出。
+
+## 数据测试
+
+`tests/data.test.ts` 当前包含 24 项测试：
+
+- 真实迁移后的 schema 校验。
+- v0 → v18 迁移和默认设置。
+- 字段漂移拒绝。
+- 存档 JSON round-trip 和错误格式拒绝。
+- 迁移中途失败时整批回滚。
+- schema 已前进但 `user_version` 仍为 0 时自动修复。
+- `app_settings` 单行缺失后保存主题可自愈。
+- 拒绝未来数据库版本和不支持的 v11。
+- 读取每日任务设置不会创建缺失行。
+- v16 自定义主题迁移到当前存档结构。
+- 当前版本存档缺字段、非法图片 URI 和孤儿引用拒绝。
+- 空设置表存档恢复后自动补齐默认设置。
+- v10 资料和主题缺列默认值。
+- v14 无主题字段时恢复默认主题。
+- 每日任务只在完成页单事务写错题、学习状态和打卡。
+- 错题回顾只在完成页自动移出正确单词。
+- v18 查询索引创建成功。
+- `TaskWord` mapper 和三种任务启动用例。
+
+## v18 查询索引
+
+- `idx_words_active_status_word`：当前词库、学习状态和字母顺序。
+- `idx_learning_last_learned`：最近学习时间范围。
+- `idx_wrong_last_wrong`：错题最近答错时间排序。
+- `idx_sessions_study_date`：首页今日学习和学习天数统计。
+
+v17 存档与 v18 表结构相同，继续保留在存档兼容范围内。

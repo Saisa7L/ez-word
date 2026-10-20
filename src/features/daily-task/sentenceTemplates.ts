@@ -1,4 +1,4 @@
-import type { WordRecord } from '@/database/wordsRepository';
+import type { TaskWord } from '@/domain/word/taskWord';
 
 import type { DailyTaskQuestion } from './types';
 
@@ -41,10 +41,10 @@ export function buildClozeSentence(
   return trimmedSentence.replace(pattern, '______');
 }
 
-export function buildDailyTaskQuestions(words: WordRecord[]): DailyTaskQuestion[] {
+export function buildDailyTaskQuestions(words: TaskWord[]): DailyTaskQuestion[] {
   return words.map((word) => ({
     sentence:
-      buildClozeSentence(word.example_sentence, word.word) ??
+      buildClozeSentence(word.exampleSentence, word.word) ??
       SENTENCE_TEMPLATES[word.word.toLocaleLowerCase('en-US')] ??
       'Complete the sentence with the correct word: ______.',
     word,

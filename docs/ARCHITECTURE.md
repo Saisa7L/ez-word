@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-19 19:24
+最后更新：2026-10-20 13:34
 
 ## 架构概览
 
@@ -32,6 +32,8 @@ RootLayout
 | 层 | 目录 | 职责 | 不应承担 |
 |---|---|---|---|
 | 页面与导航 | `src/app` | 路由、页面布局、局部 UI 状态、调用业务和仓库 | 复杂 SQL、跨页面长期状态 |
+| 用例编排 | `src/application` | 任务选词、完成结算等可测试业务动作 | SQL、React 组件、导航 |
+| 领域模型 | `src/domain` | 跨层稳定类型和业务语义 | React、Expo、SQLite |
 | 通用 UI | `src/components` | 可复用卡片、弹层、分页、滚动提示、反馈 UI | 业务数据读取 |
 | 业务流程 | `src/features` | 任务流程状态、导入解析、AI 批处理、存档、主题 | 页面视觉细节 |
 | 数据访问 | `src/database` | 建表迁移、SQL 查询、行数据到驼峰对象转换 | 页面导航、弹窗文案 |
@@ -44,7 +46,9 @@ RootLayout
 
 | 模块 | 作用 | 主要入口 |
 |---|---|---|
-| `features/daily-task` | 每日任务内存状态、题目生成、任务标题 | `DailyTaskProvider.tsx` |
+| `features/daily-task` | 每日任务状态机、题目生成、任务标题、填空和听力区块 | `taskReducer.ts`、`DailyTaskProvider.tsx`、`fill-blank/`、`listening/` |
+| `application/daily-task` | 三种任务模式的启动选词编排 | `startTaskSelection.ts` |
+| `domain/word` | 任务流程领域类型 | `taskWord.ts` |
 | `features/word-import` | CSV 选择、解析、校验、导入和页面区块 | `importWordCsv.ts`、`csv.ts`、`components/` |
 | `features/ai` | 批量生成并写入例句 | `generateWordExamples.ts` |
 | `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
@@ -59,13 +63,19 @@ RootLayout
 | `services/wordCsvFiles.ts` | CSV 文件选择和读取 | `pickWordCsvFile` |
 | `database/schema.ts` | 当前表字段、存档字段和结构校验 | `validateDatabaseSchema` |
 | `database/sqlFragments.ts` | 跨仓库共享的查询字段片段 | `selectWordColumns` |
+| `database/migrations.ts` | 版本迁移注册表和统一事务执行 | `MIGRATIONS`、`runMigrations` |
+| `database/appSettings.ts` | 设置单行缺失时自动补齐 | `ensureAppSettings` |
+| `database/taskCompletionRepository.ts` | 完成页统一结算任务数据 | `completeTaskSession` |
+| `database/taskWordMapper.ts` | 数据库行到任务领域对象映射 | `mapTaskWordRow` |
+| `hooks/useDailyTaskPhaseGuard` | 任务路由与显式阶段一致性校验 | `useDailyTaskPhaseGuard` |
 
 ## 状态归属
 
 | 状态 | 所属位置 | 是否持久化 |
 |---|---|---|
 | 当前主题 | `ThemeProvider` | 是，`app_settings` |
-| 当前任务单词、答案、错误集合、计时 | `DailyTaskProvider` | 否，离开任务即重置 |
+| 当前任务单词、听力答案、错误集合、计时 | `DailyTaskProvider` | 否，离开任务即重置 |
+| 填空答案和当前页填空错误标记 | 填空页面局部状态 | 否 |
 | 首页统计和用户名头像 | 首页局部状态 | 从 SQLite 每次进入时读取 |
 | 错题本、词库分页和选择 | 对应页面局部状态 | 选择是临时的，数据写入 SQLite |
 | 全局提示和确认弹窗 | `AppFeedbackProvider` | 否 |
@@ -76,9 +86,10 @@ RootLayout
 推荐方向：
 
 ```text
-app → features / database / services / components
-features → database / services / utils
-database → constants / utils
+app → application / features / database / services / components
+application → domain / database / utils
+features → domain / database / services / utils
+database → domain / constants / utils
 services → features（仅在解析等纯逻辑需要时）
 components → constants / hooks / utils
 ```
@@ -115,7 +126,7 @@ components → constants / hooks / utils
 
 1. 部分设置页同时承担表单、校验、数据库调用和复杂布局，文件超过 500 行。
 2. 页面可以直接调用仓库。简单读取可保留，复杂流程应进入 `features` 或自定义 Hook。
-3. 存档和运行时校验已共用 `database/schema.ts`，但迁移 SQL 仍手写，字段变化仍需人工同步。
+3. 存档和运行时校验已共用 `database/schema.ts`；迁移 SQL 仍手写，但已收敛为版本注册表、统一事务和列级幂等执行。
 4. `word-import` 已剥离文件 I/O，保留纯解析和入库用例。
 5. 错题本、当前词库和添加错题已通过 `usePaginatedSelection` 统一分页和选择状态。
 

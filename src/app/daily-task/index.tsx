@@ -14,15 +14,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { radii, spacing, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
-import {
-  getDailyTaskSettings,
-  type DailyTaskSettings,
-} from '@/database/settingsRepository';
-import {
-  listUnlearnedActiveWords,
-  type WordRecord,
-} from '@/database/wordsRepository';
-import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { loadDailyTaskSelection } from '@/application/daily-task/startTaskSelection';
+import type { DailyTaskSettings } from '@/database/settingsRepository';
+import type { TaskWord } from '@/domain/word/taskWord';
+import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import {
   useAppTheme,
   useThemedStyles,
@@ -33,9 +28,9 @@ export default function DailyTaskStartScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const { startTask } = useDailyTask();
+  const { startTask } = useDailyTaskSession();
   const navigation = useNavigation<AppNavigation>('/');
-  const [availableWords, setAvailableWords] = useState<WordRecord[] | null>(null);
+  const [availableWords, setAvailableWords] = useState<TaskWord[] | null>(null);
   const [taskSettings, setTaskSettings] = useState<DailyTaskSettings | null>(null);
 
   useFocusEffect(
@@ -44,15 +39,10 @@ export default function DailyTaskStartScreen() {
 
       async function loadAvailableWords() {
         try {
-          const settings = await getDailyTaskSettings(db);
-          const words = await listUnlearnedActiveWords(
-            db,
-            settings.dailyWordLimit,
-            settings.randomWordSelection,
-          );
+          const selection = await loadDailyTaskSelection(db);
           if (active) {
-            setAvailableWords(words);
-            setTaskSettings(settings);
+            setAvailableWords(selection.words);
+            setTaskSettings(selection.settings);
           }
         } catch {
           if (active) {

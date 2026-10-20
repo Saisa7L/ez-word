@@ -6,12 +6,14 @@ import { useThemedStyles } from '@/features/theme/ThemeProvider';
 type TaskErrorModalProps = {
   errorCount: number;
   onConfirm: () => void;
+  onDismiss: () => void;
   visible: boolean;
 };
 
 export function TaskErrorModal({
   errorCount,
   onConfirm,
+  onDismiss,
   visible,
 }: TaskErrorModalProps) {
   const styles = useThemedStyles(createStyles);
@@ -19,7 +21,7 @@ export function TaskErrorModal({
   return (
     <Modal
       animationType="fade"
-      onRequestClose={onConfirm}
+      onRequestClose={onDismiss}
       transparent
       visible={visible}
     >

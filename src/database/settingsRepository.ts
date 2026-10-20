@@ -133,7 +133,6 @@ export async function getDailyTaskSettings(
   );
 
   if (!row) {
-    await saveDailyTaskSettings(db, DEFAULT_DAILY_TASK_SETTINGS);
     return { ...DEFAULT_DAILY_TASK_SETTINGS };
   }
 

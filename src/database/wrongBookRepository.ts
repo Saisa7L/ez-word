@@ -1,7 +1,16 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import type { TaskWord } from '@/domain/word/taskWord';
+
+import {
+  mapTaskWordRow,
+  type TaskWordRow,
+} from './taskWordMapper';
 import type { WordRecord } from './wordsRepository';
-import { selectWordColumns } from './sqlFragments';
+import {
+  selectTaskWordColumns,
+  selectWordColumns,
+} from './sqlFragments';
 
 export type WrongBookSource = 'fill' | 'listening' | 'manual';
 
@@ -12,16 +21,19 @@ export type WrongBookEntry = WordRecord & {
   wrong_count: number;
 };
 
-function mergeSources(currentSources: string, source: WrongBookSource): string {
-  return [...new Set([...currentSources.split(','), source].filter(Boolean))].join(
-    ',',
-  );
+function mergeSources(
+  currentSources: string,
+  addedSources: readonly WrongBookSource[],
+): string {
+  return [
+    ...new Set([...currentSources.split(','), ...addedSources].filter(Boolean)),
+  ].join(',');
 }
 
 async function saveWrongBookEntry(
   db: SQLiteDatabase,
   wordId: number,
-  source: WrongBookSource,
+  addedSources: readonly WrongBookSource[],
   now: string,
   countAsMistake: boolean,
 ): Promise<void> {
@@ -29,7 +41,7 @@ async function saveWrongBookEntry(
     'SELECT sources FROM wrong_book_words WHERE word_id = $wordId',
     { $wordId: wordId },
   );
-  const sources = mergeSources(existing?.sources ?? '', source);
+  const sources = mergeSources(existing?.sources ?? '', addedSources);
 
   if (countAsMistake) {
     await db.runAsync(
@@ -90,7 +102,7 @@ async function saveWrongBookEntries(
       await saveWrongBookEntry(
         transaction,
         wordId,
-        source,
+        [source],
         now,
         countAsMistake,
       );
@@ -102,6 +114,22 @@ async function saveWrongBookEntries(
       );
     }
   });
+}
+
+export async function recordWrongWordsInTransaction(
+  db: SQLiteDatabase,
+  sourcesByWordId: ReadonlyMap<number, readonly WrongBookSource[]>,
+  now: string,
+): Promise<void> {
+  for (const [wordId, sources] of sourcesByWordId) {
+    await saveWrongBookEntry(db, wordId, sources, now, true);
+    await db.runAsync(
+      `UPDATE words
+       SET learning_status = 'wrong'
+       WHERE id = $wordId`,
+      { $wordId: wordId },
+    );
+  }
 }
 
 export async function countWrongBookWords(db: SQLiteDatabase): Promise<number> {
@@ -131,19 +159,23 @@ export async function listWrongBookWords(
   );
 }
 
-export async function listAllWrongBookWords(
+export async function listWrongReviewWords(
   db: SQLiteDatabase,
-): Promise<WrongBookEntry[]> {
-  return db.getAllAsync<WrongBookEntry>(
-    `SELECT ${selectWordColumns('words')},
-       wrong_book_words.added_at,
-       wrong_book_words.last_wrong_at,
-       wrong_book_words.sources,
-       wrong_book_words.wrong_count
+  limit: number,
+  randomize: boolean,
+): Promise<TaskWord[]> {
+  const orderBy = randomize
+    ? 'RANDOM()'
+    : 'wrong_book_words.last_wrong_at DESC, words.word COLLATE NOCASE ASC';
+  const rows = await db.getAllAsync<TaskWordRow>(
+    `SELECT ${selectTaskWordColumns('words')}
      FROM wrong_book_words
      JOIN words ON words.id = wrong_book_words.word_id
-     ORDER BY wrong_book_words.last_wrong_at DESC, words.word COLLATE NOCASE ASC`,
+     ORDER BY ${orderBy}
+     LIMIT ?`,
+    limit,
   );
+  return rows.map(mapTaskWordRow);
 }
 
 export async function countAvailableWordsForWrongBook(
@@ -218,56 +250,63 @@ export async function setWordsLearningStatus(
   wordIds: number[],
   targetStatus: 'learned' | 'unlearned' | 'wrong',
 ): Promise<void> {
+  const now = new Date().toISOString();
+  await db.withExclusiveTransactionAsync(async (transaction) => {
+    await setWordsLearningStatusInTransaction(
+      transaction,
+      wordIds,
+      targetStatus,
+      now,
+    );
+  });
+}
+
+export async function setWordsLearningStatusInTransaction(
+  db: SQLiteDatabase,
+  wordIds: number[],
+  targetStatus: 'learned' | 'unlearned' | 'wrong',
+  now: string,
+): Promise<void> {
   const uniqueWordIds = [...new Set(wordIds)];
   if (uniqueWordIds.length === 0) {
     return;
   }
 
-  const now = new Date().toISOString();
+  for (const wordId of uniqueWordIds) {
+    if (targetStatus === 'wrong') {
+      await saveWrongBookEntry(db, wordId, ['manual'], now, false);
+    } else {
+      await db.runAsync(
+        'DELETE FROM wrong_book_words WHERE word_id = $wordId',
+        { $wordId: wordId },
+      );
+    }
 
-  await db.withExclusiveTransactionAsync(async (transaction) => {
-    for (const wordId of uniqueWordIds) {
-      if (targetStatus === 'wrong') {
-        await saveWrongBookEntry(
-          transaction,
-          wordId,
-          'manual',
-          now,
-          false,
-        );
-      } else {
-        await transaction.runAsync(
-          'DELETE FROM wrong_book_words WHERE word_id = $wordId',
-          { $wordId: wordId },
-        );
-      }
+    await db.runAsync(
+      `UPDATE words
+       SET learning_status = $learningStatus
+       WHERE id = $wordId`,
+      {
+        $learningStatus: targetStatus,
+        $wordId: wordId,
+      },
+    );
 
-      await transaction.runAsync(
-        `UPDATE words
-         SET learning_status = $learningStatus
-         WHERE id = $wordId`,
+    if (targetStatus === 'learned') {
+      await db.runAsync(
+        `INSERT INTO word_learning_state (
+           word_id,
+           first_learned_at,
+           last_learned_at,
+           learned_count
+         )
+         VALUES ($wordId, $now, $now, 0)
+         ON CONFLICT(word_id) DO NOTHING`,
         {
-          $learningStatus: targetStatus,
+          $now: now,
           $wordId: wordId,
         },
       );
-
-      if (targetStatus === 'learned') {
-        await transaction.runAsync(
-          `INSERT INTO word_learning_state (
-             word_id,
-             first_learned_at,
-             last_learned_at,
-             learned_count
-           )
-           VALUES ($wordId, $now, $now, 0)
-           ON CONFLICT(word_id) DO NOTHING`,
-          {
-            $now: now,
-            $wordId: wordId,
-          },
-        );
-      }
     }
-  });
+  }
 }

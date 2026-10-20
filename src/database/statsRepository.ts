@@ -2,6 +2,8 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { formatLocalDate } from '@/utils/date';
 
+import { ensureAppSettings } from './appSettings';
+
 export type HomeStats = {
   checkinCount: number;
   studyDays: number;
@@ -63,6 +65,7 @@ export async function markReviewPrompted(
   db: SQLiteDatabase,
   studyDay: number,
 ): Promise<void> {
+  await ensureAppSettings(db);
   await db.runAsync(
     `UPDATE app_settings
      SET last_review_prompt_study_day = $studyDay

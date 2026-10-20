@@ -7,6 +7,8 @@ import {
   type ThemeMode,
 } from '@/constants/theme';
 
+import { ensureAppSettings } from './appSettings';
+
 export type ThemeSettings = {
   mode: ThemeMode;
   primaryColor: string;
@@ -43,6 +45,7 @@ export async function saveThemeSettings(
   db: SQLiteDatabase,
   settings: ThemeSettings,
 ): Promise<void> {
+  await ensureAppSettings(db);
   await db.runAsync(
     `UPDATE app_settings
      SET theme_mode = $mode,

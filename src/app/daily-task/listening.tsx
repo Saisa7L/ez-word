@@ -1,36 +1,32 @@
-import { router } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
 import * as Speech from 'expo-speech';
-import { ArrowLeft, Gauge, Play, RotateCcw, Square } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
-  type DimensionValue,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
-import { ScrollIndicator } from '@/components/ScrollIndicator';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
-import { radii, shadow, type ThemeColors } from '@/constants/theme';
+import { type ThemeColors } from '@/constants/theme';
 import { LISTENING_RATES } from '@/database/settingsRepository';
-import { recordTaskCompletion } from '@/database/studyRepository';
 import {
-  recordWrongWords,
-  resolveWrongBookRemoval,
-} from '@/database/wrongBookRepository';
-import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+  useDailyTaskAnswers,
+  useDailyTaskSession,
+} from '@/features/daily-task/DailyTaskProvider';
 import {
-  formatListeningRate,
   getTaskTitle,
+  resolveListeningSpeed,
 } from '@/features/daily-task/taskPresentation';
+import { ListeningAnswerList } from '@/features/daily-task/listening/ListeningAnswerList';
+import { ListeningPlayerCard } from '@/features/daily-task/listening/ListeningPlayerCard';
 import { useDailyTaskExitGuard } from '@/hooks/useDailyTaskExitGuard';
+import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
+import { useTaskPhaseNavigation } from '@/hooks/useTaskPhaseNavigation';
 import {
   useAppTheme,
   useThemedStyles,
@@ -38,43 +34,41 @@ import {
 import { playWordSequence } from '@/services/speech';
 
 export default function ListeningScreen() {
-  const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const {
-    listeningAnswers,
-    listeningWords,
-    listeningWrongWordIds,
     finishTask,
-    setListeningAnswer,
-    setListeningWrongWordIds,
+    listeningWords,
+    startedAt,
     taskMode,
     taskSettings,
-    words,
-    wrongWordIds,
-  } = useDailyTask();
+  } = useDailyTaskSession();
+  const {
+    listeningAnswers,
+    listeningWrongWordIds,
+    setListeningAnswer,
+    setListeningWrongWordIds,
+  } = useDailyTaskAnswers();
   const exitGuard = useDailyTaskExitGuard();
+  const taskReady = useDailyTaskPhaseGuard('listening');
+  const navigateToTaskPhase = useTaskPhaseNavigation();
   const stopPlaybackRef = useRef<(() => void) | null>(null);
-  const savingMistakesRef = useRef(false);
-  const submittingRef = useRef(false);
+  const finishingRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentRead, setCurrentRead] = useState(0);
-  const [speed, setSpeed] = useState<number>(
-    taskSettings.listeningDefaultRate,
-  );
+  const [speedOverride, setSpeedOverride] = useState<{
+    speed: number;
+    startedAt: number | null;
+  } | null>(null);
   const [errorWordIds, setErrorWordIds] = useState<number[]>([]);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
-  const [answerViewportHeight, setAnswerViewportHeight] = useState(0);
-  const [answerContentHeight, setAnswerContentHeight] = useState(0);
-  const [answerScrollY, setAnswerScrollY] = useState(0);
-
-  useEffect(() => {
-    if (listeningWords.length === 0) {
-      router.replace('/daily-task');
-    }
-  }, [listeningWords.length]);
+  const speed = resolveListeningSpeed(
+    taskSettings.listeningDefaultRate,
+    startedAt,
+    speedOverride,
+  );
 
   useEffect(
     () => () => {
@@ -83,7 +77,7 @@ export default function ListeningScreen() {
     [],
   );
 
-  if (listeningWords.length === 0) {
+  if (!taskReady || listeningWords.length === 0) {
     return null;
   }
 
@@ -108,24 +102,32 @@ export default function ListeningScreen() {
   }
 
   async function startPlayback(startReadIndex = 0, playbackSpeed = speed) {
-    stopPlayback();
-    await Speech.stop();
-    setIsPlaying(true);
-    stopPlaybackRef.current = playWordSequence({
-      onError: (error) => {
-        setIsPlaying(false);
-        showNotice('朗读失败', error.message);
-      },
-      onFinished: () => {
-        setIsPlaying(false);
-        setCurrentRead(totalReads);
-      },
-      onWordStart: (readIndex) => setCurrentRead(readIndex),
-      rate: playbackSpeed,
-      startReadIndex,
-      wordGapMs: taskSettings.listeningWordIntervalSeconds * 1000,
-      words: listeningWords,
-    });
+    try {
+      stopPlayback();
+      await Speech.stop();
+      setIsPlaying(true);
+      stopPlaybackRef.current = playWordSequence({
+        onError: (error) => {
+          setIsPlaying(false);
+          showNotice('朗读失败', error.message);
+        },
+        onFinished: () => {
+          setIsPlaying(false);
+          setCurrentRead(totalReads);
+        },
+        onWordStart: (readIndex) => setCurrentRead(readIndex),
+        rate: playbackSpeed,
+        startReadIndex,
+        wordGapMs: taskSettings.listeningWordIntervalSeconds * 1000,
+        words: listeningWords,
+      });
+    } catch (error) {
+      stopPlayback();
+      showNotice(
+        '朗读失败',
+        error instanceof Error ? error.message : '无法播放听力内容',
+      );
+    }
   }
 
   function handlePlayPause() {
@@ -139,7 +141,7 @@ export default function ListeningScreen() {
 
   function handleRewind() {
     const currentWordZeroBased = Math.min(
-      Math.max(0, words.length - 1),
+      Math.max(0, listeningWords.length - 1),
       Math.floor(currentRead / 2),
     );
     const targetRead = Math.max(0, currentWordZeroBased - 1) * 2;
@@ -156,7 +158,7 @@ export default function ListeningScreen() {
     );
     const nextSpeed =
       LISTENING_RATES[(currentIndex + 1) % LISTENING_RATES.length];
-    setSpeed(nextSpeed);
+    setSpeedOverride({ speed: nextSpeed, startedAt });
 
     if (isPlaying) {
       void startPlayback(currentRead, nextSpeed);
@@ -179,66 +181,26 @@ export default function ListeningScreen() {
     }
 
     setListeningWrongWordIds([]);
-    void completeTask([]);
+    goToComplete();
   }
 
-  async function completeTask(wrongIds: number[]) {
-    if (submittingRef.current) {
+  function goToComplete() {
+    if (finishingRef.current) {
       return;
     }
 
-    submittingRef.current = true;
+    finishingRef.current = true;
     setIsSubmitting(true);
     stopPlayback();
-
-    const combinedWrongIds = new Set([...wrongWordIds, ...wrongIds]);
-
-    try {
-      if (taskMode === 'daily') {
-        await recordTaskCompletion(db, {
-          wordIds: words.map((word) => word.id),
-          wrongCount: combinedWrongIds.size,
-          wrongWordIds: [...combinedWrongIds],
-        });
-      } else if (
-        taskMode === 'wrongReview' &&
-        taskSettings.autoRemoveCorrectWrongReview
-      ) {
-        const correctWordIds = words
-          .filter((word) => !combinedWrongIds.has(word.id))
-          .map((word) => word.id);
-        await resolveWrongBookRemoval(db, correctWordIds, 'learned');
-      }
-      finishTask();
-      router.push('/daily-task/complete');
-    } catch {
-      submittingRef.current = false;
-      setIsSubmitting(false);
-      showNotice('保存失败', '无法保存本次学习记录，请稍后重试');
-    }
+    finishTask();
+    navigateToTaskPhase('completed', { replace: true });
   }
 
   function handleErrorConfirm() {
-    void recordMistakesAndContinue();
-  }
-
-  async function recordMistakesAndContinue() {
-    if (savingMistakesRef.current) {
-      return;
-    }
-
-    savingMistakesRef.current = true;
-    try {
-      await recordWrongWords(db, errorWordIds, 'listening');
-      setListeningWrongWordIds(errorWordIds);
-      setErrorModalVisible(false);
-      if (taskSettings.advanceOnMistakes) {
-        void completeTask(errorWordIds);
-      }
-    } catch {
-      showNotice('保存失败', '无法将错题加入错题本，请稍后重试');
-    } finally {
-      savingMistakesRef.current = false;
+    setListeningWrongWordIds(errorWordIds);
+    setErrorModalVisible(false);
+    if (taskSettings.advanceOnMistakes) {
+      goToComplete();
     }
   }
 
@@ -258,99 +220,23 @@ export default function ListeningScreen() {
         <View style={styles.headerPlaceholder} />
       </View>
 
-      <View style={styles.playerCard}>
-        <View style={styles.playerControls}>
-          <Pressable
-            accessibilityLabel="倒退5秒"
-            accessibilityRole="button"
-            onPress={handleRewind}
-            style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}
-          >
-            <RotateCcw color={colors.accentText} size={28} strokeWidth={2.2} />
-          </Pressable>
-          <Pressable
-            accessibilityLabel={isPlaying ? '停止' : '播放'}
-            accessibilityRole="button"
-            onPress={handlePlayPause}
-            style={({ pressed }) => [styles.playButton, pressed && styles.pressed]}
-          >
-            {isPlaying ? (
-              <Square
-                color={colors.accentText}
-                fill={colors.accentText}
-                size={32}
-              />
-            ) : (
-              <Play
-                color={colors.accentText}
-                fill={colors.accentText}
-                size={44}
-              />
-            )}
-          </Pressable>
-          <Pressable
-            accessibilityLabel="切换倍速"
-            accessibilityRole="button"
-            onPress={handleSpeedChange}
-            style={({ pressed }) => [styles.roundButton, pressed && styles.pressed]}
-          >
-            <Gauge color={colors.accentText} size={25} strokeWidth={2.2} />
-            <Text style={styles.speedText}>
-              {formatListeningRate(speed, true)}
-            </Text>
-          </Pressable>
-        </View>
+      <ListeningPlayerCard
+        currentRead={currentRead}
+        isPlaying={isPlaying}
+        onPlayPause={handlePlayPause}
+        onRewind={handleRewind}
+        onSpeedChange={handleSpeedChange}
+        progress={progress}
+        speed={speed}
+        totalWords={listeningWords.length}
+      />
 
-        <View style={styles.progressTrack}>
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${progress}%` as DimensionValue },
-            ]}
-          />
-        </View>
-        <Text style={styles.positionText}>
-          {currentWordIndex}/{words.length}
-        </Text>
-      </View>
-
-      <View style={styles.answerCard}>
-        <View
-          onLayout={(event) => setAnswerViewportHeight(event.nativeEvent.layout.height)}
-          style={styles.scrollViewport}
-        >
-          <ScrollView
-            contentContainerStyle={styles.answerContent}
-            onContentSizeChange={(_, height) => setAnswerContentHeight(height)}
-            onScroll={(event) => setAnswerScrollY(event.nativeEvent.contentOffset.y)}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            style={styles.scrollView}
-          >
-            {listeningWords.map((word, index) => {
-              const isWrong = listeningWrongWordIds.has(word.id);
-              return (
-                <View key={word.id} style={styles.answerRow}>
-                  <Text style={styles.answerNumber}>{index + 1}.</Text>
-                  <TextInput
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    onChangeText={(value) => setListeningAnswer(word.id, value)}
-                    spellCheck={false}
-                    style={[styles.input, isWrong && styles.inputWrong]}
-                    value={listeningAnswers[word.id] ?? ''}
-                  />
-                </View>
-              );
-            })}
-          </ScrollView>
-          <ScrollIndicator
-            contentHeight={answerContentHeight}
-            scrollY={answerScrollY}
-            viewportHeight={answerViewportHeight}
-          />
-        </View>
-      </View>
+      <ListeningAnswerList
+        answers={listeningAnswers}
+        onChangeAnswer={setListeningAnswer}
+        words={listeningWords}
+        wrongWordIds={listeningWrongWordIds}
+      />
 
       <Pressable
         accessibilityRole="button"
@@ -370,6 +256,7 @@ export default function ListeningScreen() {
       <TaskErrorModal
         errorCount={errorWordIds.length}
         onConfirm={handleErrorConfirm}
+        onDismiss={() => setErrorModalVisible(false)}
         visible={errorModalVisible}
       />
       <ExitTaskModal
@@ -384,32 +271,6 @@ export default function ListeningScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  answerCard: {
-    ...shadow,
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    flex: 1,
-    marginHorizontal: 18,
-    minHeight: 0,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  answerContent: {
-    paddingBottom: 16,
-    paddingRight: 38,
-    paddingTop: 16,
-    paddingLeft: 24,
-  },
-  answerNumber: {
-    color: colors.text,
-    fontSize: 21,
-    width: 34,
-  },
-  answerRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
   backButton: {
     alignItems: 'center',
     height: 48,
@@ -431,83 +292,12 @@ const createStyles = (colors: ThemeColors) =>
     fontSize: 23,
     fontWeight: '700',
   },
-  input: {
-    backgroundColor: colors.graySoft,
-    borderBottomColor: colors.accentText,
-    borderBottomWidth: 1.5,
-    borderRadius: 4,
-    color: colors.text,
-    flex: 1,
-    fontSize: 20,
-    height: 50,
-    paddingHorizontal: 14,
-  },
-  inputWrong: {
-    backgroundColor: colors.redSoft,
-    borderBottomColor: colors.red,
-    color: colors.red,
-  },
-  playButton: {
-    alignItems: 'center',
-    backgroundColor: colors.graySoft,
-    borderRadius: 55,
-    height: 110,
-    justifyContent: 'center',
-    width: 110,
-  },
-  playerCard: {
-    ...shadow,
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    marginBottom: 20,
-    marginHorizontal: 18,
-    padding: 22,
-  },
-  playerControls: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   pressed: {
     opacity: 0.7,
-  },
-  progressFill: {
-    backgroundColor: colors.accentText,
-    borderRadius: 5,
-    height: 10,
-  },
-  progressTrack: {
-    backgroundColor: colors.border,
-    borderRadius: 5,
-    height: 10,
-    marginTop: 24,
-    overflow: 'hidden',
-  },
-  roundButton: {
-    alignItems: 'center',
-    backgroundColor: colors.mint,
-    borderRadius: 42,
-    height: 84,
-    justifyContent: 'center',
-    width: 84,
   },
   screen: {
     backgroundColor: colors.background,
     flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewport: {
-    flex: 1,
-    marginVertical: 24,
-    position: 'relative',
-  },
-  speedText: {
-    color: colors.accentText,
-    fontSize: 14,
-    fontWeight: '700',
-    marginTop: 2,
   },
   submitButton: {
     alignItems: 'center',
@@ -526,12 +316,5 @@ const createStyles = (colors: ThemeColors) =>
     color: colors.onPrimary,
     fontSize: 22,
     fontWeight: '700',
-  },
-  positionText: {
-    color: colors.textSecondary,
-    fontSize: 20,
-    fontWeight: '600',
-    marginTop: 12,
-    textAlign: 'center',
   },
 });

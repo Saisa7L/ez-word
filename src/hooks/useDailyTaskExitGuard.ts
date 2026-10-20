@@ -1,12 +1,12 @@
-import { useNavigation } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useNavigation } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { BackHandler } from 'react-native';
 
-import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import { returnToHome, type AppNavigation } from '@/utils/navigation';
 
 export function useDailyTaskExitGuard() {
-  const { resetTask } = useDailyTask();
+  const { resetTask } = useDailyTaskSession();
   const navigation = useNavigation<AppNavigation>('/');
   const [visible, setVisible] = useState(false);
 
@@ -24,14 +24,19 @@ export function useDailyTaskExitGuard() {
     returnToHome(navigation);
   }, [navigation, resetTask]);
 
-  useEffect(() => {
-    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      requestExit();
-      return true;
-    });
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
+          requestExit();
+          return true;
+        },
+      );
 
-    return () => subscription.remove();
-  }, [requestExit]);
+      return () => subscription.remove();
+    }, [requestExit]),
+  );
 
   return {
     cancelExit,

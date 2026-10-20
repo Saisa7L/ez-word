@@ -1,5 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import { ensureAppSettings } from './appSettings';
+
 export async function getAiOverwriteExamples(
   db: SQLiteDatabase,
 ): Promise<boolean> {
@@ -13,6 +15,7 @@ export async function setAiOverwriteExamples(
   db: SQLiteDatabase,
   overwrite: boolean,
 ): Promise<void> {
+  await ensureAppSettings(db);
   await db.runAsync(
     'UPDATE app_settings SET ai_overwrite_examples = $overwrite WHERE id = 1',
     { $overwrite: overwrite ? 1 : 0 },

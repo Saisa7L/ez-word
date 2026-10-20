@@ -42,8 +42,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:data",
-    "test:data": "tsx --test tests/data.test.ts"
+    "test": "npm run test:data && npm run test:task",
+    "test:data": "tsx --test tests/data.test.ts",
+    "test:task": "tsx --test tests/taskReducer.test.ts"
   },
   "private": true
 }

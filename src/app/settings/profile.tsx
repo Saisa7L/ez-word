@@ -111,46 +111,50 @@ export default function ProfileScreen() {
   }, [db, showNotice]);
 
   async function pickAndCropImage(target: ImageTarget): Promise<void> {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      showNotice('无法选择图片', '请允许 App 访问相册');
-      return;
-    }
+    try {
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        showNotice('无法选择图片', '请允许 App 访问相册');
+        return;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: target === 'avatar' ? [1, 1] : [2, 3],
-      base64: true,
-      mediaTypes: ['images'],
-      quality: target === 'avatar' ? 0.8 : 0.75,
-    });
-    if (result.canceled || !result.assets[0]) {
-      return;
-    }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: target === 'avatar' ? [1, 1] : [2, 3],
+        base64: true,
+        mediaTypes: ['images'],
+        quality: target === 'avatar' ? 0.8 : 0.75,
+      });
+      if (result.canceled || !result.assets[0]) {
+        return;
+      }
 
-    const asset = result.assets[0];
-    if (!asset.base64) {
-      showNotice('读取失败', '无法读取所选图片，请重新选择');
-      return;
-    }
+      const asset = result.assets[0];
+      if (!asset.base64) {
+        showNotice('读取失败', '无法读取所选图片，请重新选择');
+        return;
+      }
 
-    const byteSize = estimateBase64Bytes(asset.base64);
-    const maxBytes =
-      target === 'avatar' ? AVATAR_MAX_BYTES : BACKGROUND_MAX_BYTES;
-    if (byteSize > maxBytes) {
-      showNotice(
-        '图片过大',
-        `请选择小于 ${target === 'avatar' ? '3MB' : '6MB'} 的图片`,
-      );
-      return;
-    }
+      const byteSize = estimateBase64Bytes(asset.base64);
+      const maxBytes =
+        target === 'avatar' ? AVATAR_MAX_BYTES : BACKGROUND_MAX_BYTES;
+      if (byteSize > maxBytes) {
+        showNotice(
+          '图片过大',
+          `请选择小于 ${target === 'avatar' ? '3MB' : '6MB'} 的图片`,
+        );
+        return;
+      }
 
-    const dataUri = `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}`;
-    if (target === 'avatar') {
-      setAvatarData(dataUri);
-    } else {
-      setBackgroundData(dataUri);
+      const dataUri = `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}`;
+      if (target === 'avatar') {
+        setAvatarData(dataUri);
+      } else {
+        setBackgroundData(dataUri);
+      }
+    } catch {
+      showNotice('无法选择图片', '相册打开失败，请稍后重试');
     }
   }
 

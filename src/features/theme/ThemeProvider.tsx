@@ -62,6 +62,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
           setPrimaryColor(settings.primaryColor);
         }
       })
+      .catch(() => {
+        if (active) {
+          setMode(DEFAULT_THEME_MODE);
+          setPrimaryColor(DEFAULT_THEME_PRIMARY_COLOR);
+        }
+      })
       .finally(() => {
         if (active) {
           setIsReady(true);

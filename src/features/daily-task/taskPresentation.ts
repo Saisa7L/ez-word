@@ -18,3 +18,13 @@ export function formatListeningRate(
     ? `${rate.toFixed(1)}x`
     : `${rate}x`;
 }
+
+export function resolveListeningSpeed(
+  defaultRate: number,
+  startedAt: number | null,
+  override: { speed: number; startedAt: number | null } | null,
+): number {
+  return override?.startedAt === startedAt
+    ? override.speed
+    : defaultRate;
+}

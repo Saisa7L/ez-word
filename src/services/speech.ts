@@ -1,6 +1,6 @@
 import * as Speech from 'expo-speech';
 
-import type { WordRecord } from '@/database/wordsRepository';
+import type { TaskWord } from '@/domain/word/taskWord';
 
 type PlayWordSequenceOptions = {
   onError: (error: Error) => void;
@@ -9,7 +9,7 @@ type PlayWordSequenceOptions = {
   rate: number;
   startReadIndex?: number;
   wordGapMs?: number;
-  words: WordRecord[];
+  words: TaskWord[];
 };
 
 const DEFAULT_READ_GAP_MS = 5000;

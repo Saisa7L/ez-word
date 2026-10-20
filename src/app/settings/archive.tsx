@@ -107,17 +107,29 @@ export default function ArchiveSettingsScreen() {
   ) {
     setIsImporting(true);
     try {
-      await restoreArchiveSnapshot(db, snapshot);
-      await reloadTheme();
+      try {
+        await restoreArchiveSnapshot(db, snapshot);
+      } catch {
+        showNotice(
+          '导入失败',
+          '无法恢复存档，当前数据未被修改',
+        );
+        return;
+      }
+
       setLastSummary(snapshot.summary);
+
+      try {
+        await reloadTheme();
+      } catch {
+        showNotice(
+          '数据已恢复',
+          `已从“${fileName}”恢复数据，但主题刷新失败，请重启 App`,
+        );
+        return;
+      }
+
       showNotice('导入成功', `已从“${fileName}”恢复本地数据`);
-    } catch (error) {
-      showNotice(
-        '导入失败',
-        error instanceof Error
-          ? error.message
-          : '无法恢复存档，当前数据未被修改',
-      );
     } finally {
       setIsImporting(false);
     }

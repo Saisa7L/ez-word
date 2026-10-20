@@ -13,18 +13,17 @@ import {
 import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { radii, type ThemeColors } from '@/constants/theme';
-import { listReviewWords } from '@/database/reviewRepository';
+import { loadWordReviewSelection } from '@/application/daily-task/startTaskSelection';
 import {
   getDailyTaskSettings,
   type DailyTaskSettings,
 } from '@/database/settingsRepository';
-import { useDailyTask } from '@/features/daily-task/DailyTaskProvider';
+import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import { useLongPressStep } from '@/hooks/useLongPressStep';
 import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
-import { shuffle } from '@/utils/shuffle';
 
 const REVIEW_DAYS_MIN = 1;
 const REVIEW_DAYS_MAX = 9999;
@@ -33,7 +32,7 @@ export default function ReviewStartScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const { startTask } = useDailyTask();
+  const { startTask } = useDailyTaskSession();
   const [selectedDays, setSelectedDays] = useState<number | null>(7);
   const selectedDaysRef = useRef<number | null>(7);
   const lastNumericDaysRef = useRef(7);
@@ -99,12 +98,12 @@ export default function ReviewStartScreen() {
 
     setIsStarting(true);
     try {
-      const words = await listReviewWords(db, selectedDays);
-      const selectedWords = shuffle(words).slice(
-        0,
-        settings.wordReviewWordLimit,
+      const selection = await loadWordReviewSelection(
+        db,
+        selectedDays,
       );
-      if (selectedWords.length === 0) {
+      setSettings(selection.settings);
+      if (selection.words.length === 0) {
         setNotice({
           message: '当前范围内没有已学习的单词',
           title: '暂无可复习单词',
@@ -112,7 +111,7 @@ export default function ReviewStartScreen() {
         return;
       }
 
-      startTask(selectedWords, settings, 'wordReview');
+      startTask(selection.words, selection.settings, 'wordReview');
       router.push('/daily-task/fill-blank');
     } catch {
       setNotice({

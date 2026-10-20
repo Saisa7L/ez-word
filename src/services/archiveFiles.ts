@@ -1,6 +1,8 @@
 import { File } from 'expo-file-system';
 import { StorageAccessFramework } from 'expo-file-system/legacy';
 
+import { MAX_ARCHIVE_BYTES } from '@/constants/archive';
+
 const ARCHIVE_MIME_TYPES = [
   'application/json',
   'application/octet-stream',
@@ -25,10 +27,14 @@ function buildArchiveFileName(): string {
     String(now.getMinutes()).padStart(2, '0'),
     String(now.getSeconds()).padStart(2, '0'),
   ].join('');
-  return `vocab-archive-${date}-${time}`;
+  return `vocab-archive-${date}-${time}.json`;
 }
 
 export async function exportArchiveFile(content: string): Promise<boolean> {
+  if (content.length > MAX_ARCHIVE_BYTES) {
+    throw new Error('存档文件过大，请先精简本地数据');
+  }
+
   const permission =
     await StorageAccessFramework.requestDirectoryPermissionsAsync();
   if (!permission.granted) {
@@ -54,6 +60,10 @@ export async function pickArchiveFile(): Promise<PickedArchiveFile | null> {
   }
 
   const file = result.result;
+  if (file.size !== undefined && file.size > MAX_ARCHIVE_BYTES) {
+    throw new Error('存档文件超过 20 MB，已拒绝读取');
+  }
+
   return {
     content: await file.text(),
     name: file.name,
