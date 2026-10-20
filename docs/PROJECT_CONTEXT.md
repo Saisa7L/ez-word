@@ -22,7 +22,7 @@
 |---|---|
 | App | Expo SDK 57、React Native 0.86、TypeScript 6 |
 | 路由 | Expo Router |
-| 数据库 | SQLite v20 |
+| 数据库 | SQLite v21 |
 | 朗读 | Android TTS |
 | AI | DeepSeek，仅设置页批量生成例句 |
 | 文件 | Expo FileSystem、File、StorageAccessFramework |
@@ -39,6 +39,7 @@
 - P1 第一批已引入 `TaskWord`、任务启动 application 用例和 v18 查询索引，并通过真机验收。
 - P2-1/P2-3 已把 `app_settings` 拆分为任务、复习、AI 和主题四张设置表。
 - P2-2 已把错题来源从逗号字符串迁移为 `wrong_book_sources` 关联表。
+- P2-1 已删除未使用的 `word_learning_state.learned_count`。
 - P1 任务状态机已改为 reducer 管理，并接入四个任务页的阶段守卫。
 - 已修复三种任务模式标题未写入状态和听力默认速度未从设置快照生效的问题。
 - 任务 Provider 已拆为会话和答案两个 Context，阶段推进与导航统一封装，并通过真机验收。

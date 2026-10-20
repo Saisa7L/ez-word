@@ -67,13 +67,11 @@ export async function completeTaskSession(
           `INSERT INTO word_learning_state (
              word_id,
              first_learned_at,
-             last_learned_at,
-             learned_count
+             last_learned_at
            )
-           VALUES ($wordId, $completedAt, $completedAt, 1)
+           VALUES ($wordId, $completedAt, $completedAt)
            ON CONFLICT(word_id) DO UPDATE SET
-             last_learned_at = excluded.last_learned_at,
-             learned_count = word_learning_state.learned_count + 1`,
+             last_learned_at = excluded.last_learned_at`,
           {
             $completedAt: completedAtIso,
             $wordId: wordId,

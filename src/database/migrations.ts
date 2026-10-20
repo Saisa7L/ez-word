@@ -577,6 +577,20 @@ export const MIGRATIONS: readonly DatabaseMigration[] = [
       }
     },
   },
+  {
+    description: '移除未使用的学习次数列',
+    to: 21,
+    up: async (db) => {
+      const columns = await db.getAllAsync<{ name: string }>(
+        'PRAGMA table_info(word_learning_state)',
+      );
+      if (columns.some((column) => column.name === 'learned_count')) {
+        await db.execAsync(
+          'ALTER TABLE word_learning_state DROP COLUMN learned_count;',
+        );
+      }
+    },
+  },
 ];
 
 export async function runMigrations(

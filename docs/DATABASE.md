@@ -1,11 +1,11 @@
 # 本地数据库说明
 
-最后更新：2026-10-20 21:08
+最后更新：2026-10-20 21:42
 
 ## 基本信息
 
 - 数据库文件：`vocabulary.db`
-- 当前版本：`20`
+- 当前版本：`21`
 - 初始化入口：`src/database/database.ts`
 - 当前 schema 定义：`src/database/schema.ts`
 - 迁移方式：读取 `PRAGMA user_version`，通过 `src/database/migrations.ts` 的版本注册表执行
@@ -85,7 +85,6 @@
 | `word_id` | 主键，并关联 `words.id` |
 | `first_learned_at` | 首次学习时间 |
 | `last_learned_at` | 最近学习时间 |
-| `learned_count` | 学习次数 |
 
 ### wrong_book_words
 
@@ -153,6 +152,7 @@
 | 17 → 18 | 增加任务选词、复习、错题和统计查询索引 |
 | 18 → 19 | 拆分四张设置表，删除旧提醒列、三个旧主题列和 `app_settings` |
 | 19 → 20 | 把 `wrong_book_words.sources` 迁移到 `wrong_book_sources` 关联表 |
+| 20 → 21 | 删除未使用的 `word_learning_state.learned_count` 列 |
 
 版本 11 没有独立迁移步骤。数据库 v11 不在存档兼容范围内。
 
@@ -217,10 +217,10 @@
 
 ## 数据测试
 
-`tests/data.test.ts` 当前包含 28 项测试：
+`tests/data.test.ts` 当前包含 34 项测试：
 
 - 真实迁移后的 schema 校验。
-- v0 → v20 迁移和默认设置。
+- v0 → v21 迁移和默认设置。
 - 字段漂移拒绝。
 - 存档 JSON round-trip 和错误格式拒绝。
 - 迁移中途失败时整批回滚。
@@ -236,6 +236,8 @@
 - v18 数据库设置迁移到四张 v19 设置表。
 - v18 旧存档的 `app_settings` 自动转换为 v19 四张设置表。
 - v19 数据库与旧存档的错题来源自动转换为 v20 关联表。
+- v20 数据库迁移会保留首次/最近学习时间并删除 `learned_count`。
+- v20 存档中的旧 `learned_count` 字段会被安全忽略。
 - 每日任务只在完成页单事务写错题、学习状态和打卡。
 - 错题回顾只在完成页自动移出正确单词。
 - v18 查询索引创建成功。
@@ -248,4 +250,4 @@
 - `idx_wrong_last_wrong`：错题最近答错时间排序。
 - `idx_sessions_study_date`：首页今日学习和学习天数统计。
 
-v19 及更早存档继续保留兼容，解析时会把旧 `app_settings` 拆分为四张设置表，并把旧 `sources` 字符串拆分为来源关联行。
+v20 及更早存档继续保留兼容，解析时会把旧 `app_settings` 拆分为四张设置表，把旧 `sources` 字符串拆分为来源关联行，并忽略旧学习次数。

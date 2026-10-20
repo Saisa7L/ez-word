@@ -316,10 +316,9 @@ export async function setWordsLearningStatusInTransaction(
         `INSERT INTO word_learning_state (
            word_id,
            first_learned_at,
-           last_learned_at,
-           learned_count
+           last_learned_at
          )
-         VALUES ($wordId, $now, $now, 0)
+         VALUES ($wordId, $now, $now)
          ON CONFLICT(word_id) DO NOTHING`,
         {
           $now: now,

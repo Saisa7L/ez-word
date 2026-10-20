@@ -26,7 +26,7 @@ import { ensureSettingsRows } from '@/database/settingsRows';
 
 const ARCHIVE_FORMAT = 'english-vocabulary-app-archive';
 const ARCHIVE_VERSION = 1;
-const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16, 17, 18, 19];
+const LEGACY_DATABASE_VERSIONS = [10, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 const MAX_ID = 1_000_000_000;
 
 type ArchiveValue = number | string | null;
@@ -71,7 +71,6 @@ const INTEGER_RANGES: Record<string, readonly [number, number]> = {
   'task_settings.random_word_selection': [0, 1],
   'theme_settings.id': [1, 1],
   'user_profile.id': [1, 1],
-  'word_learning_state.learned_count': [0, MAX_ID],
   'word_learning_state.word_id': [1, MAX_ID],
   'words.id': [1, MAX_ID],
   'words.is_active': [0, 1],

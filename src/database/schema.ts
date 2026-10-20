@@ -114,18 +114,8 @@ export const DATABASE_TABLE_SCHEMAS = [
     name: 'user_profile',
   },
   {
-    archiveColumns: [
-      'word_id',
-      'first_learned_at',
-      'last_learned_at',
-      'learned_count',
-    ],
-    columns: [
-      'word_id',
-      'first_learned_at',
-      'last_learned_at',
-      'learned_count',
-    ],
+    archiveColumns: ['word_id', 'first_learned_at', 'last_learned_at'],
+    columns: ['word_id', 'first_learned_at', 'last_learned_at'],
     name: 'word_learning_state',
   },
   {

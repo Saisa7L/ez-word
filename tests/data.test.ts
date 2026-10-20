@@ -222,7 +222,7 @@ test('validates the current database schema', async () => {
   await validateDatabaseSchema(asDatabase(adapter));
 });
 
-test('migrates an empty database to v20 and matches schema', async () => {
+test('migrates an empty database to v21 and matches schema', async () => {
   const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
 
   await migrateDatabase(asDatabase(adapter));
@@ -242,7 +242,7 @@ test('migrates an empty database to v20 and matches schema', async () => {
     listening_default_rate: number;
   };
 
-  assert.equal(version.user_version, 20);
+  assert.equal(version.user_version, 21);
   assert.equal(settings.daily_word_limit, 10);
   assert.equal(settings.listening_default_rate, 1);
 });
@@ -321,8 +321,8 @@ test('round-trips archive JSON and restores all tables', async () => {
   );
   await source.runAsync(
     `INSERT INTO word_learning_state (
-       word_id, first_learned_at, last_learned_at, learned_count
-     ) VALUES (1, $now, $now, 1)`,
+       word_id, first_learned_at, last_learned_at
+     ) VALUES (1, $now, $now)`,
     { $now: now },
   );
   await insertWrongBookEntry(source, 1, ['fill']);
@@ -403,7 +403,7 @@ test('repairs a schema that advanced before user_version was written', async () 
   const version = adapter.db.prepare('PRAGMA user_version').get() as {
     user_version: number;
   };
-  assert.equal(version.user_version, 20);
+  assert.equal(version.user_version, 21);
 });
 
 test('recreates theme settings before saving a theme', async () => {
@@ -525,13 +525,59 @@ test('migrates v19 wrong-book sources into the relation table', async () => {
   assert.equal(columns.includes('sources'), false);
 });
 
+test('migrates v20 learning state by removing learned_count', async () => {
+  const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
+  const migrationsThroughV20 = MIGRATIONS.filter(
+    (migration) => migration.to <= 20,
+  );
+  await runMigrations(asDatabase(adapter), 0, migrationsThroughV20);
+  await insertTestWord(adapter, { id: 1, word: 'alpha' });
+  adapter.db.exec(`
+    INSERT INTO word_learning_state (
+      word_id, first_learned_at, last_learned_at, learned_count
+    ) VALUES (
+      1, '2026-10-19T10:00:00.000Z', '2026-10-20T10:00:00.000Z', 7
+    );
+  `);
+
+  await runMigrations(asDatabase(adapter), 20);
+  await validateDatabaseSchema(asDatabase(adapter));
+
+  const columns = (
+    adapter.db.prepare('PRAGMA table_info(word_learning_state)').all() as {
+      name: string;
+    }[]
+  ).map((row) => row.name);
+  const learningState = adapter.db
+    .prepare(
+      `SELECT word_id, first_learned_at, last_learned_at
+       FROM word_learning_state
+       WHERE word_id = 1`,
+    )
+    .get() as {
+    first_learned_at: string;
+    last_learned_at: string;
+    word_id: number;
+  };
+
+  assert.deepEqual(columns, ['word_id', 'first_learned_at', 'last_learned_at']);
+  assert.deepEqual(
+    { ...learningState },
+    {
+      first_learned_at: '2026-10-19T10:00:00.000Z',
+      last_learned_at: '2026-10-20T10:00:00.000Z',
+      word_id: 1,
+    },
+  );
+});
+
 test('rejects database versions supported by a newer app', async () => {
   const adapter = await createMigratedAdapter();
-  adapter.db.exec('PRAGMA user_version = 21');
+  adapter.db.exec('PRAGMA user_version = 22');
 
   await assert.rejects(
     () => migrateDatabase(asDatabase(adapter)),
-    /高于 App 支持的 20/,
+    /高于 App 支持的 21/,
   );
 });
 
@@ -661,6 +707,33 @@ test('migrates v19 archive sources into the relation table', async () => {
   );
 });
 
+test('ignores legacy learned_count in v20 archives', async () => {
+  const source = await createMigratedAdapter();
+  const now = '2026-10-19T10:00:00.000Z';
+  await insertTestWord(source, {
+    id: 1,
+    learningStatus: 'learned',
+    word: 'alpha',
+  });
+  await source.runAsync(
+    `INSERT INTO word_learning_state (
+       word_id, first_learned_at, last_learned_at
+     ) VALUES (1, $now, $now)`,
+    { $now: now },
+  );
+  const snapshot = await createArchiveSnapshot(asDatabase(source));
+  const archive = JSON.parse(stringifyArchive(snapshot)) as {
+    databaseVersion: number;
+    tables: Record<string, Record<string, unknown>[]>;
+  };
+
+  archive.databaseVersion = 20;
+  archive.tables.word_learning_state[0].learned_count = 7;
+
+  const parsed = parseArchiveSnapshot(JSON.stringify(archive));
+  assert.equal(parsed.tables.word_learning_state[0]?.learned_count, undefined);
+});
+
 test('rejects current archives with missing required fields', async () => {
   const source = await createMigratedAdapter();
   const snapshot = await createArchiveSnapshot(asDatabase(source));
@@ -701,7 +774,6 @@ test('rejects archive child rows that reference missing words', async () => {
   archive.tables.word_learning_state.push({
     first_learned_at: '2026-10-19T10:00:00.000Z',
     last_learned_at: '2026-10-19T10:00:00.000Z',
-    learned_count: 1,
     word_id: 1,
   });
 
@@ -1162,8 +1234,8 @@ test('loads the configured number of word-review words', async () => {
     });
     await adapter.runAsync(
       `INSERT INTO word_learning_state (
-         word_id, first_learned_at, last_learned_at, learned_count
-       ) VALUES ($id, $now, $now, 1)`,
+         word_id, first_learned_at, last_learned_at
+       ) VALUES ($id, $now, $now)`,
       { $id: id, $now: now },
     );
   }
