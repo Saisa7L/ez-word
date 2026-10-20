@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-20 21:47
+最后更新：2026-10-20 22:10
 
 ## 环境
 
@@ -29,6 +29,14 @@ npx expo export --platform android --output-dir .expo/check
 ```
 
 `npm run check` 包含格式、类型、Lint、覆盖率和 Expo Doctor。
+
+发版前性能预算：
+
+```powershell
+npm run check:release
+```
+
+该命令会额外执行 Android 导出并检查 HBC、资源总量、单资源和资源文件数预算。
 
 依赖安装使用：
 

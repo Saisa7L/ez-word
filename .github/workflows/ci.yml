@@ -37,3 +37,9 @@ jobs:
 
       - name: Check Expo project
         run: npm run doctor
+
+      - name: Build Android bundle
+        run: npx expo export --platform android --output-dir .expo/check
+
+      - name: Check performance budget
+        run: npm run perf:budget
