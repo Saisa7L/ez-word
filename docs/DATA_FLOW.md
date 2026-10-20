@@ -162,11 +162,11 @@ completeTaskSession
 AI 设置页
 → SecureStore 保存 API Key
 → getAiOverwriteExamples
-→ generateWordExamples
-→ listWordsForExampleGeneration
+→ generateMissingWordData
+→ listWordsForDataGeneration
 → 每 10 个单词请求一次 DeepSeek
-→ 校验例句可生成填空
-→ updateWordExample 写入 words
+→ 校验音标和例句可用
+→ updateWordGeneratedData 只写入缺失或选择覆盖的字段
 → 任务内容始终从本地读取
 ```
 
@@ -223,7 +223,7 @@ archive.tsx
 
 | 数据 | SQLite 表 | 读取入口 | 写入入口 |
 |---|---|---|---|
-| 单词与例句 | `words` | `wordsRepository` | `upsertWords`、`updateWordExample` |
+| 单词、音标与例句 | `words` | `wordsRepository` | `upsertWords`、`updateWordGeneratedData` |
 | 学习状态 | `words`、`word_learning_state` | `reviewRepository`、`statsRepository` | `completeTaskSession` |
 | 错题 | `wrong_book_words`、`words` | `wrongBookRepository` | `completeTaskSession`、`addWrongBookWords` |
 | 错题来源 | `wrong_book_sources` | `wrongBookRepository` | `completeTaskSession`、`addWrongBookWords` |

@@ -1,9 +1,14 @@
 import { buildClozeSentence } from '@/features/daily-task/sentenceTemplates';
 
-export type ExampleInputWord = {
+export type WordDataInput = {
   meaning: string;
   phonetic: string;
   word: string;
+};
+
+export type GeneratedWordData = {
+  phonetic: string;
+  sentence: string;
 };
 
 type ChatCompletionResponse = {
@@ -105,10 +110,57 @@ export async function testDeepSeekConnection(apiKey: string): Promise<void> {
   ]);
 }
 
-export async function generateExampleSentences(
+export function parseGeneratedWordDataResponse(
+  content: string,
+  words: WordDataInput[],
+): Map<string, GeneratedWordData> {
+  const parsed = parseJsonContent(content) as {
+    words?: {
+      phonetic?: unknown;
+      sentence?: unknown;
+      word?: unknown;
+    }[];
+  };
+  if (!Array.isArray(parsed.words)) {
+    throw new DeepSeekError('DeepSeek 返回内容缺少 words 数组');
+  }
+
+  const expectedWords = new Map(
+    words.map((item) => [item.word.toLocaleLowerCase('en-US'), item.word]),
+  );
+  const result = new Map<string, GeneratedWordData>();
+
+  for (const item of parsed.words) {
+    if (
+      typeof item.word !== 'string' ||
+      typeof item.phonetic !== 'string' ||
+      typeof item.sentence !== 'string'
+    ) {
+      continue;
+    }
+
+    const key = item.word.trim().toLocaleLowerCase('en-US');
+    const originalWord = expectedWords.get(key);
+    const phonetic = item.phonetic.trim();
+    const sentence = item.sentence.trim();
+    if (
+      originalWord &&
+      phonetic &&
+      phonetic.length <= 80 &&
+      sentence &&
+      buildClozeSentence(sentence, originalWord) !== null
+    ) {
+      result.set(originalWord, { phonetic, sentence });
+    }
+  }
+
+  return result;
+}
+
+export async function generateWordData(
   apiKey: string,
-  words: ExampleInputWord[],
-): Promise<Map<string, string>> {
+  words: WordDataInput[],
+): Promise<Map<string, GeneratedWordData>> {
   if (words.length === 0) {
     return new Map();
   }
@@ -116,13 +168,13 @@ export async function generateExampleSentences(
   const content = await requestCompletion(apiKey, [
     {
       content:
-        '你是英语学习内容生成器。只输出 JSON，不要输出 Markdown。每个例句必须自然、准确，并在句中只出现一次原始目标单词，不要使用该词的其他词形。',
+        '你是英语学习数据生成器。只输出 JSON，不要输出 Markdown。音标使用带斜杠的英式或美式 IPA。每个例句必须自然、准确，并在句中只出现一次原始目标单词，不要使用该词的其他词形。',
       role: 'system',
     },
     {
-      content: `请为下面每个单词生成一个 8-18 个英文单词的例句。
+      content: `请为下面每个单词生成音标和一个 8-18 个英文单词的例句。
 输出格式：
-{"examples":[{"word":"原始单词","sentence":"包含原始单词的英文例句"}]}
+{"words":[{"word":"原始单词","phonetic":"/音标/","sentence":"包含原始单词的英文例句"}]}
 
 单词数据：
 ${JSON.stringify(
@@ -132,34 +184,5 @@ ${JSON.stringify(
     },
   ]);
 
-  const parsed = parseJsonContent(content) as {
-    examples?: { sentence?: unknown; word?: unknown }[];
-  };
-  if (!Array.isArray(parsed.examples)) {
-    throw new DeepSeekError('DeepSeek 返回内容缺少 examples 数组');
-  }
-
-  const expectedWords = new Map(
-    words.map((item) => [item.word.toLocaleLowerCase('en-US'), item.word]),
-  );
-  const result = new Map<string, string>();
-
-  for (const item of parsed.examples) {
-    if (typeof item.word !== 'string' || typeof item.sentence !== 'string') {
-      continue;
-    }
-
-    const key = item.word.trim().toLocaleLowerCase('en-US');
-    const originalWord = expectedWords.get(key);
-    const sentence = item.sentence.trim();
-    if (
-      originalWord &&
-      sentence &&
-      buildClozeSentence(sentence, originalWord) !== null
-    ) {
-      result.set(originalWord, sentence);
-    }
-  }
-
-  return result;
+  return parseGeneratedWordDataResponse(content, words);
 }

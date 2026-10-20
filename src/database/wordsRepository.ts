@@ -233,41 +233,61 @@ export async function findWordByWord(
   );
 }
 
-export async function listWordsForExampleGeneration(
+export async function listWordsForDataGeneration(
   db: SQLiteDatabase,
   overwriteExisting: boolean,
 ): Promise<WordRecord[]> {
-  const whereExample = overwriteExisting
+  const whereIncomplete = overwriteExisting
     ? ''
-    : "AND TRIM(example_sentence) = ''";
+    : "AND (TRIM(phonetic) = '' OR TRIM(example_sentence) = '')";
 
   return db.getAllAsync<WordRecord>(
     `SELECT ${selectWordColumns()}
      FROM words
      WHERE is_active = 1
-       ${whereExample}
+       ${whereIncomplete}
      ORDER BY word COLLATE NOCASE ASC`,
   );
 }
 
-export async function updateWordExample(
+export async function updateWordGeneratedData(
   db: SQLiteDatabase,
   wordId: number,
-  exampleSentence: string,
-  source: 'ai' | 'csv' = 'ai',
+  data: {
+    exampleSentence?: string;
+    phonetic?: string;
+  },
 ): Promise<void> {
   const now = new Date().toISOString();
+  const updateExample = data.exampleSentence !== undefined;
+  const updatePhonetic = data.phonetic !== undefined;
+
   await db.runAsync(
     `UPDATE words
-     SET example_sentence = $exampleSentence,
-         example_source = $source,
-         example_generated_at = $generatedAt,
+     SET phonetic = CASE
+           WHEN $updatePhonetic = 1 THEN $phonetic
+           ELSE phonetic
+         END,
+         example_sentence = CASE
+           WHEN $updateExample = 1 THEN $exampleSentence
+           ELSE example_sentence
+         END,
+         example_source = CASE
+           WHEN $updateExample = 1 THEN 'ai'
+           ELSE example_source
+         END,
+         example_generated_at = CASE
+           WHEN $updateExample = 1 THEN $generatedAt
+           ELSE example_generated_at
+         END,
          updated_at = $generatedAt
      WHERE id = $wordId`,
     {
-      $exampleSentence: exampleSentence,
+      $exampleSentence: data.exampleSentence ?? '',
       $generatedAt: now,
-      $source: source,
+      $phonetic: data.phonetic ?? '',
+      $updateExample: updateExample ? 1 : 0,
+      $updatePhonetic: updatePhonetic ? 1 : 0,
       $wordId: wordId,
     },
   );

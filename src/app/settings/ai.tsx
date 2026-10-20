@@ -10,11 +10,11 @@ import {
   setAiOverwriteExamples,
 } from '@/database/aiRepository';
 import {
-  generateWordExamples,
-  type ExampleGenerationProgress,
-} from '@/features/ai/generateWordExamples';
-import { AiExampleGenerationSection } from '@/features/settings/AiExampleGenerationSection';
+  generateMissingWordData,
+  type WordDataGenerationProgress,
+} from '@/features/ai/generateWordData';
 import { AiKeySection } from '@/features/settings/AiKeySection';
+import { AiWordDataGenerationSection } from '@/features/settings/AiWordDataGenerationSection';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 import {
@@ -38,11 +38,11 @@ export default function AiSettingsScreen() {
   const handleBack = useSettingsBackNavigation();
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [storedKey, setStoredKey] = useState<string | null>(null);
-  const [overwriteExamples, setOverwriteExamples] = useState(false);
+  const [overwriteWordData, setOverwriteWordData] = useState(false);
   const [isSavingKey, setIsSavingKey] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [progress, setProgress] = useState<ExampleGenerationProgress | null>(
+  const [progress, setProgress] = useState<WordDataGenerationProgress | null>(
     null,
   );
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -55,7 +55,7 @@ export default function AiSettingsScreen() {
       .then(([key, overwrite]) => {
         if (active) {
           setStoredKey(key);
-          setOverwriteExamples(overwrite);
+          setOverwriteWordData(overwrite);
         }
       })
       .catch(() => {
@@ -150,11 +150,11 @@ export default function AiSettingsScreen() {
   }
 
   async function handleOverwriteChange(value: boolean) {
-    setOverwriteExamples(value);
+    setOverwriteWordData(value);
     try {
       await setAiOverwriteExamples(db, value);
     } catch {
-      setOverwriteExamples(!value);
+      setOverwriteWordData(!value);
       setNotice({
         message: '无法保存覆盖选项，请稍后重试',
         title: '保存失败',
@@ -178,16 +178,16 @@ export default function AiSettingsScreen() {
     setIsGenerating(true);
     setProgress(null);
     try {
-      const result = await generateWordExamples({
+      const result = await generateMissingWordData({
         apiKey: storedKey,
         db,
         onProgress: setProgress,
-        overwriteExisting: overwriteExamples,
+        overwriteExisting: overwriteWordData,
       });
       setNotice({
         message:
           result.total === 0
-            ? '当前没有需要生成例句的单词'
+            ? '当前没有缺少音标或例句的单词'
             : `共处理 ${result.total} 个单词，成功 ${result.success} 个，失败 ${result.failed} 个`,
         title: '生成完成',
       });
@@ -196,7 +196,7 @@ export default function AiSettingsScreen() {
         message:
           error instanceof DeepSeekError
             ? error.message
-            : '生成单词例句失败，请稍后重试',
+            : '生成单词数据失败，请稍后重试',
         title: '生成失败',
       });
     } finally {
@@ -225,7 +225,7 @@ export default function AiSettingsScreen() {
 
           <View style={styles.divider} />
 
-          <AiExampleGenerationSection
+          <AiWordDataGenerationSection
             isGenerating={isGenerating}
             onGenerate={() => {
               void handleGenerate();
@@ -233,12 +233,12 @@ export default function AiSettingsScreen() {
             onOverwriteChange={(value) => {
               void handleOverwriteChange(value);
             }}
-            overwriteExamples={overwriteExamples}
+            overwriteExisting={overwriteWordData}
             progress={progress}
           />
 
           <Text style={styles.footerHint}>
-            学习任务运行时不会联网，只读取本地 CSV 或 AI 已生成的例句。
+            学习任务运行时不会联网，只读取本地 CSV 或 AI 已生成的单词数据。
           </Text>
         </View>
       </GreenSheetScreen>
@@ -257,7 +257,7 @@ export default function AiSettingsScreen() {
         visible={notice !== null}
       />
       <ActionOptionModal
-        message="清除后，App 将无法使用 AI 生成单词例句。"
+        message="清除后，App 将无法使用 AI 补齐音标和例句。"
         onClose={() => setClearConfirmVisible(false)}
         options={[
           {

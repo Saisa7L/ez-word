@@ -50,13 +50,13 @@ RootLayout
 | `application/daily-task` | 三种任务模式的启动选词编排 | `startTaskSelection.ts` |
 | `domain/word` | 任务流程领域类型 | `taskWord.ts` |
 | `features/word-import` | CSV 选择、解析、校验、导入和页面区块 | `importWordCsv.ts`、`csv.ts`、`components/` |
-| `features/ai` | 批量生成并写入例句 | `generateWordExamples.ts` |
+| `features/ai` | 批量补齐并写入音标和例句 | `generateWordData.ts` |
 | `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
 | `features/theme` | 运行时主题和动态样式 | `ThemeProvider.tsx` |
 | `features/profile` | 个人名片展示、编辑和外观弹窗 | `ProfileCard.tsx` |
 | `features/settings` | 通用设置表单和 AI 设置区块 | `DailyTaskSettingsForm.tsx` |
 | `database/*Repository.ts` | 各数据域 SQL 访问 | 仓库文件导出的函数 |
-| `services/deepSeekService.ts` | DeepSeek 请求和返回解析 | `generateExampleSentences` |
+| `services/deepSeekService.ts` | DeepSeek 请求和返回解析 | `generateWordData`、`parseGeneratedWordDataResponse` |
 | `services/speech.ts` | 听力顺序播放 | `playWordSequence` |
 | `services/archiveFiles.ts` | 存档文件读写 | `exportArchiveFile`、`pickArchiveFile` |
 | `services/aiKeyStore.ts` | API Key 安全存储 | `get/save/clearDeepSeekApiKey` |

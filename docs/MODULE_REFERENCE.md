@@ -88,8 +88,8 @@ Provider 内部分成两个 Context：
 | `listActiveWords(db, limit, offset)` | 当前词库分页 | 否 |
 | `deactivateWords(db, ids)` | 批量软移除 | 独占事务 |
 | `findWordByWord(db, word)` | 大小写不敏感查找 | 否 |
-| `listWordsForExampleGeneration(db, overwrite)` | 查询待生成例句单词 | 否 |
-| `updateWordExample(db, id, sentence, source)` | 写入例句 | 单条更新 |
+| `listWordsForDataGeneration(db, overwrite)` | 查询缺音标或例句的启用单词 | 否 |
+| `updateWordGeneratedData(db, id, data)` | 选择性写入音标和例句 | 单条更新 |
 | `listUnlearnedActiveWords(db, limit, randomize)` | 每日任务取词 | 否 |
 
 关键不变量：
@@ -204,8 +204,10 @@ Provider 内部分成两个 Context：
 
 ### ai
 
-- `generateWordExamples(options)`：按 10 个一批请求 DeepSeek
-- 成功后通过 `updateWordExample` 写本地
+- `generateMissingWordData(options)`：按 10 个一批请求 DeepSeek
+- 默认只处理缺音标或缺例句的启用单词
+- 覆盖模式会重新生成已有音标和例句，但不修改单词和释义
+- 成功后通过 `updateWordGeneratedData` 只写需要更新的字段
 - 进度回调不持久化
 
 ### archive
@@ -232,7 +234,7 @@ Provider 内部分成两个 Context：
 - `SettingStepper`：长按步进和边界禁用
 - `SettingToggleRow`：统一开关行
 - `AiKeySection`：API Key 保存、测试和清除入口
-- `AiExampleGenerationSection`：例句覆盖、进度和生成入口
+- `AiWordDataGenerationSection`：音标/例句覆盖、进度和生成入口
 - 路由页保留数据加载、持久化、网络流程和全局弹层
 
 ## Schema
@@ -261,7 +263,7 @@ Provider 内部分成两个 Context：
 
 | 服务 | 接口 | 副作用 |
 |---|---|---|
-| `deepSeekService` | `testDeepSeekConnection`、`generateExampleSentences` | 网络请求 |
+| `deepSeekService` | `testDeepSeekConnection`、`generateWordData` | 网络请求 |
 | `speech` | `playWordSequence` | TTS 播放和定时器 |
 | `archiveFiles` | `exportArchiveFile`、`pickArchiveFile` | Android 文件读写、扩展名和 20 MB 限额 |
 | `aiKeyStore` | `get/save/clearDeepSeekApiKey` | SecureStore |

@@ -9,24 +9,24 @@ import {
 } from 'react-native';
 
 import type { ThemeColors } from '@/constants/theme';
-import type { ExampleGenerationProgress } from '@/features/ai/generateWordExamples';
+import type { WordDataGenerationProgress } from '@/features/ai/generateWordData';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 
-type AiExampleGenerationSectionProps = {
+type AiWordDataGenerationSectionProps = {
   isGenerating: boolean;
   onGenerate: () => void;
   onOverwriteChange: (value: boolean) => void;
-  overwriteExamples: boolean;
-  progress: ExampleGenerationProgress | null;
+  overwriteExisting: boolean;
+  progress: WordDataGenerationProgress | null;
 };
 
-export function AiExampleGenerationSection({
+export function AiWordDataGenerationSection({
   isGenerating,
   onGenerate,
   onOverwriteChange,
-  overwriteExamples,
+  overwriteExisting,
   progress,
-}: AiExampleGenerationSectionProps) {
+}: AiWordDataGenerationSectionProps) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
 
@@ -34,21 +34,22 @@ export function AiExampleGenerationSection({
     <View style={styles.section}>
       <Text style={styles.title}>生成单词数据</Text>
       <Text style={styles.hint}>
-        使用 DeepSeek 为缺少例句的单词生成英文例句，并保存到本地数据库。
+        使用 DeepSeek
+        自动补齐当前词库中缺少音标或例句的单词，并把结果保存到本地数据库。单词和释义不会被修改。
       </Text>
 
       <View style={styles.switchRow}>
         <View style={styles.switchCopy}>
-          <Text style={styles.switchTitle}>覆盖已有例句</Text>
+          <Text style={styles.switchTitle}>覆盖已有单词数据</Text>
           <Text style={styles.switchHint}>
-            开启后会重新生成 CSV 或 AI 已有的例句
+            开启后会重新生成已有音标和例句；释义始终不变
           </Text>
         </View>
         <Switch
           onValueChange={onOverwriteChange}
           thumbColor={colors.surface}
           trackColor={{ false: colors.border, true: colors.accentText }}
-          value={overwriteExamples}
+          value={overwriteExisting}
         />
       </View>
 

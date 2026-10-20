@@ -51,7 +51,7 @@
 | 当前词库 | `src/app/settings/word-library.tsx` | 分页、状态修改和软移除 |
 | 添加单词 | `src/app/settings/word-library/add.tsx` | 手动添加单词 |
 | 本地存档 | `src/app/settings/archive.tsx` | 导出和恢复 JSON 存档 |
-| AI 设置 | `src/app/settings/ai.tsx` | Key、连接测试和例句生成 |
+| AI 设置 | `src/app/settings/ai.tsx` | Key、连接测试、音标和例句补齐 |
 | 关于 | `src/app/settings/about.tsx` | 名称、版本、链接和隐私说明 |
 
 ## 全局组件

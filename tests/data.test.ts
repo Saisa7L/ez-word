@@ -28,11 +28,16 @@ import {
   listAvailableWordsForWrongBook,
 } from '../src/database/wrongBookRepository';
 import {
+  listWordsForDataGeneration,
+  updateWordGeneratedData,
+} from '../src/database/wordsRepository';
+import {
   createArchiveSnapshot,
   parseArchiveSnapshot,
   restoreArchiveSnapshot,
   stringifyArchive,
 } from '../src/features/archive/archiveSnapshot';
+import { parseGeneratedWordDataResponse } from '../src/services/deepSeekService';
 
 type SqlParams = Record<string, number | string | null>;
 
@@ -113,6 +118,7 @@ async function insertTestWord(
     id: number;
     isActive?: boolean;
     learningStatus?: 'learned' | 'unlearned' | 'wrong';
+    phonetic?: string;
     word: string;
   },
 ): Promise<void> {
@@ -123,7 +129,7 @@ async function insertTestWord(
        is_active, learning_status, example_sentence,
        example_source, example_generated_at
      ) VALUES (
-       $id, $word, $meaning, '', $now, $now,
+       $id, $word, $meaning, $phonetic, $now, $now,
        $isActive, $status, $example, '', NULL
      )`,
     {
@@ -132,6 +138,7 @@ async function insertTestWord(
       $isActive: options.isActive === false ? 0 : 1,
       $meaning: options.word,
       $now: now,
+      $phonetic: options.phonetic ?? '',
       $status: options.learningStatus ?? 'unlearned',
       $word: options.word,
     },
@@ -972,6 +979,123 @@ test('excludes inactive and existing wrong-book words from add candidates', asyn
     words.map((word) => word.word),
     ['alpha'],
   );
+});
+
+test('selects only active words with incomplete generated data', async () => {
+  const adapter = await createMigratedAdapter();
+  await insertTestWord(adapter, { id: 1, word: 'alpha' });
+  await insertTestWord(adapter, {
+    id: 2,
+    phonetic: '/ˈbiːtə/',
+    word: 'beta',
+  });
+  await insertTestWord(adapter, {
+    id: 3,
+    phonetic: '/ˈɡæmə/',
+    word: 'gamma',
+  });
+  await insertTestWord(adapter, {
+    exampleSentence: 'Delta appears here.',
+    id: 4,
+    phonetic: '/ˈdeltə/',
+    word: 'delta',
+  });
+  await insertTestWord(adapter, {
+    id: 5,
+    isActive: false,
+    word: 'epsilon',
+  });
+
+  const incomplete = await listWordsForDataGeneration(
+    asDatabase(adapter),
+    false,
+  );
+  const overwriteAll = await listWordsForDataGeneration(
+    asDatabase(adapter),
+    true,
+  );
+
+  assert.deepEqual(
+    incomplete.map((word) => word.word),
+    ['alpha', 'beta', 'gamma'],
+  );
+  assert.deepEqual(
+    overwriteAll.map((word) => word.word),
+    ['alpha', 'beta', 'delta', 'gamma'],
+  );
+});
+
+test('updates only generated word fields', async () => {
+  const adapter = await createMigratedAdapter();
+  await insertTestWord(adapter, {
+    exampleSentence: 'Alpha already has a sentence.',
+    id: 1,
+    phonetic: '/ˈælfə/',
+    word: 'alpha',
+  });
+  await insertTestWord(adapter, {
+    exampleSentence: 'Beta already has a sentence.',
+    id: 2,
+    word: 'beta',
+  });
+
+  await updateWordGeneratedData(asDatabase(adapter), 1, {
+    exampleSentence: 'Alpha receives a generated sentence.',
+  });
+  await updateWordGeneratedData(asDatabase(adapter), 2, {
+    phonetic: '/ˈbiːtə/',
+  });
+
+  const rows = adapter.db
+    .prepare(
+      `SELECT id, phonetic, example_sentence, example_source
+       FROM words
+       ORDER BY id`,
+    )
+    .all() as {
+    example_sentence: string;
+    example_source: string;
+    id: number;
+    phonetic: string;
+  }[];
+
+  assert.deepEqual(
+    rows.map((row) => ({ ...row })),
+    [
+      {
+        example_sentence: 'Alpha receives a generated sentence.',
+        example_source: 'ai',
+        id: 1,
+        phonetic: '/ˈælfə/',
+      },
+      {
+        example_sentence: 'Beta already has a sentence.',
+        example_source: '',
+        id: 2,
+        phonetic: '/ˈbiːtə/',
+      },
+    ],
+  );
+});
+
+test('parses generated word data responses', () => {
+  const parsed = parseGeneratedWordDataResponse(
+    JSON.stringify({
+      words: [
+        {
+          phonetic: '/ˈæl.fə/',
+          sentence: 'Alpha appears in this simple example sentence.',
+          word: 'alpha',
+        },
+      ],
+    }),
+    [{ meaning: '阿尔法', phonetic: '', word: 'Alpha' }],
+  );
+
+  assert.deepEqual(parsed.get('Alpha'), {
+    phonetic: '/ˈæl.fə/',
+    sentence: 'Alpha appears in this simple example sentence.',
+  });
 });
 
 test('loads daily task words through the TaskWord mapper', async () => {
