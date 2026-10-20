@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import {
@@ -28,6 +27,7 @@ import {
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
 import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
+import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 
 const PAGE_SIZE = 5;
 
@@ -38,6 +38,7 @@ export default function AddWrongBookWordScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
+  const handleBack = useSafeBackNavigation();
   const [mode, setMode] = useState<AddMode>('existing');
   const [isSaving, setIsSaving] = useState(false);
   const [manualWord, setManualWord] = useState('');
@@ -79,7 +80,7 @@ export default function AddWrongBookWordScreen() {
     setIsSaving(true);
     try {
       await addWrongBookWords(db, [...selectedIds], 'manual');
-      router.back();
+      handleBack();
     } catch {
       showNotice('添加失败', '无法加入错题本，请稍后重试');
     } finally {
@@ -107,7 +108,7 @@ export default function AddWrongBookWordScreen() {
         return;
       }
       await addWrongBookWord(db, existing.id, 'manual');
-      router.back();
+      handleBack();
     } catch {
       showNotice('添加失败', '无法保存并加入错题本，请稍后重试');
     } finally {
@@ -117,7 +118,7 @@ export default function AddWrongBookWordScreen() {
 
   return (
     <GreenSheetScreen
-      onBack={() => router.back()}
+      onBack={handleBack}
       title="添加错题"
     >
       <View style={styles.content}>

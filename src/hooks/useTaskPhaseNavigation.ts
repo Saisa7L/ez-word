@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
 import { useCallback } from 'react';
 
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import type { TaskPhase } from '@/features/daily-task/taskReducer';
 import { getTaskPhaseRoute } from '@/features/daily-task/taskRoutes';
+import { pushOnce, replaceOnce } from '@/utils/navigationActions';
 
 type NavigationOptions = {
   replace?: boolean;
@@ -14,12 +14,12 @@ export function useTaskPhaseNavigation() {
 
   return useCallback(
     (phase: TaskPhase, { replace = false }: NavigationOptions = {}) => {
-      enterPhase(phase);
       const route = getTaskPhaseRoute(phase);
+      const prepareNavigation = () => enterPhase(phase);
       if (replace) {
-        router.replace(route);
+        replaceOnce(route, prepareNavigation);
       } else {
-        router.push(route);
+        pushOnce(route, prepareNavigation);
       }
     },
     [enterPhase],

@@ -3,7 +3,10 @@ import { useCallback, useState } from 'react';
 import { BackHandler } from 'react-native';
 
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
-import { returnToHome, type AppNavigation } from '@/utils/navigation';
+import {
+  resetToHomeOnce,
+  type AppNavigation,
+} from '@/utils/navigationActions';
 
 export function useDailyTaskExitGuard() {
   const { resetTask } = useDailyTaskSession();
@@ -19,9 +22,9 @@ export function useDailyTaskExitGuard() {
   }, []);
 
   const confirmExit = useCallback(() => {
-    setVisible(false);
-    resetTask();
-    returnToHome(navigation);
+    if (resetToHomeOnce(navigation, resetTask)) {
+      setVisible(false);
+    }
   }, [navigation, resetTask]);
 
   useFocusEffect(

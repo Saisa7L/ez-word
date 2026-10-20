@@ -1,13 +1,10 @@
-export type AppNavigation = {
-  reset: (state: {
-    index: number;
-    routes: { name: string }[];
-  }) => void;
-};
+import {
+  resetToHomeOnce,
+  type AppNavigation,
+} from './navigationActions';
 
-export function returnToHome(navigation: AppNavigation) {
-  navigation.reset({
-    index: 0,
-    routes: [{ name: '(tabs)' }],
-  });
+export type { AppNavigation };
+
+export function returnToHome(navigation: AppNavigation): boolean {
+  return resetToHomeOnce(navigation);
 }

@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -25,6 +25,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
 
 export default function HomeScreen() {
   const db = useSQLiteContext();
@@ -132,21 +133,21 @@ export default function HomeScreen() {
             backgroundColor={colors.graySoft}
             icon={uiAssets.home.task}
             iconColor={colors.accentText}
-            onPress={() => router.push('/daily-task')}
+            onPress={() => pushOnce('/daily-task')}
             title="今日任务"
           />
           <HomeActionCard
             backgroundColor={colors.orangeSoft}
             icon={uiAssets.home.wrongReview}
             iconColor={colors.orange}
-            onPress={() => router.push('/wrong-book/review')}
+            onPress={() => pushOnce('/wrong-book/review')}
             title="错题回顾"
           />
           <HomeActionCard
             backgroundColor={colors.blueSoft}
             icon={uiAssets.home.wordPractice}
             iconColor={colors.blue}
-            onPress={() => router.push('/review')}
+            onPress={() => pushOnce('/review')}
             title="单词再练"
           />
         </View>
@@ -158,7 +159,7 @@ export default function HomeScreen() {
         options={[
           {
             label: '去复习',
-            onPress: () => router.push('/review'),
+            onPress: () => pushOnce('/review'),
             tone: 'primary',
           },
           {

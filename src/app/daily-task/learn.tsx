@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
+import { TaskPhasePlaceholder } from '@/components/TaskPhasePlaceholder';
 import {
   radii,
   shadow,
@@ -46,7 +47,7 @@ export default function LearnWordsScreen() {
   );
 
   if (!taskReady) {
-    return null;
+    return <TaskPhasePlaceholder />;
   }
 
   const word = words[index];

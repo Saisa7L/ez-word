@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   Download,
@@ -28,6 +27,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 import {
   exportArchiveFile,
   pickArchiveFile,
@@ -39,6 +39,7 @@ export default function ArchiveSettingsScreen() {
   const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
   const { reloadTheme } = useAppTheme();
+  const handleBack = useSettingsBackNavigation();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [lastSummary, setLastSummary] = useState<ArchiveSummary | null>(null);
@@ -137,7 +138,7 @@ export default function ArchiveSettingsScreen() {
 
   return (
     <GreenSheetScreen
-      onBack={() => router.back()}
+      onBack={handleBack}
       title="本地存档"
     >
       <View style={styles.content}>

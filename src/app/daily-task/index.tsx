@@ -1,4 +1,4 @@
-import { router, useFocusEffect, useNavigation } from 'expo-router';
+import { useFocusEffect, useNavigation } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
@@ -22,7 +22,9 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 import { returnToHome, type AppNavigation } from '@/utils/navigation';
+import { pushOnce } from '@/utils/navigationActions';
 
 export default function DailyTaskStartScreen() {
   const db = useSQLiteContext();
@@ -30,6 +32,7 @@ export default function DailyTaskStartScreen() {
   const styles = useThemedStyles(createStyles);
   const { startTask } = useDailyTaskSession();
   const navigation = useNavigation<AppNavigation>('/');
+  const handleBack = useSafeBackNavigation();
   const [availableWords, setAvailableWords] = useState<TaskWord[] | null>(null);
   const [taskSettings, setTaskSettings] = useState<DailyTaskSettings | null>(null);
 
@@ -65,16 +68,10 @@ export default function DailyTaskStartScreen() {
       return;
     }
 
-    startTask(availableWords, taskSettings);
-    router.push('/daily-task/learn');
-  }
-
-  function handleBack() {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/');
-    }
+    pushOnce(
+      '/daily-task/learn',
+      () => startTask(availableWords, taskSettings),
+    );
   }
 
   function handleReturnHome() {

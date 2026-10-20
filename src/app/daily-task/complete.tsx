@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SurfaceCard } from '@/components/SurfaceCard';
+import { TaskPhasePlaceholder } from '@/components/TaskPhasePlaceholder';
 import { shadow, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
 import { completeTaskSession } from '@/database/taskCompletionRepository';
@@ -28,9 +29,9 @@ import {
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
 import {
-  returnToHome,
+  resetToHomeOnce,
   type AppNavigation,
-} from '@/utils/navigation';
+} from '@/utils/navigationActions';
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -101,9 +102,7 @@ export default function DailyTaskCompleteScreen() {
     if (completionState === 'saving') {
       return;
     }
-
-    returnToHome(navigation);
-    resetTask();
+    resetToHomeOnce(navigation, resetTask);
   }, [completionState, navigation, resetTask]);
 
   useEffect(() => {
@@ -139,7 +138,7 @@ export default function DailyTaskCompleteScreen() {
   );
 
   if (!taskReady) {
-    return null;
+    return <TaskPhasePlaceholder />;
   }
 
   return (

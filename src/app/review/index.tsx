@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Minus, Plus } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -20,10 +19,12 @@ import {
 } from '@/database/settingsRepository';
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
 import { useLongPressStep } from '@/hooks/useLongPressStep';
+import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
 
 const REVIEW_DAYS_MIN = 1;
 const REVIEW_DAYS_MAX = 9999;
@@ -33,6 +34,7 @@ export default function ReviewStartScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { startTask } = useDailyTaskSession();
+  const handleBack = useSafeBackNavigation();
   const [selectedDays, setSelectedDays] = useState<number | null>(7);
   const selectedDaysRef = useRef<number | null>(7);
   const lastNumericDaysRef = useRef(7);
@@ -102,7 +104,6 @@ export default function ReviewStartScreen() {
         db,
         selectedDays,
       );
-      setSettings(selection.settings);
       if (selection.words.length === 0) {
         setNotice({
           message: '当前范围内没有已学习的单词',
@@ -111,8 +112,13 @@ export default function ReviewStartScreen() {
         return;
       }
 
-      startTask(selection.words, selection.settings, 'wordReview');
-      router.push('/daily-task/fill-blank');
+      pushOnce(
+        '/daily-task/fill-blank',
+        () => {
+          setSettings(selection.settings);
+          startTask(selection.words, selection.settings, 'wordReview');
+        },
+      );
     } catch {
       setNotice({
         message: '无法读取复习单词，请稍后重试',
@@ -126,7 +132,7 @@ export default function ReviewStartScreen() {
   return (
     <>
       <GreenSheetScreen
-        onBack={() => router.back()}
+        onBack={handleBack}
         title="单词再练"
       >
         <View style={styles.content}>

@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
+import { Button } from '@/components/Button';
+import { TaskPhasePlaceholder } from '@/components/TaskPhasePlaceholder';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { type ThemeColors } from '@/constants/theme';
 import {
@@ -41,7 +43,7 @@ export default function FillBlankScreen() {
   );
 
   if (!taskReady) {
-    return null;
+    return <TaskPhasePlaceholder />;
   }
 
   const allAnswered = words.every((word) => answers[word.id] !== undefined);
@@ -141,18 +143,14 @@ export default function FillBlankScreen() {
         wordBank={wordBank}
       />
 
-      <Pressable
-        accessibilityRole="button"
+      <Button
         disabled={!allAnswered}
         onPress={handleSubmit}
-        style={({ pressed }) => [
-          styles.submitButton,
-          !allAnswered && styles.submitButtonDisabled,
-          pressed && styles.pressed,
-        ]}
+        style={styles.submitButton}
+        textStyle={styles.submitText}
       >
-        <Text style={styles.submitText}>提交</Text>
-      </Pressable>
+        提交
+      </Button>
 
       <TaskErrorModal
         errorCount={errorWordIds.length}
@@ -201,20 +199,11 @@ const createStyles = (colors: ThemeColors) =>
       flex: 1,
     },
     submitButton: {
-      alignItems: 'center',
-      backgroundColor: colors.primary,
-      borderRadius: 28,
       height: 60,
-      justifyContent: 'center',
       marginBottom: 16,
       marginHorizontal: 24,
     },
-    submitButtonDisabled: {
-      backgroundColor: colors.disabled,
-    },
     submitText: {
-      color: colors.onPrimary,
       fontSize: 22,
-      fontWeight: '700',
     },
   });

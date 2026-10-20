@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -19,6 +18,7 @@ import { AiKeySection } from '@/features/settings/AiKeySection';
 import {
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 import {
   clearDeepSeekApiKey,
   getDeepSeekApiKey,
@@ -37,6 +37,7 @@ type Notice = {
 export default function AiSettingsScreen() {
   const db = useSQLiteContext();
   const styles = useThemedStyles(createStyles);
+  const handleBack = useSettingsBackNavigation();
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [storedKey, setStoredKey] = useState<string | null>(null);
   const [overwriteExamples, setOverwriteExamples] = useState(false);
@@ -208,7 +209,7 @@ export default function AiSettingsScreen() {
   return (
     <>
       <GreenSheetScreen
-        onBack={() => router.back()}
+        onBack={handleBack}
         title="AI 设置"
       >
         <View style={styles.content}>

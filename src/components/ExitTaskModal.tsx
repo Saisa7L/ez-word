@@ -1,12 +1,10 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import {
-  DEFAULT_GREEN,
-  radii,
-  spacing,
-  type ThemeColors,
-} from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+
+import { Button } from './Button';
+import { Dialog } from './Dialog';
 
 type ExitTaskModalProps = {
   onCancel: () => void;
@@ -24,42 +22,33 @@ export function ExitTaskModal({
   const styles = useThemedStyles(createStyles);
 
   return (
-    <Modal
-      animationType="fade"
+    <Dialog
+      contentStyle={styles.dialog}
       onRequestClose={onCancel}
-      transparent
       visible={visible}
     >
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>退出{taskLabel}？</Text>
-          <View style={styles.actions}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={onConfirm}
-              style={({ pressed }) => [
-                styles.button,
-                styles.confirmButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={[styles.buttonText, styles.confirmText]}>是</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              onPress={onCancel}
-              style={({ pressed }) => [
-                styles.button,
-                styles.cancelButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={[styles.buttonText, styles.cancelText]}>否</Text>
-            </Pressable>
-          </View>
-        </View>
+      <Text style={styles.title}>退出{taskLabel}？</Text>
+      <View style={styles.actions}>
+        <Button
+          accessibilityLabel={`确认退出${taskLabel}`}
+          onPress={onConfirm}
+          style={styles.button}
+          textStyle={styles.buttonText}
+          variant="success"
+        >
+          是
+        </Button>
+        <Button
+          accessibilityLabel={`取消退出${taskLabel}`}
+          onPress={onCancel}
+          style={styles.button}
+          textStyle={styles.buttonText}
+          variant="danger"
+        >
+          否
+        </Button>
       </View>
-    </Modal>
+    </Dialog>
   );
 }
 
@@ -72,48 +61,17 @@ const createStyles = (colors: ThemeColors) =>
     width: '100%',
   },
   button: {
-    alignItems: 'center',
-    borderRadius: 28,
-    height: 58,
-    justifyContent: 'center',
     flex: 1,
     minWidth: 0,
   },
   buttonText: {
-    color: colors.onPrimary,
     fontSize: 22,
-    fontWeight: '700',
-  },
-  cancelButton: {
-    backgroundColor: colors.red,
-  },
-  cancelText: {
-    color: '#FFFFFF',
-  },
-  confirmButton: {
-    backgroundColor: DEFAULT_GREEN,
-  },
-  confirmText: {
-    color: '#FFFFFF',
   },
   dialog: {
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    maxWidth: 430,
     paddingHorizontal: 34,
     paddingVertical: 40,
     width: '82%',
-  },
-  overlay: {
-    alignItems: 'center',
-    backgroundColor: colors.overlay,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  pressed: {
-    opacity: 0.7,
   },
   title: {
     color: colors.text,

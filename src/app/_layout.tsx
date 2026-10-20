@@ -1,9 +1,10 @@
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
-import { Suspense, useMemo } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import {
   ActivityIndicator,
+  BackHandler,
   Pressable,
   StyleSheet,
   Text,
@@ -23,6 +24,15 @@ import {
   useAppTheme,
   useOptionalAppTheme,
 } from '@/features/theme/ThemeProvider';
+import {
+  completeNavigationLock,
+  isNavigationLocked,
+} from '@/utils/backNavigation';
+import {
+  backOnce,
+  canGoBack,
+  dismissToOnce,
+} from '@/utils/navigationActions';
 
 export default function RootLayout() {
   return (
@@ -49,10 +59,46 @@ function ThemedApp() {
     <>
       <StatusBar style={statusBarStyle} />
       <AppFeedbackProvider>
+        <HardwareBackController />
         <Stack screenOptions={{ headerShown: false }} />
       </AppFeedbackProvider>
     </>
   );
+}
+
+function HardwareBackController() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    completeNavigationLock();
+  }, [pathname]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (isNavigationLocked()) {
+          return true;
+        }
+
+        if (pathname.startsWith('/settings/')) {
+          dismissToOnce('/settings');
+          return true;
+        }
+
+        if (!canGoBack()) {
+          return false;
+        }
+
+        backOnce();
+        return true;
+      },
+    );
+
+    return () => subscription.remove();
+  }, [pathname]);
+
+  return null;
 }
 
 function LoadingScreen() {

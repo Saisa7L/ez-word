@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-20 13:44
+最后更新：2026-10-20 20:22
 
 ## 使用方式
 
@@ -56,6 +56,22 @@ Provider 内部分成两个 Context：
 
 - `showNotice(title, message?)`
 - `showConfirm(options)`：确认、取消、危险操作统一使用 `ActionOptionModal`
+
+## 导航
+
+所有 Expo Router 导航动作必须经过 `src/utils/navigationActions.ts`：
+
+- `runNavigationOnce(action)`：获得导航锁后执行一次动作。
+- `pushOnce`、`replaceOnce`、`dismissToOnce`：支持可选的准备回调，准备动作与导航在同一把锁内执行。
+- `backOnce(fallbackHref?)`：有历史时返回，无历史时进入指定的回退路由。
+- `resetToHomeOnce(navigation, prepareAction?)`：任务状态重置与首页 reset 只执行一次。
+- `canGoBack()`：仅供根 BackHandler 判断是否允许系统退出。
+
+`src/utils/backNavigation.ts` 维护模块级导航锁：
+
+- 最小锁定 300ms，避免 PUSH 与立即 BACK 交错。
+- 最大等待 500ms，路由未变化时兜底释放，避免死锁。
+- 根布局监听 `usePathname()`，路径变化后完成锁。
 
 ## 数据仓库
 
@@ -257,6 +273,8 @@ Provider 内部分成两个 Context：
 | `useDailyTaskExitGuard` | 焦点级返回键拦截、退出确认、清空任务 | 任务页 |
 | `useDailyTaskPhaseGuard` | 阻止任务深链或错误阶段进入不匹配页面 | 四个任务阶段页 |
 | `useTaskPhaseNavigation` | 原子推进阶段并导航到对应页面 | 认识、填空、听力页 |
+| `useSettingsBackNavigation` | 设置子页固定回到 `/settings` | 设置子页和添加单词页 |
+| `useSafeBackNavigation` | 有历史时返回，无历史时进入回退路由 | 普通非设置子页 |
 | `useLongPressStep` | 长按连续步进 | 设置和复习范围 |
 | `usePaginatedSelection` | 分页、加载、选择、请求竞态保护 | 错题本、词库、添加错题 |
 
@@ -273,6 +291,9 @@ Provider 内部分成两个 Context：
 | `OutlinedText` | 填充色、描边色、宽度 | 名片描边文字 |
 | `SelectionMarker` | 序号、是否选中、检查图标大小 | 列表选择可视化 |
 | `TaskErrorModal` | 错误数量、确认、关闭回调 | 确认只更新内存错误集合；Android 返回只关闭 |
+| `Button` | `variant`、禁用态、按压态、文本样式 | 统一任务主按钮、危险、成功和次按钮 |
+| `Dialog` | 可见性、关闭回调、内容样式 | 统一遮罩、容器和模态无障碍语义 |
+| `TaskPhasePlaceholder` | 当前任务阶段尚未就绪 | 主题背景、加载指示和恢复提示 |
 | `ListeningPlayerCard` | 阅读进度、播放、回退和倍速 | 听力播放控制 |
 | `ListeningAnswerList` | 听力答案、错误状态和滚动 | 听力输入列表 |
 | `FillBlankQuestionCard` | 题目、填空答案和错误状态 | 填空题卡与滚动 |
@@ -282,7 +303,7 @@ Provider 内部分成两个 Context：
 
 - 页面可以调用简单仓库读取。
 - 涉及多个表、事务或较长流程时，优先进入 `features` 或 Hook。
-- 页面负责导航和局部弹层，不应复制数据库事务。
+- 页面负责局部弹层和导航意图，实际导航必须调用统一导航入口。
 - 组件不应直接读取 SQLite。
 - 服务不负责导航和页面提示。
 

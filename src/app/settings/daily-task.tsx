@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import {
@@ -23,12 +22,15 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 export default function DailyTaskSettingsScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
   const [settings, setSettings] = useState<DailyTaskSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccessVisible, setSaveSuccessVisible] = useState(false);
@@ -46,14 +48,14 @@ export default function DailyTaskSettingsScreen() {
       .catch(() => {
         if (active) {
           showNotice('加载失败', '无法读取每日任务设置，请稍后重试');
-          router.back();
+          handleBack();
         }
       });
 
     return () => {
       active = false;
     };
-  }, [db, showNotice]);
+  }, [db, handleBack, showNotice]);
 
   async function handleSave() {
     if (!settings || isSaving) {
@@ -74,7 +76,7 @@ export default function DailyTaskSettingsScreen() {
   return (
     <>
       <GreenSheetScreen
-        onBack={() => router.back()}
+        onBack={handleBack}
         title="通用设置"
       >
         {settings ? (
@@ -120,7 +122,7 @@ export default function DailyTaskSettingsScreen() {
         options={[
           {
             label: '去复习',
-            onPress: () => router.push('/review'),
+            onPress: () => pushOnce('/review'),
             tone: 'primary',
           },
           {

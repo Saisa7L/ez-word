@@ -39,7 +39,9 @@ export function FillBlankWordBank({
           const used = usedWordIds.has(word.id);
           return (
             <Pressable
+              accessibilityLabel={word.word}
               accessibilityRole="button"
+              accessibilityState={{ selected }}
               key={word.id}
               onPress={() => onSelectWord(selected ? null : word.id)}
               style={({ pressed }) => [
@@ -70,7 +72,9 @@ export function FillBlankWordBank({
       >
         {pages.map((_, index) => (
           <Pressable
+            accessibilityLabel={`第 ${index + 1} 页词库`}
             accessibilityRole="button"
+            accessibilityState={{ selected: pageIndex === index }}
             key={`word-page-${index + 1}`}
             onPress={() => {
               onSelectWord(null);

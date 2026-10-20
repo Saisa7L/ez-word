@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -31,6 +30,8 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 import { pickWordCsvFile } from '@/services/wordCsvFiles';
 
 export default function ImportWordsScreen() {
@@ -38,6 +39,7 @@ export default function ImportWordsScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
   const [file, setFile] = useState<PickedCsvFile | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -156,7 +158,7 @@ export default function ImportWordsScreen() {
             accessibilityLabel="返回"
             accessibilityRole="button"
             hitSlop={12}
-            onPress={() => router.back()}
+            onPress={handleBack}
             style={({ pressed }) => [
               styles.backButton,
               pressed && styles.pressed,
@@ -201,7 +203,7 @@ export default function ImportWordsScreen() {
           clearDisabled={clearDisabled}
           isClearing={isClearing}
           onClear={requestClearWords}
-          onViewLibrary={() => router.push('/settings/word-library')}
+          onViewLibrary={() => pushOnce('/settings/word-library')}
         />
       </ScrollView>
 

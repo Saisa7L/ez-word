@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExitTaskModal } from '@/components/ExitTaskModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
+import { Button } from '@/components/Button';
+import { TaskPhasePlaceholder } from '@/components/TaskPhasePlaceholder';
 import { TaskErrorModal } from '@/components/TaskErrorModal';
 import { type ThemeColors } from '@/constants/theme';
 import { LISTENING_RATES } from '@/database/settingsRepository';
@@ -75,7 +77,7 @@ export default function ListeningScreen() {
   );
 
   if (!taskReady || listeningWords.length === 0) {
-    return null;
+    return <TaskPhasePlaceholder />;
   }
 
   const totalReads = listeningWords.length * 2;
@@ -254,20 +256,14 @@ export default function ListeningScreen() {
         wrongWordIds={wrongWordIds}
       />
 
-      <Pressable
-        accessibilityRole="button"
+      <Button
         disabled={!allAnswered || isSubmitting}
         onPress={handleSubmit}
-        style={({ pressed }) => [
-          styles.submitButton,
-          (!allAnswered || isSubmitting) && styles.submitButtonDisabled,
-          pressed && !isSubmitting && styles.pressed,
-        ]}
+        style={styles.submitButton}
+        textStyle={styles.submitText}
       >
-        <Text style={styles.submitText}>
-          {isSubmitting ? '保存中...' : '提交'}
-        </Text>
-      </Pressable>
+        {isSubmitting ? '保存中...' : '提交'}
+      </Button>
 
       <TaskErrorModal
         errorCount={errorWordIds.length}
@@ -316,21 +312,12 @@ const createStyles = (colors: ThemeColors) =>
     flex: 1,
   },
   submitButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 28,
     height: 60,
-    justifyContent: 'center',
     marginBottom: 16,
     marginHorizontal: 24,
     marginTop: 18,
   },
-  submitButtonDisabled: {
-    backgroundColor: colors.disabled,
-  },
   submitText: {
-    color: colors.onPrimary,
     fontSize: 22,
-    fontWeight: '700',
   },
 });

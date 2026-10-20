@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
@@ -19,10 +19,12 @@ import { loadWrongReviewSelection } from '@/application/daily-task/startTaskSele
 import type { DailyTaskSettings } from '@/database/settingsRepository';
 import type { TaskWord } from '@/domain/word/taskWord';
 import { useDailyTaskSession } from '@/features/daily-task/DailyTaskProvider';
+import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
 
 export default function WrongBookReviewStartScreen() {
   const db = useSQLiteContext();
@@ -30,6 +32,7 @@ export default function WrongBookReviewStartScreen() {
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const { startTask } = useDailyTaskSession();
+  const handleBack = useSafeBackNavigation();
   const [wrongCount, setWrongCount] = useState<number | null>(null);
   const [taskSettings, setTaskSettings] =
     useState<DailyTaskSettings | null>(null);
@@ -79,8 +82,10 @@ export default function WrongBookReviewStartScreen() {
 
     setIsStarting(true);
     try {
-      startTask(reviewWords, taskSettings, 'wrongReview');
-      router.push('/daily-task/learn');
+      pushOnce(
+        '/daily-task/learn',
+        () => startTask(reviewWords, taskSettings, 'wrongReview'),
+      );
     } catch {
       showNotice('无法开始回顾', '请稍后重试');
     } finally {
@@ -95,7 +100,7 @@ export default function WrongBookReviewStartScreen() {
           accessibilityLabel="返回"
           accessibilityRole="button"
           hitSlop={12}
-          onPress={() => router.back()}
+          onPress={handleBack}
           style={({ pressed }) => [
             styles.backButton,
             pressed && styles.pressed,

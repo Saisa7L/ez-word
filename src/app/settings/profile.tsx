@@ -1,7 +1,6 @@
 import { File } from 'expo-file-system';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Palette, Type } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -46,12 +45,14 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 export default function ProfileScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
   const cardRef = useRef<View>(null);
   const [displayName, setDisplayName] = useState('User');
   const [bio, setBio] = useState('');
@@ -251,7 +252,7 @@ export default function ProfileScreen() {
   return (
     <>
       <GreenSheetScreen
-        onBack={() => router.back()}
+        onBack={handleBack}
         title="个人资料"
       >
         <View style={styles.content}>

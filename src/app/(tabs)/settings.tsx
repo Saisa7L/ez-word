@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Palette } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
@@ -16,6 +16,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
 
 export default function SettingsScreen() {
   const db = useSQLiteContext();
@@ -55,7 +56,7 @@ export default function SettingsScreen() {
         <View style={styles.menuCard}>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push('/settings/profile')}
+            onPress={() => pushOnce('/settings/profile')}
             style={({ pressed }) => [
               styles.avatarRow,
               pressed && styles.pressed,
@@ -83,35 +84,35 @@ export default function SettingsScreen() {
             icon={uiAssets.settings.dailyTask}
             iconColor={colors.orange}
             label="通用设置"
-            onPress={() => router.push('/settings/daily-task')}
+            onPress={() => pushOnce('/settings/daily-task')}
           />
           <SettingsRow
             backgroundColor={colors.blueSoft}
             iconColor={colors.blue}
             iconElement={<Palette color={colors.blue} size={25} strokeWidth={2.2} />}
             label="主题外观"
-            onPress={() => router.push('/settings/theme')}
+            onPress={() => pushOnce('/settings/theme')}
           />
           <SettingsRow
             backgroundColor={colors.graySoft}
             icon={uiAssets.settings.import}
             iconColor={colors.accentText}
             label="导入单词"
-            onPress={() => router.push('/settings/import')}
+            onPress={() => pushOnce('/settings/import')}
           />
           <SettingsRow
             backgroundColor={colors.orangeSoft}
             iconColor={colors.orange}
             iconElement={<ArchiveIcon color={colors.orange} />}
             label="本地存档"
-            onPress={() => router.push('/settings/archive')}
+            onPress={() => pushOnce('/settings/archive')}
           />
           <SettingsRow
             backgroundColor={colors.blueSoft}
             icon={uiAssets.settings.ai}
             iconColor={colors.blue}
             label="AI 设置"
-            onPress={() => router.push('/settings/ai')}
+            onPress={() => pushOnce('/settings/ai')}
           />
           <SettingsRow
             backgroundColor={colors.graySoft}
@@ -119,7 +120,7 @@ export default function SettingsScreen() {
             iconColor={colors.slate}
             label="关于"
             last
-            onPress={() => router.push('/settings/about')}
+            onPress={() => pushOnce('/settings/about')}
           />
         </View>
       </View>

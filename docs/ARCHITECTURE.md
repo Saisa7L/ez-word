@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-20 13:44
+最后更新：2026-10-20 20:22
 
 ## 架构概览
 
@@ -68,6 +68,11 @@ RootLayout
 | `database/taskCompletionRepository.ts` | 完成页统一结算任务数据 | `completeTaskSession` |
 | `database/taskWordMapper.ts` | 数据库行到任务领域对象映射 | `mapTaskWordRow` |
 | `hooks/useDailyTaskPhaseGuard` | 任务路由与显式阶段一致性校验 | `useDailyTaskPhaseGuard` |
+| `utils/backNavigation` | 全导航动作锁、最小/最大锁定和纯测试入口 | `beginNavigationLock`、`completeNavigationLock`、`runNavigationOnce` |
+| `utils/navigationActions` | 唯一 Expo Router 导航动作入口 | `pushOnce`、`backOnce`、`replaceOnce`、`dismissToOnce`、`resetToHomeOnce` |
+| `components/Button` | 通用按钮变体和状态 | `Button` |
+| `components/Dialog` | 通用模态容器和无障碍语义 | `Dialog` |
+| `components/TaskPhasePlaceholder` | 任务阶段恢复占位 | `TaskPhasePlaceholder` |
 
 ## 状态归属
 
@@ -113,6 +118,7 @@ components → constants / hooks / utils
 - 跨页面任务运行态放在 Provider。
 - 列表分页和选择状态放在 Hook。
 - 页面只保留路由、展示和局部交互。
+- 所有页面导航统一调用 `utils/navigationActions`，不在页面或 Hook 中直接调用 Router。
 - 只有出现真实复用或复杂编排时才抽离，不为了目录整齐制造抽象。
 
 架构判断必须同时考虑：

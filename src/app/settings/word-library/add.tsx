@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import {
@@ -21,12 +20,14 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 export default function AddLibraryWordScreen() {
   const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
   const [word, setWord] = useState('');
   const [meaning, setMeaning] = useState('');
   const [phonetic, setPhonetic] = useState('');
@@ -59,7 +60,7 @@ export default function AddLibraryWordScreen() {
         phonetic: cleanPhonetic,
         word: cleanWord,
       });
-      router.back();
+      handleBack();
     } catch {
       showNotice('添加失败', '无法添加单词，请稍后重试');
     } finally {
@@ -69,7 +70,7 @@ export default function AddLibraryWordScreen() {
 
   return (
     <GreenSheetScreen
-      onBack={() => router.back()}
+      onBack={handleBack}
       title="添加单词"
     >
       <View style={styles.content}>

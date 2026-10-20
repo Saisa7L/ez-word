@@ -1,5 +1,4 @@
 import Constants from 'expo-constants';
-import { router } from 'expo-router';
 import {
   ExternalLink,
   GitBranch,
@@ -36,6 +35,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 const APP_VERSION = Constants.expoConfig?.version ?? '1.0.0';
 const BUILD_NUMBER = Constants.expoConfig?.android?.versionCode ?? 1;
@@ -109,6 +109,7 @@ export default function AboutScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
 
   async function openLink(url: string) {
     try {
@@ -120,7 +121,7 @@ export default function AboutScreen() {
 
   return (
     <GreenSheetScreen
-      onBack={() => router.back()}
+      onBack={handleBack}
       title="关于"
     >
       <View style={styles.content}>

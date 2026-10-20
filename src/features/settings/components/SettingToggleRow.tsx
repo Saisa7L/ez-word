@@ -29,6 +29,9 @@ export function SettingToggleRow({
         <Text style={styles.hint}>{hint}</Text>
       </View>
       <Switch
+        accessibilityHint={hint}
+        accessibilityLabel={title}
+        accessibilityState={{ checked: value }}
         onValueChange={onValueChange}
         thumbColor={colors.surface}
         trackColor={{ false: colors.border, true: colors.accentText }}

@@ -1,7 +1,10 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
-import { radii, spacing, type ThemeColors } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+
+import { Button } from './Button';
+import { Dialog } from './Dialog';
 
 type TaskErrorModalProps = {
   errorCount: number;
@@ -19,28 +22,23 @@ export function TaskErrorModal({
   const styles = useThemedStyles(createStyles);
 
   return (
-    <Modal
-      animationType="fade"
+    <Dialog
+      contentStyle={styles.dialog}
       onRequestClose={onDismiss}
-      transparent
       visible={visible}
     >
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>填写有误</Text>
-          <Text style={styles.message}>
-            有 {errorCount} 处填写错误，请修改后再继续。
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            onPress={onConfirm}
-            style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-          >
-            <Text style={styles.buttonText}>确认</Text>
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+      <Text style={styles.title}>填写有误</Text>
+      <Text style={styles.message}>
+        有 {errorCount} 处填写错误，请修改后再继续。
+      </Text>
+      <Button
+        accessibilityLabel="确认填写错误"
+        onPress={onConfirm}
+        style={styles.button}
+      >
+        确认
+      </Button>
+    </Dialog>
   );
 }
 
@@ -55,15 +53,7 @@ const createStyles = (colors: ThemeColors) =>
     justifyContent: 'center',
     marginTop: 30,
   },
-  buttonText: {
-    color: colors.onPrimary,
-    fontSize: 21,
-    fontWeight: '700',
-  },
   dialog: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    maxWidth: 430,
     padding: 28,
     width: '82%',
   },
@@ -73,16 +63,6 @@ const createStyles = (colors: ThemeColors) =>
     lineHeight: 28,
     marginTop: 16,
     textAlign: 'center',
-  },
-  overlay: {
-    alignItems: 'center',
-    backgroundColor: colors.overlay,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  pressed: {
-    opacity: 0.7,
   },
   title: {
     color: colors.text,

@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   Plus,
@@ -29,6 +28,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
 import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 
 const PAGE_SIZE = 5;
@@ -166,7 +166,7 @@ export default function WrongBookScreen() {
         <View style={styles.actions}>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push('/wrong-book/add')}
+            onPress={() => pushOnce('/wrong-book/add')}
             style={({ pressed }) => [
               styles.actionButton,
               styles.addButton,

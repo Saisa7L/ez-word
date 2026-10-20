@@ -1,7 +1,9 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { radii, spacing, type ThemeColors } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/features/theme/ThemeProvider';
+
+import { Dialog } from './Dialog';
 
 export type ActionOption = {
   label: string;
@@ -27,60 +29,47 @@ export function ActionOptionModal({
   const styles = useThemedStyles(createStyles);
 
   return (
-    <Modal
-      animationType="fade"
+    <Dialog
       onRequestClose={onClose}
-      transparent
       visible={visible}
     >
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          <Text style={styles.title}>{title}</Text>
-          {message ? <Text style={styles.message}>{message}</Text> : null}
+      <Text style={styles.title}>{title}</Text>
+      {message ? <Text style={styles.message}>{message}</Text> : null}
 
-          <View style={styles.options}>
-            {options.map((option) => (
-              <Pressable
-                key={option.label}
-                accessibilityRole="button"
-                onPress={() => {
-                  onClose();
-                  option.onPress();
-                }}
-                style={({ pressed }) => [
-                  styles.optionButton,
-                  option.tone === 'primary' && styles.optionPrimary,
-                  option.tone === 'danger' && styles.optionDanger,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.optionText,
-                    option.tone === 'primary' && styles.optionTextPrimary,
-                    option.tone === 'danger' && styles.optionTextDanger,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
+      <View style={styles.options}>
+        {options.map((option) => (
+          <Pressable
+            key={option.label}
+            accessibilityRole="button"
+            onPress={() => {
+              onClose();
+              option.onPress();
+            }}
+            style={({ pressed }) => [
+              styles.optionButton,
+              option.tone === 'primary' && styles.optionPrimary,
+              option.tone === 'danger' && styles.optionDanger,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.optionText,
+                option.tone === 'primary' && styles.optionTextPrimary,
+                option.tone === 'danger' && styles.optionTextDanger,
+              ]}
+            >
+              {option.label}
+            </Text>
+          </Pressable>
+        ))}
       </View>
-    </Modal>
+    </Dialog>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  dialog: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    maxWidth: 430,
-    padding: 24,
-    width: '86%',
-  },
   message: {
     color: colors.textSecondary,
     fontSize: 16,
@@ -115,13 +104,6 @@ const createStyles = (colors: ThemeColors) =>
   options: {
     gap: 10,
     marginTop: 22,
-  },
-  overlay: {
-    alignItems: 'center',
-    backgroundColor: colors.overlay,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
   },
   pressed: {
     opacity: 0.66,

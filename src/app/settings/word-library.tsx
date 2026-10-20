@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   Plus,
@@ -31,7 +30,9 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { pushOnce } from '@/utils/navigationActions';
 import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 const PAGE_SIZE = 5;
 
@@ -46,6 +47,7 @@ export default function WordLibraryScreen() {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
   const [isRemoving, setIsRemoving] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
@@ -130,7 +132,7 @@ export default function WordLibraryScreen() {
   return (
     <>
       <GreenSheetScreen
-        onBack={() => router.back()}
+        onBack={handleBack}
         title="当前词库"
       >
         <View style={styles.content}>
@@ -225,7 +227,7 @@ export default function WordLibraryScreen() {
         <View style={styles.actions}>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push('/settings/word-library/add')}
+            onPress={() => pushOnce('/settings/word-library/add')}
             style={({ pressed }) => [
               styles.actionButton,
               styles.addButton,

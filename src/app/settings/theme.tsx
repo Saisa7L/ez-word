@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { Check, Moon, Palette, Sun } from 'lucide-react-native';
 import { useState } from 'react';
 import {
@@ -21,6 +20,7 @@ import {
   useAppTheme,
   useThemedStyles,
 } from '@/features/theme/ThemeProvider';
+import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 const THEME_OPTIONS: {
   description: string;
@@ -56,6 +56,7 @@ export default function ThemeSettingsScreen() {
     saveTheme,
   } = useAppTheme();
   const { showNotice } = useAppFeedback();
+  const handleBack = useSettingsBackNavigation();
   const [draftMode, setDraftMode] = useState(mode);
   const [draftPrimary, setDraftPrimary] = useState(primaryColor);
   const [isSaving, setIsSaving] = useState(false);
@@ -81,7 +82,7 @@ export default function ThemeSettingsScreen() {
 
   return (
     <GreenSheetScreen
-      onBack={() => router.back()}
+      onBack={handleBack}
       scrollEnabled={!paletteTouching}
       title="主题外观"
     >

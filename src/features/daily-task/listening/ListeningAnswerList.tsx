@@ -48,6 +48,7 @@ export function ListeningAnswerList({
               <View key={word.id} style={styles.answerRow}>
                 <Text style={styles.answerNumber}>{index + 1}.</Text>
                 <TextInput
+                  accessibilityLabel={`第 ${index + 1} 个单词的听力答案`}
                   autoCapitalize="none"
                   autoCorrect={false}
                   onChangeText={(value) => onChangeAnswer(word.id, value)}

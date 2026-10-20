@@ -42,9 +42,10 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:data && npm run test:task",
+    "test": "npm run test:data && npm run test:task && npm run test:navigation",
     "test:data": "tsx --test tests/data.test.ts",
-    "test:task": "tsx --test tests/taskReducer.test.ts"
+    "test:task": "tsx --test tests/taskReducer.test.ts",
+    "test:navigation": "tsx --test tests/navigationLock.test.ts"
   },
   "private": true
 }
