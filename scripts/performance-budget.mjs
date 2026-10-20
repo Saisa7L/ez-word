@@ -49,7 +49,9 @@ const assetSizes = await Promise.all(
   })),
 );
 const totalAssetBytes = assetSizes.reduce((sum, asset) => sum + asset.bytes, 0);
-const largestAsset = assetSizes.sort((left, right) => right.bytes - left.bytes)[0];
+const largestAsset = assetSizes.sort(
+  (left, right) => right.bytes - left.bytes,
+)[0];
 
 const bundlePaths = await listFiles(ANDROID_BUNDLE_DIR).catch(() => []);
 const bundleFiles = bundlePaths.filter((path) => path.endsWith('.hbc'));
@@ -57,7 +59,9 @@ const bundleBytes = (
   await Promise.all(bundleFiles.map(async (path) => (await stat(path)).size))
 ).reduce((sum, bytes) => sum + bytes, 0);
 
-console.log(`Assets: ${assetPaths.length} files, ${formatBytes(totalAssetBytes)}`);
+console.log(
+  `Assets: ${assetPaths.length} files, ${formatBytes(totalAssetBytes)}`,
+);
 if (largestAsset) {
   console.log(
     `Largest asset: ${relative(ROOT, largestAsset.path)}, ${formatBytes(largestAsset.bytes)}`,

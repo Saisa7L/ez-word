@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-20 22:10
+最后更新：2026-10-20 22:12
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`e4905b4 Add observable errors and sanitized diagnostics`
-- 当前阶段：P2-11 自动性能预算已完成自动验证，随本批提交
+- 已提交基线：`38c9fb9 Add automated Android performance budgets`
+- 当前阶段：P2-12 文档治理已完成自动验证，随本批提交
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：建立 Android HBC、资源总量、单资源和资源数量预算
+- 当前工作：自动文档检查、交接/ADR 模板和关键架构决策记录
 - P6 不包含 EAS、APK、签名和发布
 
 ## 接手先做
@@ -46,7 +46,7 @@ git log --oneline --decorate -5
 - 按 `F:\English vocabulary app\项目分析\App架构分析与重构指南.md` 的 P0 → P1 → P2 顺序推进。
 - P2-6、P2-5、P2-4、P2-1/P2-3、P2-2 已完成，并完成验收补充修复。
 - v21 数据库迁移和 P2-7 两批已完成真机验收。
-- P2-9、P2-10 第一批已完成；P2-11 自动预算已接入 CI。
+- P2-9、P2-10 第一批、P2-11 已完成；P2-12 文档治理已接入统一门禁。
 - 下一批处理剩余 P2-1 项：`word_learning_state.learned_count` 的停止写入/删除方案。
 - 下一阶段不得回退统一导航入口和现有真机验收结果。
 
@@ -195,6 +195,16 @@ git log --oneline --decorate -5
 - 新增 `perf:budget` 和 `check:release` npm 脚本。
 - GitHub Actions 在 Android 导出后执行性能预算检查。
 - 新增 `docs/PERFORMANCE_BUDGET.md`，记录真机 Perfetto 采集项和建议阈值。
+
+## P2-12 文档治理
+
+- 新增 `scripts/check-docs.mjs` 和 `npm run docs:check`。
+- 自动检查 15 份必需文档、精确更新时间、npm 脚本引用、Markdown 文档路径和样例路径。
+- `npm run check` 现在包含文档检查。
+- 新增交接模板 `docs/templates/HANDOFF_TEMPLATE.md`。
+- 新增 ADR 模板 `docs/templates/ADR_TEMPLATE.md`。
+- 新增 ADR 索引及 Android-only、统一导航锁、规范化数据模型 3 条架构决策。
+- 文档索引和开发指南补齐模板、ADR 与文档检查规则。
 
 ## P0 批次 0-3 结果
 
@@ -410,10 +420,10 @@ QUALITY_AND_TECH_DEBT.md 和 P6_PROGRESS.md。
 git status --short --branch
 git log --oneline --decorate -5
 
-当前 P2-11 自动性能预算已完成自动验证，等待随本批提交。
+当前 P2-12 文档治理已完成自动验证，等待随本批提交。
 请先读取重构指南和 CURRENT_HANDOFF 的最新批次记录，
 不要重新设计 P5 主题 UI，不要进入 EAS、APK、签名和发布流程，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、P2-11 性能预算结果和下一批 P2 工作。
+请先说明当前 Git 状态、P2-12 文档检查结果和剩余 P2 工作。
 ```

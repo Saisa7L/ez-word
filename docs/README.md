@@ -1,6 +1,6 @@
 # 文档索引
 
-最后更新：2026-10-20 22:10
+最后更新：2026-10-20 22:12
 
 ## 主文档
 
@@ -22,6 +22,17 @@
 | `CURRENT_HANDOFF.md` | 当前状态、下一步和新窗口接续提示 |
 | `P6_PROGRESS.md` | 当前 P6 整理进度 |
 
+## 模板与决策
+
+| 文档 | 内容 |
+|---|---|
+| `templates/HANDOFF_TEMPLATE.md` | 新交接文档模板 |
+| `templates/ADR_TEMPLATE.md` | 架构决策记录模板 |
+| `adr/README.md` | ADR 规则和索引 |
+| `adr/0001-android-only.md` | Android-only 平台决策 |
+| `adr/0002-unified-navigation-lock.md` | 统一导航锁决策 |
+| `adr/0003-normalized-data-model.md` | v19-v21 规范化数据模型决策 |
+
 ## 资源和证据
 
 | 目录 | 内容 |
@@ -36,3 +47,5 @@
 2. 阶段结束后只更新 `PHASE_HISTORY.md` 和 `CURRENT_HANDOFF.md`。
 3. 所有文档的“最后更新”必须精确到分钟。
 4. 删除或移动文档后，同步检查本索引和跨文档引用。
+5. 修改文档或脚本命令后运行 `npm run docs:check`。
+6. 跨模块、数据兼容或平台边界变化必须新增 ADR。

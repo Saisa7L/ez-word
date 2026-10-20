@@ -39,8 +39,8 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:data && npm run test:task && npm run test:navigation",
@@ -49,7 +49,8 @@
     "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts",
     "test:navigation": "tsx --test tests/navigationLock.test.ts",
     "doctor": "npx --yes expo-doctor@latest",
-    "check": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage && npm run doctor",
+    "check": "npm run format:check && npm run docs:check && npm run typecheck && npm run lint && npm run test:coverage && npm run doctor",
+    "docs:check": "node scripts/check-docs.mjs",
     "perf:budget": "node scripts/performance-budget.mjs",
     "check:release": "npm run check && npx expo export --platform android --output-dir .expo/check && npm run perf:budget"
   },
