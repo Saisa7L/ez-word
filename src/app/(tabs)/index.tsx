@@ -198,15 +198,16 @@ const createStyles = (colors: ThemeColors) =>
     },
     statDivider: {
       backgroundColor: colors.border,
-      bottom: 3,
+      bottom: 6,
       position: 'absolute',
-      right: -11,
-      top: 3,
+      right: 0,
+      top: 6,
       width: StyleSheet.hairlineWidth,
     },
     statItem: {
       alignItems: 'center',
       flex: 1,
+      minWidth: 0,
       position: 'relative',
     },
     statLabel: {
@@ -222,6 +223,7 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       marginTop: 28,
       paddingVertical: 18,
+      width: '100%',
     },
     statValue: {
       color: colors.text,
