@@ -1,6 +1,6 @@
 # 开源发布计划
 
-最后更新：2026-10-21 21:27
+最后更新：2026-10-21 22:21
 
 ## 最终目标
 
@@ -71,12 +71,12 @@
 | 条件 | 当前状态 |
 |---|---|
 | `android.package` | 已配置 `com.saisa7.ezword` |
-| 版本号和 versionCode 策略 | 已配置 `0.1.0` / `1` 并写入 `docs/RELEASING.md` |
+| 版本号和 versionCode 策略 | 已配置 `0.1.0` / `2` 并写入 `docs/RELEASING.md` |
 | 正式签名 | 本地签名 APK 已生成并通过 `apksigner` 校验 |
-| 签名密钥离线备份 | 等待用户完成 |
-| GitHub Release APK | Release workflow 已准备，等待 Secrets 和标签 |
+| 签名密钥离线备份 | 用户已确认完成 |
+| GitHub Release APK | Release workflow、Secrets 和覆盖升级已就绪，等待标签 |
 | APK 校验值 | 本地 SHA-256 已生成 |
-| 覆盖安装与数据库升级 | 等待真机测试 |
+| 覆盖安装与数据库升级 | 已通过 versionCode 1 → 2 真机测试，数据保留 |
 | 最低/目标 Android 版本说明 | minSdk 24，targetSdk 36 |
 
 ### 产品运行
@@ -109,8 +109,9 @@
 - [x] 定义语义化版本和 versionCode 规则。
 - [x] 建立签名流程，签名密钥只保存在安全位置，不进入仓库。
 - [x] 增加 GitHub Release workflow 和 APK 校验值。
-- [ ] 安装正式 APK，验证覆盖升级不会丢失数据库。
-- [ ] 配置 Actions Secrets 并发布 `v0.1.0` GitHub Release。
+- [x] 安装正式 APK，验证覆盖升级不会丢失数据库。
+- [x] 配置 Actions Secrets。
+- [ ] 发布 `v0.1.0` GitHub Release。
 
 ### R3：端到端与发布回归
 
@@ -143,12 +144,11 @@
 
 ## R2 待验收与发布入口
 
-R1 和 R2 本地构建已经完成。下一步需要：
+R1 和 R2 本地构建、签名 Secrets 与设备覆盖升级已经完成。下一步：
 
-- 在真机安装 `0.1.0 / 1` 正式 APK。
-- 用下一个 versionCode 测试包验证覆盖升级。
-- 配置 GitHub Actions 签名 Secrets。
-- 创建并推送 `v0.1.0` 标签，确认 Release APK 和 SHA-256。
+- 提交最终 `0.1.0 / 2` 配置。
+- 创建并推送 `v0.1.0` 标签。
+- 确认 Release APK 和 SHA-256。
 
 ## 后续扩展原则
 

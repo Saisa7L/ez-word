@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-21 21:27
+最后更新：2026-10-21 22:21
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`e16f46c Record successful GitHub CI`
-- 当前阶段：R2 本地正式包名、签名构建和通用 APK 已完成，等待设备覆盖升级验收和 GitHub Actions Secrets 配置
+- 上一提交基线：`813252f Add Android release signing and workflow`
+- 当前阶段：R2 本地正式 APK 和覆盖升级验收已完成，准备提交并发布 `v0.1.0`
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：正式包名、版本策略、签名密钥、可重复构建插件和 GitHub Release workflow 已完成
+- 当前工作：最终通用 APK、签名 Secrets、设备覆盖升级和发布门禁已完成
 - GitHub 仓库：`https://github.com/Saisa7L/ez-word`
 - 公开反馈渠道：GitHub Issues
 - 首次 CI：`https://github.com/Saisa7L/ez-word/actions/runs/39598453592`，`quality` 成功
@@ -64,13 +64,12 @@ git log --oneline --decorate -5
 
 ## 远程接入待办
 
-1. 配置 `Release Android APK` 工作流所需的四个 GitHub Actions Secrets。
-2. 由用户完成签名密钥和密码的离线备份。
+- 无。Private Vulnerability Reporting 和四个 Actions Secrets 均已确认。
 
 ## R2 本地发布工程结果
 
 - Android applicationId：`com.saisa7.ezword`。
-- App 版本：`0.1.0`，versionCode `1`。
+- App 版本：`0.1.0`，versionCode `2`。
 - minSdk `24`，targetSdk `36`，compileSdk `36`。
 - 已生成 RSA 4096 / PKCS12 正式签名密钥，有效期 10000 天。
 - 密钥位于仓库外：`C:\Users\12642\.android\keystores\ez-word-release.jks`。
@@ -81,17 +80,20 @@ git log --oneline --decorate -5
 - 已阻止 `SYSTEM_ALERT_WINDOW`、震动和生物识别等非必要权限。
 - 通用 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64`。
 - APK：`dist/release/ez-word-v0.1.0.apk`。
-- APK 大小：114,444,740 B。
-- APK SHA-256：`1080ab47e9efcaf12ab28805b3e4dac50768b904cace1d6dbfb4cae411cbb44d`。
+- APK 大小：114,444,736 B。
+- APK SHA-256：`ed2f93276e9fc4ca3e35f78faf920a989c9176a49ab66eea9500a6648bea8adc`。
 - `apksigner verify`、`zipalign -c 4`、包名、版本、权限和 ABI 校验通过。
 - 新增 `.github/workflows/release.yml`，标签 `v0.1.0` 可构建并发布 GitHub Release。
+- 四个签名 Actions Secrets 已上传并确认存在。
+- 用户已通过 `versionCode 2` 测试包完成覆盖升级，原有数据保留。
+- 最终 `v0.1.0 / versionCode 2` 通用 APK 已通过签名、zipalign、包名、版本、权限和 ABI 校验。
 
 ## R2 待验收
 
-1. 在 Android 真机安装正式 APK，确认启动、权限和主流程。
-2. 建立带测试数据的 `versionCode 1` 安装，再用 `versionCode 2` 测试包覆盖安装，确认 SQLite 数据保留。
-3. 配置 GitHub Actions 签名 Secrets，创建并推送 `v0.1.0` 标签。
-4. 确认 GitHub Release 包含 APK 和 SHA-256 文件。
+1. 提交最终 `versionCode 2` 配置。
+2. 创建并推送 `v0.1.0` 标签。
+3. 确认 GitHub Release 工作流和签名 APK。
+4. 记录 Release URL 和最终校验值。
 
 ## 架构重构完成情况
 
@@ -473,10 +475,10 @@ git status --short --branch
 git log --oneline --decorate -5
 
 当前最终目标是 GitHub 开源发布，主要面向国内 Android 用户。
-架构重构主体、R1 开源基础和 R2 本地发布工程已完成，下一步是真机覆盖升级验收和签名 Secrets 配置。
-不要重新设计 P5 主题 UI，不要跳过真机覆盖升级直接发布 APK，
+架构重构主体、R1 开源基础和 R2 本地发布工程已完成，真机覆盖升级已通过，下一步只剩最终标签和 Release 校验。
+不要重新设计 P5 主题 UI，不要替换已确认的签名或版本号，
 不要把签名、API Key 或用户数据提交到 Git，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、R2 本地 APK 校验结果、真机覆盖升级状态，以及 Release Secrets 是否配置。
+请先说明当前 Git 状态、`v0.1.0` Release 状态、APK 签名和 SHA-256 校验结果。
 ```

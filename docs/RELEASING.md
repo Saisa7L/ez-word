@@ -1,6 +1,6 @@
 # Android 发布指南
 
-最后更新：2026-10-21 21:25
+最后更新：2026-10-21 22:21
 
 ## 发布身份
 
@@ -9,7 +9,7 @@
 | GitHub 仓库 | `Saisa7L/ez-word` |
 | Android applicationId | `com.saisa7.ezword` |
 | 当前测试版 | `0.1.0` |
-| 当前 versionCode | `1` |
+| 当前 versionCode | `2` |
 | 最低 Android API | 24 |
 | 目标 Android API | 36 |
 | 签名证书 SHA-256 | `8B:A8:F3:83:FD:6A:F7:C6:1F:0B:FD:2F:A7:EF:65:38:48:63:F5:29:B0:B3:3A:C8:9B:D3:EF:4C:87:21:5E:AD` |

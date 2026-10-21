@@ -1,6 +1,6 @@
 # 项目上下文
 
-最后更新：2026-10-21 21:27
+最后更新：2026-10-21 22:21
 
 ## 产品
 
@@ -12,7 +12,7 @@
 | 测试设备 | 一加 Ace 2，Android 16 |
 | 路径 | `F:\English vocabulary app\Project\vocab-app` |
 | 分支 | `main` |
-| 当前阶段 | R2 本地正式包名、签名和通用 APK 完成，等待真机覆盖升级与 Release Secrets |
+| 当前阶段 | R2 本地构建、签名 Secrets 和覆盖升级验收完成，准备发布 `v0.1.0` |
 
 产品目标是跑通“导入词库 → 每日学习 → 填空/听写 → 错题回顾 → 单词再练 → 本地存档”的单机闭环。
 
@@ -46,7 +46,8 @@
 - 当前 58 项测试和 `check:release` 自动门禁通过。
 - R1 已补齐 README、真实截图、社区文件、MIT 许可证、依赖声明、Issue/PR/Release 模板和 CI 文档检查。
 - R2 已配置正式包名、语义版本、签名插件、本机构建脚本和 GitHub Release workflow。
-- 下一阶段先完成真机安装/覆盖升级和 Actions Secrets，再发布 `v0.1.0`，详见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
+- R2 已通过 `versionCode 1 → 2` 真机覆盖升级，原有数据保留。
+- 下一阶段只剩提交最终版本、推送 `v0.1.0` 标签和确认 GitHub Release，详见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
 - P1 任务状态机已改为 reducer 管理，并接入四个任务页的阶段守卫。
 - 已修复三种任务模式标题未写入状态和听力默认速度未从设置快照生效的问题。
 - 任务 Provider 已拆为会话和答案两个 Context，阶段推进与导航统一封装，并通过真机验收。
