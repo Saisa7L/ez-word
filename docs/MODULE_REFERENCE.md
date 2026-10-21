@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-20 20:22
+最后更新：2026-10-21 20:03
 
 ## 使用方式
 
@@ -248,7 +248,7 @@ Provider 内部分成两个 Context：
 
 `src/database/migrations.ts` 维护：
 
-- `MIGRATIONS`：v1-v19 的版本注册表，v10 直接迁移到 v12。
+- `MIGRATIONS`：v1-v21 的版本注册表，v10 直接迁移到 v12。
 - `runMigrations(db, currentVersion)`：在同一主连接事务中按序执行，并在每步后写入 `user_version`。
 - `ensureColumn`：执行 `ALTER TABLE` 前检查真实列，兼容旧实现留下的部分迁移状态。
 

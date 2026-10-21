@@ -2,6 +2,15 @@
   "name": "vocab-app",
   "version": "1.0.0",
   "main": "expo-router/entry",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saisa7L/ez-word.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Saisa7L/ez-word/issues"
+  },
+  "homepage": "https://github.com/Saisa7L/ez-word#readme",
   "engines": {
     "node": ">=22.5.0"
   },

@@ -1,15 +1,17 @@
 # 当前交接
 
-最后更新：2026-10-20 22:24
+最后更新：2026-10-21 20:05
 
 ## 当前状态
 
 - 分支：`main`
-- 已提交基线：`4e7bfdd Add documentation checks and architecture decision records`
-- 当前阶段：开源发布规划与交接已完成，等待下一窗口开始 R1
+- 上一提交基线：`3c5b52a Document open-source Android release roadmap`
+- 当前阶段：R1 本地开源基础已完成，等待 GitHub 远程仓库接入和 Actions 实跑
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：最终开源目标、发布完成标准和 R1-R6 执行批次已写入文档
+- 当前工作：公开 README、截图、社区协作文件、MIT 许可证、依赖声明和发布模板已完成
+- GitHub 仓库：`https://github.com/Saisa7L/ez-word`
+- 公开反馈渠道：GitHub Issues
 - 最终目标：GitHub 开源发布，主要面向国内 Android 用户；后续再考虑多语言、多平台和更多功能
 - P6 不包含 EAS、APK、签名和发布；正式发布工作转入 R1-R6
 
@@ -43,20 +45,32 @@ git log --oneline --decorate -5
 - 代码改动运行 `npm run check:release`。
 - 稳定后按批次提交 Git。
 
-## 下一窗口直接开始 R1
+## R1 开源基础结果
 
-1. 完善 README：功能、截图、下载、安装、权限、数据位置、构建和测试。
-2. 新增 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板和 Release notes 模板。
-3. 确认 LICENSE 和第三方依赖声明。
-4. 检查 GitHub Actions 配置，准备远程仓库接入。
-5. R1 完成后再进入 R2 的正式包名、版本、签名和 APK Release。
+- 根 README 已补齐功能、6 张真实 Android 截图、下载与安装、权限、数据位置、开发、测试和隐私入口。
+- 已新增 `CONTRIBUTING.md`、`SECURITY.md`、`PRIVACY.md` 和 `THIRD_PARTY_NOTICES.md`。
+- LICENSE 已替换为 MIT，版权人为 `Saisa`，不再保留 Expo 模板版权人。
+- 已新增 Issue Forms、Pull Request 模板、GitHub Release 分类配置和 Release notes 模板。
+- `src/constants/appInfo.ts` 已把关于页 GitHub 链接切换到正式仓库地址。
+- `scripts/check-docs.mjs` 现在同时检查 16 份主文档和 6 个公开仓库根文件。
+- GitHub Actions CI 已增加文档检查步骤，并在 Android 导出后检查性能预算。
+- `npm run check:release` 通过：格式、文档、类型、Lint、55 项测试、覆盖率、Doctor 21/21、Android 导出和性能预算均成功。
+- 当前覆盖率：行 88.95%、分支 85.49%、函数 85.47%。
+- 当前 Android HBC：5,703,272 B；资源 775,027 B；资源 18 个；最大单图 364,301 B。
 
-开始前需要用户确认：
+## 远程接入待办
 
-- GitHub owner 和仓库名。
+1. 配置 GitHub 远程仓库并推送 `main`。
+2. 实际运行 GitHub Actions，确认 Ubuntu CI 和 Android 导出环境通过。
+3. 在仓库设置中启用 Private Vulnerability Reporting。
+4. 配置仓库描述、Topics、默认分支和 Release 权限。
+
+## 进入 R2 前需要用户确认
+
 - 最终 Android 包名。
-- 签名密钥保管方式。
-- 隐私问题联系渠道。
+- `versionName`、`versionCode` 和首个测试版版本号策略。
+- 签名密钥的生成、离线备份和密码保管方式。
+- 是否由本机直接配置 GitHub 远程并推送，还是由用户手动创建和推送。
 
 ## 架构重构完成情况
 
@@ -75,7 +89,7 @@ git log --oneline --decorate -5
 - 新增 `test:coverage`，覆盖率最低阈值为行、分支、函数各 80%。
 - 当前测试覆盖率：行 87.25%、分支 85.20%、函数 82.44%。
 - 新增 `doctor` 和统一门禁 `check`；Expo Doctor 21/21 通过。
-- 新增 `.github/workflows/ci.yml`，依次执行格式、类型、Lint、覆盖率和 Doctor。
+- 新增 `.github/workflows/ci.yml`，依次执行格式、文档、类型、Lint、覆盖率、Doctor、Android 导出和性能预算。
 - 已通过 `npm run check` 和 Android 离线导出。
 - 本批为纯工程化改动，不改变业务行为。
 
@@ -216,7 +230,7 @@ git log --oneline --decorate -5
 ## P2-12 文档治理
 
 - 新增 `scripts/check-docs.mjs` 和 `npm run docs:check`。
-- 自动检查 15 份必需文档、精确更新时间、npm 脚本引用、Markdown 文档路径和样例路径。
+- 自动检查 16 份必需文档、6 个公开仓库根文件、精确更新时间、npm 脚本引用、Markdown 文档路径和样例路径。
 - `npm run check` 现在包含文档检查。
 - 新增交接模板 `docs/templates/HANDOFF_TEMPLATE.md`。
 - 新增 ADR 模板 `docs/templates/ADR_TEMPLATE.md`。
@@ -438,10 +452,10 @@ git status --short --branch
 git log --oneline --decorate -5
 
 当前最终目标是 GitHub 开源发布，主要面向国内 Android 用户。
-架构重构主体已完成，下一批直接开始 R1 GitHub 开源基础。
-不要重新设计 P5 主题 UI，不要跳过 R1 直接发布 APK，
+架构重构主体和 R1 本地开源基础已完成，下一批是远程仓库接入验收和 R2 Android 发布工程。
+不要重新设计 P5 主题 UI，不要跳过远程 CI 和 R2 直接发布 APK，
 不要把签名、API Key 或用户数据提交到 Git，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、R1 任务清单和需要用户确认的仓库/包名/签名信息。
+请先说明当前 Git 状态、R1 远程接入状态，以及正式包名/版本/签名信息是否已经确认。
 ```

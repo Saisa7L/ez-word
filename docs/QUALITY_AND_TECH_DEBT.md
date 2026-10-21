@@ -1,6 +1,6 @@
 # 质量与技术债
 
-最后更新：2026-10-20 22:24
+最后更新：2026-10-21 20:03
 
 ## 当前质量门槛
 
@@ -15,6 +15,7 @@ npx expo export --platform android --output-dir .expo/check
 
 ```powershell
 npm run format:check
+npm run docs:check
 npm run typecheck
 npm run lint
 npm run test:coverage
@@ -188,7 +189,7 @@ npm run doctor
 
 ### P2 已完成：文档治理
 
-- `npm run docs:check` 验证 15 份必需文档、更新时间、脚本引用、文档路径和样例路径。
+- `npm run docs:check` 验证 16 份必需文档、6 个公开仓库文件、更新时间、脚本引用、文档路径和样例路径。
 - 文档检查已加入 `npm run check`。
 - 新增交接与 ADR 模板，避免每批交接结构漂移。
 - 新增 Android-only、统一导航锁和规范化数据模型 ADR。
@@ -220,7 +221,7 @@ npm run doctor
 
 ### P0：存档 schema 与数据库 schema 双维护
 
-当前已通过 `src/database/schema.ts` 统一当前字段、存档字段、恢复顺序，并在迁移后校验真实表结构。真实 SQLite 测试会执行 v0 → v19 迁移，因此迁移 SQL 虽然是手写，但结果已被测试锁定。
+当前已通过 `src/database/schema.ts` 统一当前字段、存档字段、恢复顺序，并在迁移后校验真实表结构。真实 SQLite 测试会执行 v0 → v21 迁移，因此迁移 SQL 虽然是手写，但结果已被测试锁定。
 
 建议：
 

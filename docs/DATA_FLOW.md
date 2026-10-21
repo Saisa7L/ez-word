@@ -1,13 +1,13 @@
 # 主要数据流
 
-最后更新：2026-10-20 13:44
+最后更新：2026-10-21 20:03
 
 ## 启动与初始化
 
 ```text
 RootLayout
 → SQLiteProvider 打开 vocabulary.db
-→ migrateDatabase 升级到 v19
+→ migrateDatabase 升级到 v21
 → ThemeProvider 读取主题
 → DailyTaskProvider 建立空任务状态
 → AppFeedbackProvider 挂载全局反馈弹层

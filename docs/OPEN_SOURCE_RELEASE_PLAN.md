@@ -1,6 +1,6 @@
 # 开源发布计划
 
-最后更新：2026-10-20 22:24
+最后更新：2026-10-21 20:05
 
 ## 最终目标
 
@@ -14,7 +14,7 @@
 
 ## 当前判断
 
-架构重构主体已经完成。当前软件可作为个人工具、内测版本或小范围 sideload 使用，但还不是可直接公开上架的成熟发布版本。
+架构重构主体和 R1 本地开源基础已经完成。当前软件可作为个人工具、内测版本或小范围 sideload 使用，但还不是可直接公开上架的成熟发布版本。
 
 主要缺口不在业务功能，而在：
 
@@ -57,13 +57,13 @@
 
 | 条件 | 当前状态 |
 |---|---|
-| LICENSE | 已有文件，发布前确认许可文本和依赖声明 |
-| README 功能介绍、截图、安装和使用说明 | 待完善 |
-| CONTRIBUTING | 缺失 |
-| SECURITY | 缺失 |
-| 隐私与数据说明 | 缺失 |
-| Issue/PR 模板 | 缺失 |
-| Release notes 和版本策略 | 缺失 |
+| LICENSE | 已确认 MIT，版权人为 `Saisa` |
+| README 功能介绍、截图、安装和使用说明 | 本地已完成，包含 6 张真实 Android 截图 |
+| CONTRIBUTING | 已新增 |
+| SECURITY | 已新增，等待启用 Private Vulnerability Reporting |
+| 隐私与数据说明 | 已新增 |
+| Issue/PR 模板 | 已新增 Issue Forms、PR 模板和 Release 分类 |
+| Release notes 和版本策略 | Release notes 模板已新增；版本策略留到 R2 |
 | ADR 和交接文档 | 已具备 |
 
 ### Android 发布
@@ -96,11 +96,12 @@
 
 ### R1：GitHub 开源基础
 
-- 确定仓库名称、简介、GitHub owner 和远程地址。
-- 完善 README：功能、截图、下载、安装、权限、数据位置、构建和测试。
-- 增加 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板和发布说明模板。
-- 确认 LICENSE 和第三方依赖声明。
-- 配好 GitHub Actions 实际运行环境。
+- [x] 确定仓库地址为 `https://github.com/Saisa7L/ez-word`。
+- [x] 完善 README：功能、截图、下载、安装、权限、数据位置、构建和测试。
+- [x] 增加 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板和发布说明模板。
+- [x] 确认 MIT LICENSE 和第三方依赖声明。
+- [ ] 配置远程仓库并让 GitHub Actions 实际运行。
+- [ ] 启用 Private Vulnerability Reporting 和仓库基础设置。
 
 ### R2：Android 发布工程
 
@@ -139,22 +140,14 @@
 - 发布 `v1.0.0`。
 - 之后再评估 i18n、更多功能和跨平台适配。
 
-## 下一窗口直接开始 R1
+## R1 远程接入与 R2 入口
 
-下一窗口先完成不依赖签名密钥的 R1 文件：
+R1 本地文件已经完成，下一步先配置远程仓库并确认 GitHub Actions 实际通过。随后进入 R2 前，需要用户提供或确认：
 
-1. 完善 README 和项目截图。
-2. 新增 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板。
-3. 确认 LICENSE。
-4. 准备 Release notes 模板。
-5. 检查 GitHub Actions 配置并准备远程仓库接入。
-
-随后进入 R2 前，需要用户提供或确认：
-
-- GitHub owner/仓库名。
 - 最终 Android 包名。
+- 版本号和 versionCode 策略。
 - 签名密钥的保管与使用方式。
-- 隐私问题联系渠道。
+- 是否由本机配置远程并推送。
 
 ## 后续扩展原则
 

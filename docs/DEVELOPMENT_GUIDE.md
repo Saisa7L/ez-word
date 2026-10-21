@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-20 22:12
+最后更新：2026-10-21 20:03
 
 ## 环境
 
@@ -28,7 +28,7 @@ npm run check
 npx expo export --platform android --output-dir .expo/check
 ```
 
-`npm run check` 包含格式、类型、Lint、覆盖率和 Expo Doctor。
+`npm run check` 包含格式、文档、类型、Lint、覆盖率和 Expo Doctor。
 
 文档检查：
 

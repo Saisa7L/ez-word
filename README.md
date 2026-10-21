@@ -1,47 +1,153 @@
-# English Vocabulary App
+# 易词通（Ez Word）
 
-最后更新：2026-10-20 22:24
+易词通是一款面向国内 Android 用户的本地优先英语单词记忆 App。它通过 CSV 导入个人词库，支持认识单词、选词填空、听力测试、错题回顾、单词再练、主题定制和本地存档，帮助用户完成从新词学习到复习巩固的闭环。
 
-面向大学生记忆英语单词的 Android App，仅支持 Android。
+项目当前只支持 Android，不提供 iOS、Web、账号登录、云端同步或自建服务器。DeepSeek 是可选能力，仅在用户主动配置 API Key 并使用音标、例句生成时访问网络。
 
-项目最终目标是作为开源软件发布到 GitHub，通过 Releases 向国内 Android 用户提供签名 APK。第一阶段不包含 iOS、Web、登录或云端同步。
+> [!NOTE]
+> 项目正在完成开源发布硬化。正式包名、签名和 GitHub Release APK 属于 R2，目前仓库尚不提供可直接安装的正式 APK。
 
-## 当前状态
+## 功能
+
+- 使用 CSV 导入个人词库，兼容中英文列名和旧版三列格式。
+- 每日任务包含认识单词、选词填空、听力测试和完成记录。
+- 错词自动进入错题本，支持错题回顾、手动添加和单词再练。
+- 使用 Android TTS 朗读单词，支持播放速度、间隔和复习范围设置。
+- 支持日间、夜间和自定义主题，并适配大字号、TalkBack 与减少动画。
+- 支持导入导出本地 JSON 存档，导出内容不包含 DeepSeek API Key。
+- 可选调用 DeepSeek 批量补齐音标和例句，单词和中文释义不会被修改。
+- 所有核心业务数据保存在本机 SQLite，不依赖自建后端。
+
+## 界面预览
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/home.jpg" width="220" alt="首页" /><br />首页</td>
+    <td align="center"><img src="docs/screenshots/learn.jpg" width="220" alt="认识单词" /><br />认识单词</td>
+    <td align="center"><img src="docs/screenshots/fill-blank.jpg" width="220" alt="选词填空" /><br />选词填空</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/listening.jpg" width="220" alt="听力测试" /><br />听力测试</td>
+    <td align="center"><img src="docs/screenshots/wrong-book.jpg" width="220" alt="错题本" /><br />错题本</td>
+    <td align="center"><img src="docs/screenshots/theme.jpg" width="220" alt="主题外观" /><br />主题外观</td>
+  </tr>
+</table>
+
+## 下载与安装
+
+### 正式 APK
+
+正式签名 APK 将在 R2 完成包名、版本、签名和覆盖升级验证后发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases)。发布前请勿把 Expo Go 开发版本视为可长期使用的正式安装包。
+
+### 当前开发体验
+
+当前可以通过 Expo Go 在 Android 真机上运行源码：
+
+```powershell
+git clone https://github.com/Saisa7L/ez-word.git
+Set-Location ez-word
+npm ci
+npx expo start --lan
+```
+
+手机和电脑需要处于同一局域网，然后使用 Expo Go 扫描终端二维码。正式 APK 的构建和安装步骤会在 R2 中补齐。
+
+## 使用流程
+
+1. 在“我的 → 导入单词”中选择 UTF-8 CSV 文件。
+2. 在“我的 → 通用设置”中配置每日新词数量、听力速度和复习提醒。
+3. 从首页进入“每日任务”，依次完成认识单词、选词填空和听力测试。
+4. 在完成页保存学习记录，答错单词会进入错题本。
+5. 使用错题回顾和单词再练巩固已学内容。
+6. 在“我的 → 本地存档”中定期导出 JSON 备份。
+
+CSV 示例和导入规则见 [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) 与 [assets/templates/words-template.csv](assets/templates/words-template.csv)。
+
+## Android 权限与数据位置
+
+App 当前只申请完成核心功能所需的权限：
+
+- 相册/媒体选择：仅在用户主动选择头像或名片背景时访问。
+- 文件选择与保存：通过 Android 系统文件选择器读取 CSV、导入存档和导出存档，不自动扫描其他文件。
+- 网络：仅在用户主动测试或调用 DeepSeek 时访问 `api.deepseek.com`。
+- 不申请相机或麦克风权限。
+
+数据位置：
+
+- `vocabulary.db`：位于 Android 应用私有目录，保存词库、学习记录、错题、设置、主题和个人资料。
+- Android SecureStore：保存用户主动填写的 DeepSeek API Key。
+- 用户选择的文件位置：保存用户主动导出的 JSON 存档和名片图片。
+
+数据库没有额外加密，依赖 Android 应用沙箱隔离。设备被 root、系统备份或调试环境可能改变这一边界，详见 [PRIVACY.md](PRIVACY.md)。
+
+## 技术与项目结构
 
 - Expo SDK 57
 - React Native 0.86
 - TypeScript 6
-- Node.js 22.5+
 - Expo Router
-- 不提供 iOS 和 Web 运行入口
-- 第一版使用本地 SQLite，不连接云端数据库
-- DeepSeek API Key 由用户在 App 内填写
-- 架构重构主体已完成，当前进入开源发布硬化
+- SQLite v21
+- Lucide React Native
 
-## 启动项目
+```text
+src/
+├─ app/          页面与路由
+├─ application/  任务启动等用例编排
+├─ components/   通用 UI
+├─ constants/    主题、资源和固定配置
+├─ database/     SQLite 迁移、schema 和仓库
+├─ domain/       领域类型
+├─ features/     任务、导入、AI、存档、主题和资料
+├─ hooks/        复用交互状态
+├─ services/     网络、文件、TTS 和安全存储
+└─ utils/        无状态工具
+```
 
-在 VS Code 终端执行：
+详细设计见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/DATA_FLOW.md](docs/DATA_FLOW.md) 和 [docs/DATABASE.md](docs/DATABASE.md)。
+
+## 本地开发
+
+环境要求：
+
+- Windows、macOS 或 Linux
+- Node.js 22.5 或更高版本
+- npm
+- Android 真机和 Expo Go，或后续配置完成的 Android 开发环境
+
+常用命令：
 
 ```powershell
-Set-Location 'F:\English vocabulary app\Project\vocab-app'
+npm ci
 npx expo start --lan
-```
-
-手机和电脑需要在同一个 Wi-Fi 下，然后使用 Expo Go 扫描终端二维码。
-
-## 检查项目
-
-```powershell
+npm run check
 npm run check:release
+npm run docs:check
 ```
 
-## 目录说明
+`npm run check` 执行格式、文档、类型、Lint、覆盖率和 Expo Doctor 检查。`npm run check:release` 在此基础上执行 Android 离线导出和性能预算检查。
 
-完整文档索引见 `docs/README.md`，代码结构和模块边界见 `docs/ARCHITECTURE.md`，发布路线见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
+提交前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## 安全规则
+## 项目文档
 
-- 不把 DeepSeek API Key 写入代码。
-- 不把 `.env`、密钥文件或签名文件提交到 Git。
-- 桌面开发测试时使用 Windows 用户环境变量 `DEEPSEEK_API_KEY`。
-- Android App 后续使用手机安全存储保存用户填写的 API Key。
+- [文档索引](docs/README.md)
+- [项目上下文](docs/PROJECT_CONTEXT.md)
+- [架构说明](docs/ARCHITECTURE.md)
+- [模块与接口](docs/MODULE_REFERENCE.md)
+- [数据流](docs/DATA_FLOW.md)
+- [数据库](docs/DATABASE.md)
+- [质量与技术债](docs/QUALITY_AND_TECH_DEBT.md)
+- [开源发布计划](docs/OPEN_SOURCE_RELEASE_PLAN.md)
+
+## 隐私、安全与反馈
+
+- 数据处理说明：[PRIVACY.md](PRIVACY.md)
+- 安全漏洞报告：[SECURITY.md](SECURITY.md)
+- 一般问题和隐私咨询：[GitHub Issues](https://github.com/Saisa7L/ez-word/issues)
+- 第三方依赖声明：[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+
+请勿在公开 Issue 中粘贴 API Key、签名文件、用户存档、个人资料或其他敏感信息。
+
+## 许可证
+
+本项目使用 [MIT License](LICENSE)。第三方依赖继续遵循各自许可证。

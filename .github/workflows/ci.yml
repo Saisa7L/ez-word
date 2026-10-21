@@ -26,6 +26,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Check documentation
+        run: npm run docs:check
+
       - name: Check types
         run: npm run typecheck
 

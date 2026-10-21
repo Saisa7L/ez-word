@@ -1,6 +1,6 @@
 # 文档索引
 
-最后更新：2026-10-20 22:24
+最后更新：2026-10-21 20:05
 
 ## 主文档
 
@@ -23,12 +23,23 @@
 | `CURRENT_HANDOFF.md` | 当前状态、下一步和新窗口接续提示 |
 | `P6_PROGRESS.md` | 当前 P6 整理进度 |
 
+## 仓库协作文件
+
+| 文档 | 内容 |
+|---|---|
+| `README.md` | 公开功能介绍、截图、安装、权限、数据位置和开发入口 |
+| `CONTRIBUTING.md` | 开发环境、修改原则、检查和 Pull Request 要求 |
+| `SECURITY.md` | 安全漏洞报告范围、方式和响应原则 |
+| `PRIVACY.md` | 本地数据、DeepSeek 请求、权限和数据删除说明 |
+| `THIRD_PARTY_NOTICES.md` | 直接运行时和构建期依赖许可证 |
+
 ## 模板与决策
 
 | 文档 | 内容 |
 |---|---|
 | `templates/HANDOFF_TEMPLATE.md` | 新交接文档模板 |
 | `templates/ADR_TEMPLATE.md` | 架构决策记录模板 |
+| `templates/RELEASE_NOTES_TEMPLATE.md` | GitHub Release 发布说明模板 |
 | `adr/README.md` | ADR 规则和索引 |
 | `adr/0001-android-only.md` | Android-only 平台决策 |
 | `adr/0002-unified-navigation-lock.md` | 统一导航锁决策 |

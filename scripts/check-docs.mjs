@@ -22,6 +22,14 @@ const REQUIRED_DOCS = [
   'THEME_GUIDE.md',
   'UI_MAP.md',
 ];
+const REQUIRED_ROOT_FILES = [
+  'CONTRIBUTING.md',
+  'LICENSE',
+  'PRIVACY.md',
+  'README.md',
+  'SECURITY.md',
+  'THIRD_PARTY_NOTICES.md',
+];
 
 const packageJson = JSON.parse(
   await readFile(join(ROOT, 'package.json'), 'utf8'),
@@ -50,6 +58,12 @@ function getDocCandidates(reference, sourcePath) {
 }
 
 const indexContent = await readFile(INDEX_PATH, 'utf8');
+for (const filename of REQUIRED_ROOT_FILES) {
+  if (!(await exists(join(ROOT, filename)))) {
+    failures.push(`缺少公开仓库文件 ${filename}`);
+  }
+}
+
 for (const filename of REQUIRED_DOCS.filter((name) => name !== 'README.md')) {
   if (!indexContent.includes(`\`${filename}\``)) {
     failures.push(`文档索引缺少 ${filename}`);
@@ -116,5 +130,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Documentation checks passed (${REQUIRED_DOCS.length} required files).`,
+  `Documentation checks passed (${REQUIRED_DOCS.length} docs, ${REQUIRED_ROOT_FILES.length} root files).`,
 );

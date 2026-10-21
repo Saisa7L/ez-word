@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 隐私与数据处理说明
+    url: https://github.com/Saisa7L/ez-word/blob/main/PRIVACY.md
+    about: 查看本地数据、DeepSeek 请求和权限说明。
+  - name: 私下报告安全漏洞
+    url: https://github.com/Saisa7L/ez-word/security/advisories/new
+    about: 不要用公开 Issue 披露安全漏洞细节。
+  - name: 贡献指南
+    url: https://github.com/Saisa7L/ez-word/blob/main/CONTRIBUTING.md
+    about: 提交代码、文档或 Pull Request 前请先阅读。
