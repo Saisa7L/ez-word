@@ -1,12 +1,12 @@
 # 当前交接
 
-最后更新：2026-10-21 22:21
+最后更新：2026-10-21 22:57
 
 ## 当前状态
 
 - 分支：`main`
 - 上一提交基线：`813252f Add Android release signing and workflow`
-- 当前阶段：R2 本地正式 APK 和覆盖升级验收已完成，准备提交并发布 `v0.1.0`
+- 当前阶段：`v0.1.0` 标签已推送，GitHub Release 工作流正在远程执行
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
 - 当前工作：最终通用 APK、签名 Secrets、设备覆盖升级和发布门禁已完成
@@ -16,6 +16,16 @@
 - Private Vulnerability Reporting：已确认启用
 - 最终目标：GitHub 开源发布，主要面向国内 Android 用户；后续再考虑多语言、多平台和更多功能
 - P6 不包含 EAS、APK、签名和发布；正式发布工作转入 R1-R6
+
+## 断电前断点
+
+- 当前 HEAD：`4c75dc3 Fix Android SDK setup in release workflow`
+- `v0.1.0` 标签指向 `4c75dc3`。
+- Release 运行编号：`39617879827`
+- 运行地址：`https://github.com/Saisa7L/ez-word/actions/runs/39617879827`
+- 保存进度时最后观察到 Release workflow 为 `in_progress`，已完成 SDK、质量门禁和 keystore 解码，正在构建签名 APK。
+- 第一次 Release 运行 `39616727677` 因 `android-actions/setup-android` 默认安装不存在的 `tools` 包失败，已在 `4c75dc3` 修复。
+- 下次接手先查询该运行结果；成功则核对 Release APK 和 SHA-256，失败则读取失败步骤日志后修复。
 
 ## 接手先做
 
