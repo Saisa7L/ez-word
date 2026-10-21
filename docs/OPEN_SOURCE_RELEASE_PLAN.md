@@ -1,6 +1,6 @@
 # 开源发布计划
 
-最后更新：2026-10-21 20:05
+最后更新：2026-10-21 20:19
 
 ## 最终目标
 
@@ -100,7 +100,7 @@
 - [x] 完善 README：功能、截图、下载、安装、权限、数据位置、构建和测试。
 - [x] 增加 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板和发布说明模板。
 - [x] 确认 MIT LICENSE 和第三方依赖声明。
-- [ ] 配置远程仓库并让 GitHub Actions 实际运行。
+- [x] 配置远程仓库并让 GitHub Actions 实际运行。
 - [ ] 启用 Private Vulnerability Reporting 和仓库基础设置。
 
 ### R2：Android 发布工程

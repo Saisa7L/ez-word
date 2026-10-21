@@ -1,6 +1,6 @@
 # 项目上下文
 
-最后更新：2026-10-21 20:05
+最后更新：2026-10-21 20:19
 
 ## 产品
 
@@ -12,7 +12,7 @@
 | 测试设备 | 一加 Ace 2，Android 16 |
 | 路径 | `F:\English vocabulary app\Project\vocab-app` |
 | 分支 | `main` |
-| 当前阶段 | R1 本地开源基础完成，等待远程仓库接入和 GitHub Actions 实跑 |
+| 当前阶段 | R1 远程仓库和首次 GitHub Actions 完成，等待用户开启 Private Vulnerability Reporting |
 
 产品目标是跑通“导入词库 → 每日学习 → 填空/听写 → 错题回顾 → 单词再练 → 本地存档”的单机闭环。
 
@@ -79,7 +79,7 @@
 - `npm audit` 会报告 Expo 工具链依赖问题，禁止执行 `npm audit fix --force`。
 - `npm audit --omit=dev` 当前仍有 30 个 Expo/Metro/Router 传递依赖告警，需要发布前给出处理结论。
 - 不要把 Expo 降级到审计建议的旧版本。
-- 尚无 Git 远程仓库、Actions 实跑结果、正式签名 APK、E2E 自动化和真机 Perfetto 数据。
+- 已有 Git 远程仓库和首次 Actions 成功结果；尚无正式签名 APK、E2E 自动化和真机 Perfetto 数据。
 - Android 备份策略、数据库明文和用户图片数据的隐私边界仍待发布前确认。
 - React Native DevTools 曾出现缓存跨磁盘移动错误，但 App 打包正常。
 - 浏览器调试不能覆盖 SQLite 原生行为、图片裁剪、SAF、TTS 和截图。

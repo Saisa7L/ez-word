@@ -1,17 +1,18 @@
 # 当前交接
 
-最后更新：2026-10-21 20:05
+最后更新：2026-10-21 20:19
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`3c5b52a Document open-source Android release roadmap`
-- 当前阶段：R1 本地开源基础已完成，等待 GitHub 远程仓库接入和 Actions 实跑
+- 上一提交基线：`f2f0f51 Prepare GitHub open-source foundation`
+- 当前阶段：R1 远程仓库和 GitHub Actions 已完成，等待用户开启 Private Vulnerability Reporting
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
 - 当前工作：公开 README、截图、社区协作文件、MIT 许可证、依赖声明和发布模板已完成
 - GitHub 仓库：`https://github.com/Saisa7L/ez-word`
 - 公开反馈渠道：GitHub Issues
+- 首次 CI：`https://github.com/Saisa7L/ez-word/actions/runs/39598453592`，`quality` 成功
 - 最终目标：GitHub 开源发布，主要面向国内 Android 用户；后续再考虑多语言、多平台和更多功能
 - P6 不包含 EAS、APK、签名和发布；正式发布工作转入 R1-R6
 
@@ -55,15 +56,15 @@ git log --oneline --decorate -5
 - `scripts/check-docs.mjs` 现在同时检查 16 份主文档和 6 个公开仓库根文件。
 - GitHub Actions CI 已增加文档检查步骤，并在 Android 导出后检查性能预算。
 - `npm run check:release` 通过：格式、文档、类型、Lint、55 项测试、覆盖率、Doctor 21/21、Android 导出和性能预算均成功。
+- GitHub 公开仓库已创建，`main` 已推送，首次 GitHub Actions 在 Ubuntu 上通过。
+- 仓库描述、主页链接和 Topics 已配置。
 - 当前覆盖率：行 88.95%、分支 85.49%、函数 85.47%。
 - 当前 Android HBC：5,703,272 B；资源 775,027 B；资源 18 个；最大单图 364,301 B。
 
 ## 远程接入待办
 
-1. 配置 GitHub 远程仓库并推送 `main`。
-2. 实际运行 GitHub Actions，确认 Ubuntu CI 和 Android 导出环境通过。
-3. 在仓库设置中启用 Private Vulnerability Reporting。
-4. 配置仓库描述、Topics、默认分支和 Release 权限。
+1. 由用户在 GitHub 仓库设置中启用 Private Vulnerability Reporting。
+2. R2 开始前确认 Release 权限和需要使用的 GitHub Actions 发布凭据。
 
 ## 进入 R2 前需要用户确认
 
