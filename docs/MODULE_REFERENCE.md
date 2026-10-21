@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-21 20:03
+最后更新：2026-10-21 21:27
 
 ## 使用方式
 
@@ -268,6 +268,23 @@ Provider 内部分成两个 Context：
 | `archiveFiles` | `exportArchiveFile`、`pickArchiveFile` | Android 文件读写、扩展名和 20 MB 限额 |
 | `aiKeyStore` | `get/save/clearDeepSeekApiKey` | SecureStore |
 | `wordCsvFiles` | `pickWordCsvFile` | CSV 文件选择和读取 |
+
+## 发布构建
+
+| 入口 | 作用 | 副作用 |
+|---|---|---|
+| `plugins/withAndroidReleaseSigning.cjs` | Expo prebuild 时向 Android Gradle 工程注入 release signing 配置，并将各 Android 模块的 CMake 版本统一为 3.30.5 | 修改生成的 `android/` 目录，不修改源码之外的签名凭据 |
+| `scripts/build-android-release.mjs` | 读取本机属性文件或 CI 环境变量，执行 prebuild、`assembleRelease`，输出 APK 和 SHA-256 | 调用 Expo CLI 和 Gradle，写入 `android/`、`dist/release/` |
+| `.github/workflows/release.yml` | 标签发布时在 Ubuntu 上构建签名 APK 并发布 GitHub Release | 读取 Actions Secrets，写入 GitHub Release |
+
+签名配置只接受以下环境变量：
+
+- `EZ_WORD_ANDROID_KEYSTORE`
+- `EZ_WORD_ANDROID_KEYSTORE_PASSWORD`
+- `EZ_WORD_ANDROID_KEY_ALIAS`
+- `EZ_WORD_ANDROID_KEY_PASSWORD`
+
+本机构建也可以使用 `EZ_WORD_RELEASE_PROPERTIES` 指向仓库外的属性文件。完整流程见 `docs/RELEASING.md`。
 
 ## 错误与诊断
 

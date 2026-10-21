@@ -1,0 +1,107 @@
+name: Release Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      EZ_WORD_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      EZ_WORD_ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      EZ_WORD_ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 22
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build dependencies
+        run: |
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;27.1.12297006" \
+            "cmake;3.22.1" \
+            "cmake;3.30.5"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run quality gate
+        run: npm run check
+
+      - name: Verify tag matches app version
+        run: |
+          app_version="v$(node -p "require('./app.json').expo.version")"
+          if [ "$GITHUB_REF_NAME" != "$app_version" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match $app_version"
+            exit 1
+          fi
+
+      - name: Decode release keystore
+        shell: bash
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "ANDROID_KEYSTORE_BASE64 is not configured"
+            exit 1
+          fi
+          keystore_path="$RUNNER_TEMP/ez-word-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          echo "EZ_WORD_ANDROID_KEYSTORE=$keystore_path" >> "$GITHUB_ENV"
+
+      - name: Build signed APK
+        run: npm run build:android:release
+
+      - name: Verify APK signature and alignment
+        run: |
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose \
+            dist/release/ez-word-v*.apk
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c 4 \
+            dist/release/ez-word-v*.apk
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ez-word-${{ github.ref_name }}
+          path: |
+            dist/release/ez-word-v*.apk
+            dist/release/ez-word-v*.apk.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/release/ez-word-v*.apk
+            dist/release/ez-word-v*.apk.sha256
+          generate_release_notes: true

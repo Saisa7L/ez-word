@@ -18,6 +18,7 @@ const REQUIRED_DOCS = [
   'PROJECT_CONTEXT.md',
   'QUALITY_AND_TECH_DEBT.md',
   'README.md',
+  'RELEASING.md',
   'REQUIREMENTS.md',
   'THEME_GUIDE.md',
   'UI_MAP.md',

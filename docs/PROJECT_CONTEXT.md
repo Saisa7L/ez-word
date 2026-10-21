@@ -1,6 +1,6 @@
 # 项目上下文
 
-最后更新：2026-10-21 20:19
+最后更新：2026-10-21 21:27
 
 ## 产品
 
@@ -12,7 +12,7 @@
 | 测试设备 | 一加 Ace 2，Android 16 |
 | 路径 | `F:\English vocabulary app\Project\vocab-app` |
 | 分支 | `main` |
-| 当前阶段 | R1 远程仓库和首次 GitHub Actions 完成，等待用户开启 Private Vulnerability Reporting |
+| 当前阶段 | R2 本地正式包名、签名和通用 APK 完成，等待真机覆盖升级与 Release Secrets |
 
 产品目标是跑通“导入词库 → 每日学习 → 填空/听写 → 错题回顾 → 单词再练 → 本地存档”的单机闭环。
 
@@ -43,9 +43,10 @@
 - P2-2 已把错题来源从逗号字符串迁移为 `wrong_book_sources` 关联表。
 - P2-1 已删除未使用的 `word_learning_state.learned_count`。
 - P2-4 至 P2-12 已完成资源、依赖、平台、无障碍、可观测性、性能预算和文档治理。
-- 当前 55 项测试和 `check:release` 自动门禁通过。
+- 当前 58 项测试和 `check:release` 自动门禁通过。
 - R1 已补齐 README、真实截图、社区文件、MIT 许可证、依赖声明、Issue/PR/Release 模板和 CI 文档检查。
-- 下一阶段先完成远程仓库接入，再进入 R2 Android 发布工程，详见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
+- R2 已配置正式包名、语义版本、签名插件、本机构建脚本和 GitHub Release workflow。
+- 下一阶段先完成真机安装/覆盖升级和 Actions Secrets，再发布 `v0.1.0`，详见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
 - P1 任务状态机已改为 reducer 管理，并接入四个任务页的阶段守卫。
 - 已修复三种任务模式标题未写入状态和听力默认速度未从设置快照生效的问题。
 - 任务 Provider 已拆为会话和答案两个 Context，阶段推进与导航统一封装，并通过真机验收。
@@ -79,7 +80,7 @@
 - `npm audit` 会报告 Expo 工具链依赖问题，禁止执行 `npm audit fix --force`。
 - `npm audit --omit=dev` 当前仍有 30 个 Expo/Metro/Router 传递依赖告警，需要发布前给出处理结论。
 - 不要把 Expo 降级到审计建议的旧版本。
-- 已有 Git 远程仓库和首次 Actions 成功结果；尚无正式签名 APK、E2E 自动化和真机 Perfetto 数据。
+- 已有 Git 远程仓库、首次 Actions 成功结果和本地签名 APK；尚无正式 Release APK、E2E 自动化和真机 Perfetto 数据。
 - Android 备份策略、数据库明文和用户图片数据的隐私边界仍待发布前确认。
 - React Native DevTools 曾出现缓存跨磁盘移动错误，但 App 打包正常。
 - 浏览器调试不能覆盖 SQLite 原生行为、图片裁剪、SAF、TTS 和截图。

@@ -1,6 +1,6 @@
 # 开源发布计划
 
-最后更新：2026-10-21 20:19
+最后更新：2026-10-21 21:27
 
 ## 最终目标
 
@@ -60,24 +60,24 @@
 | LICENSE | 已确认 MIT，版权人为 `Saisa` |
 | README 功能介绍、截图、安装和使用说明 | 本地已完成，包含 6 张真实 Android 截图 |
 | CONTRIBUTING | 已新增 |
-| SECURITY | 已新增，等待启用 Private Vulnerability Reporting |
+| SECURITY | 已新增，Private Vulnerability Reporting 已启用 |
 | 隐私与数据说明 | 已新增 |
 | Issue/PR 模板 | 已新增 Issue Forms、PR 模板和 Release 分类 |
-| Release notes 和版本策略 | Release notes 模板已新增；版本策略留到 R2 |
+| Release notes 和版本策略 | Release notes 模板已新增；版本和 versionCode 规则已写入 `docs/RELEASING.md` |
 | ADR 和交接文档 | 已具备 |
 
 ### Android 发布
 
 | 条件 | 当前状态 |
 |---|---|
-| `android.package` | 缺失 |
-| 版本号和 versionCode 策略 | 仍为初始值 |
-| 正式签名 | 缺失 |
-| 签名密钥离线备份 | 缺失 |
-| GitHub Release APK | 缺失 |
-| APK 校验值 | 缺失 |
-| 覆盖安装与数据库升级 | 仅 Expo Go 阶段验证 |
-| 最低/目标 Android 版本说明 | 待补 |
+| `android.package` | 已配置 `com.saisa7.ezword` |
+| 版本号和 versionCode 策略 | 已配置 `0.1.0` / `1` 并写入 `docs/RELEASING.md` |
+| 正式签名 | 本地签名 APK 已生成并通过 `apksigner` 校验 |
+| 签名密钥离线备份 | 等待用户完成 |
+| GitHub Release APK | Release workflow 已准备，等待 Secrets 和标签 |
+| APK 校验值 | 本地 SHA-256 已生成 |
+| 覆盖安装与数据库升级 | 等待真机测试 |
+| 最低/目标 Android 版本说明 | minSdk 24，targetSdk 36 |
 
 ### 产品运行
 
@@ -101,15 +101,16 @@
 - [x] 增加 CONTRIBUTING、SECURITY、隐私说明、Issue/PR 模板和发布说明模板。
 - [x] 确认 MIT LICENSE 和第三方依赖声明。
 - [x] 配置远程仓库并让 GitHub Actions 实际运行。
-- [ ] 启用 Private Vulnerability Reporting 和仓库基础设置。
+- [x] 启用 Private Vulnerability Reporting 和仓库基础设置。
 
 ### R2：Android 发布工程
 
-- 确定最终包名，配置 `android.package`。
-- 定义语义化版本和 versionCode 规则。
-- 建立签名流程，签名密钥只保存在安全位置，不进入仓库。
-- 增加 GitHub Release workflow 和 APK 校验值。
-- 安装正式 APK，验证覆盖升级不会丢失数据库。
+- [x] 确定最终包名，配置 `android.package`。
+- [x] 定义语义化版本和 versionCode 规则。
+- [x] 建立签名流程，签名密钥只保存在安全位置，不进入仓库。
+- [x] 增加 GitHub Release workflow 和 APK 校验值。
+- [ ] 安装正式 APK，验证覆盖升级不会丢失数据库。
+- [ ] 配置 Actions Secrets 并发布 `v0.1.0` GitHub Release。
 
 ### R3：端到端与发布回归
 
@@ -140,14 +141,14 @@
 - 发布 `v1.0.0`。
 - 之后再评估 i18n、更多功能和跨平台适配。
 
-## R1 远程接入与 R2 入口
+## R2 待验收与发布入口
 
-R1 本地文件已经完成，下一步先配置远程仓库并确认 GitHub Actions 实际通过。随后进入 R2 前，需要用户提供或确认：
+R1 和 R2 本地构建已经完成。下一步需要：
 
-- 最终 Android 包名。
-- 版本号和 versionCode 策略。
-- 签名密钥的保管与使用方式。
-- 是否由本机配置远程并推送。
+- 在真机安装 `0.1.0 / 1` 正式 APK。
+- 用下一个 versionCode 测试包验证覆盖升级。
+- 配置 GitHub Actions 签名 Secrets。
+- 创建并推送 `v0.1.0` 标签，确认 Release APK 和 SHA-256。
 
 ## 后续扩展原则
 

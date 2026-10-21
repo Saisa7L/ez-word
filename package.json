@@ -1,6 +1,6 @@
 {
   "name": "vocab-app",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "expo-router/entry",
   "license": "MIT",
   "repository": {
@@ -47,20 +47,21 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
+    "android": "expo run:android",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"plugins/**/*.cjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"plugins/**/*.cjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:data && npm run test:task && npm run test:navigation",
-    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts",
     "test:data": "tsx --test tests/data.test.ts",
-    "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts",
+    "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts",
     "test:navigation": "tsx --test tests/navigationLock.test.ts",
     "doctor": "npx --yes expo-doctor@latest",
     "check": "npm run format:check && npm run docs:check && npm run typecheck && npm run lint && npm run test:coverage && npm run doctor",
     "docs:check": "node scripts/check-docs.mjs",
     "perf:budget": "node scripts/performance-budget.mjs",
+    "build:android:release": "node scripts/build-android-release.mjs",
     "check:release": "npm run check && npx expo export --platform android --output-dir .expo/check && npm run perf:budget"
   },
   "private": true

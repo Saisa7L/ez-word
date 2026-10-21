@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-21 20:03
+最后更新：2026-10-21 21:27
 
 ## 环境
 
@@ -45,6 +45,14 @@ npm run check:release
 ```
 
 该命令会额外执行 Android 导出并检查 HBC、资源总量、单资源和资源文件数预算。
+
+正式签名 APK：
+
+```powershell
+npm run build:android:release
+```
+
+该命令需要 JDK、Android SDK、NDK、CMake 和仓库外签名凭据。版本、签名和 GitHub Release 流程见 `docs/RELEASING.md`。
 
 依赖安装使用：
 

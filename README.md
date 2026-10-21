@@ -5,7 +5,7 @@
 项目当前只支持 Android，不提供 iOS、Web、账号登录、云端同步或自建服务器。DeepSeek 是可选能力，仅在用户主动配置 API Key 并使用音标、例句生成时访问网络。
 
 > [!NOTE]
-> 项目正在完成开源发布硬化。正式包名、签名和 GitHub Release APK 属于 R2，目前仓库尚不提供可直接安装的正式 APK。
+> R2 已完成本地正式包名、签名构建和 APK 校验；GitHub Release 发布仍在等待签名 Secrets 配置和设备覆盖升级验收。
 
 ## 功能
 
@@ -37,7 +37,7 @@
 
 ### 正式 APK
 
-正式签名 APK 将在 R2 完成包名、版本、签名和覆盖升级验证后发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases)。发布前请勿把 Expo Go 开发版本视为可长期使用的正式安装包。
+正式签名 APK 将在完成设备覆盖升级验收后发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases)。发布前请勿把 Expo Go 开发版本视为可长期使用的正式安装包。
 
 ### 当前开发体验
 
@@ -50,7 +50,7 @@ npm ci
 npx expo start --lan
 ```
 
-手机和电脑需要处于同一局域网，然后使用 Expo Go 扫描终端二维码。正式 APK 的构建和安装步骤会在 R2 中补齐。
+手机和电脑需要处于同一局域网，然后使用 Expo Go 扫描终端二维码。正式签名 APK 的本地构建和发布步骤见 [docs/RELEASING.md](docs/RELEASING.md)。
 
 ## 使用流程
 
@@ -122,9 +122,12 @@ npx expo start --lan
 npm run check
 npm run check:release
 npm run docs:check
+npm run build:android:release
 ```
 
 `npm run check` 执行格式、文档、类型、Lint、覆盖率和 Expo Doctor 检查。`npm run check:release` 在此基础上执行 Android 离线导出和性能预算检查。
+
+`npm run build:android:release` 需要本机 JDK、Android SDK 和仓库外的签名凭据，详细步骤见 [docs/RELEASING.md](docs/RELEASING.md)。
 
 提交前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
 

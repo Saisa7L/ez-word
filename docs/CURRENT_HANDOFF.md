@@ -1,18 +1,19 @@
 # 当前交接
 
-最后更新：2026-10-21 20:19
+最后更新：2026-10-21 21:27
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`f2f0f51 Prepare GitHub open-source foundation`
-- 当前阶段：R1 远程仓库和 GitHub Actions 已完成，等待用户开启 Private Vulnerability Reporting
+- 上一提交基线：`e16f46c Record successful GitHub CI`
+- 当前阶段：R2 本地正式包名、签名构建和通用 APK 已完成，等待设备覆盖升级验收和 GitHub Actions Secrets 配置
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：公开 README、截图、社区协作文件、MIT 许可证、依赖声明和发布模板已完成
+- 当前工作：正式包名、版本策略、签名密钥、可重复构建插件和 GitHub Release workflow 已完成
 - GitHub 仓库：`https://github.com/Saisa7L/ez-word`
 - 公开反馈渠道：GitHub Issues
 - 首次 CI：`https://github.com/Saisa7L/ez-word/actions/runs/39598453592`，`quality` 成功
+- Private Vulnerability Reporting：已确认启用
 - 最终目标：GitHub 开源发布，主要面向国内 Android 用户；后续再考虑多语言、多平台和更多功能
 - P6 不包含 EAS、APK、签名和发布；正式发布工作转入 R1-R6
 
@@ -53,25 +54,44 @@ git log --oneline --decorate -5
 - LICENSE 已替换为 MIT，版权人为 `Saisa`，不再保留 Expo 模板版权人。
 - 已新增 Issue Forms、Pull Request 模板、GitHub Release 分类配置和 Release notes 模板。
 - `src/constants/appInfo.ts` 已把关于页 GitHub 链接切换到正式仓库地址。
-- `scripts/check-docs.mjs` 现在同时检查 16 份主文档和 6 个公开仓库根文件。
+- `scripts/check-docs.mjs` 现在同时检查 17 份主文档和 6 个公开仓库根文件。
 - GitHub Actions CI 已增加文档检查步骤，并在 Android 导出后检查性能预算。
-- `npm run check:release` 通过：格式、文档、类型、Lint、55 项测试、覆盖率、Doctor 21/21、Android 导出和性能预算均成功。
+- `npm run check:release` 通过：格式、文档、类型、Lint、58 项测试、覆盖率、Doctor 21/21、Android 导出和性能预算均成功。
 - GitHub 公开仓库已创建，`main` 已推送，首次 GitHub Actions 在 Ubuntu 上通过。
 - 仓库描述、主页链接和 Topics 已配置。
-- 当前覆盖率：行 88.95%、分支 85.49%、函数 85.47%。
-- 当前 Android HBC：5,703,272 B；资源 775,027 B；资源 18 个；最大单图 364,301 B。
+- 当前覆盖率：行 88.95%、分支 85.31%、函数 85.38%。
+- 当前 Android HBC：5,703,270 B；资源 775,027 B；资源 18 个；最大单图 364,301 B。
 
 ## 远程接入待办
 
-1. 由用户在 GitHub 仓库设置中启用 Private Vulnerability Reporting。
-2. R2 开始前确认 Release 权限和需要使用的 GitHub Actions 发布凭据。
+1. 配置 `Release Android APK` 工作流所需的四个 GitHub Actions Secrets。
+2. 由用户完成签名密钥和密码的离线备份。
 
-## 进入 R2 前需要用户确认
+## R2 本地发布工程结果
 
-- 最终 Android 包名。
-- `versionName`、`versionCode` 和首个测试版版本号策略。
-- 签名密钥的生成、离线备份和密码保管方式。
-- 是否由本机直接配置 GitHub 远程并推送，还是由用户手动创建和推送。
+- Android applicationId：`com.saisa7.ezword`。
+- App 版本：`0.1.0`，versionCode `1`。
+- minSdk `24`，targetSdk `36`，compileSdk `36`。
+- 已生成 RSA 4096 / PKCS12 正式签名密钥，有效期 10000 天。
+- 密钥位于仓库外：`C:\Users\12642\.android\keystores\ez-word-release.jks`。
+- 本机密码属性位于仓库外：`C:\Users\12642\.android\keystores\ez-word-release.properties`。
+- 签名证书 SHA-256：`8B:A8:F3:83:FD:6A:F7:C6:1F:0B:FD:2F:A7:EF:65:38:48:63:F5:29:B0:B3:3A:C8:9B:D3:EF:4C:87:21:5E:AD`。
+- 新增 Expo 配置插件，自动注入 release signing 配置并统一 CMake 3.30.5。
+- 新增 `build:android:release` 本机构建脚本，支持属性文件和 CI 环境变量两种签名来源。
+- 已阻止 `SYSTEM_ALERT_WINDOW`、震动和生物识别等非必要权限。
+- 通用 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64`。
+- APK：`dist/release/ez-word-v0.1.0.apk`。
+- APK 大小：114,444,740 B。
+- APK SHA-256：`1080ab47e9efcaf12ab28805b3e4dac50768b904cace1d6dbfb4cae411cbb44d`。
+- `apksigner verify`、`zipalign -c 4`、包名、版本、权限和 ABI 校验通过。
+- 新增 `.github/workflows/release.yml`，标签 `v0.1.0` 可构建并发布 GitHub Release。
+
+## R2 待验收
+
+1. 在 Android 真机安装正式 APK，确认启动、权限和主流程。
+2. 建立带测试数据的 `versionCode 1` 安装，再用 `versionCode 2` 测试包覆盖安装，确认 SQLite 数据保留。
+3. 配置 GitHub Actions 签名 Secrets，创建并推送 `v0.1.0` 标签。
+4. 确认 GitHub Release 包含 APK 和 SHA-256 文件。
 
 ## 架构重构完成情况
 
@@ -231,7 +251,7 @@ git log --oneline --decorate -5
 ## P2-12 文档治理
 
 - 新增 `scripts/check-docs.mjs` 和 `npm run docs:check`。
-- 自动检查 16 份必需文档、6 个公开仓库根文件、精确更新时间、npm 脚本引用、Markdown 文档路径和样例路径。
+- 自动检查 17 份必需文档、6 个公开仓库根文件、精确更新时间、npm 脚本引用、Markdown 文档路径和样例路径。
 - `npm run check` 现在包含文档检查。
 - 新增交接模板 `docs/templates/HANDOFF_TEMPLATE.md`。
 - 新增 ADR 模板 `docs/templates/ADR_TEMPLATE.md`。
@@ -453,10 +473,10 @@ git status --short --branch
 git log --oneline --decorate -5
 
 当前最终目标是 GitHub 开源发布，主要面向国内 Android 用户。
-架构重构主体和 R1 本地开源基础已完成，下一批是远程仓库接入验收和 R2 Android 发布工程。
-不要重新设计 P5 主题 UI，不要跳过远程 CI 和 R2 直接发布 APK，
+架构重构主体、R1 开源基础和 R2 本地发布工程已完成，下一步是真机覆盖升级验收和签名 Secrets 配置。
+不要重新设计 P5 主题 UI，不要跳过真机覆盖升级直接发布 APK，
 不要把签名、API Key 或用户数据提交到 Git，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、R1 远程接入状态，以及正式包名/版本/签名信息是否已经确认。
+请先说明当前 Git 状态、R2 本地 APK 校验结果、真机覆盖升级状态，以及 Release Secrets 是否配置。
 ```

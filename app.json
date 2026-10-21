@@ -3,12 +3,19 @@
     "name": "易词通",
     "slug": "vocab-app",
     "scheme": "vocabapp",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/app/icon.png",
     "userInterfaceStyle": "light",
     "android": {
+      "package": "com.saisa7.ezword",
       "versionCode": 1,
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.VIBRATE",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#EDF9FF",
         "foregroundImage": "./assets/app/icon.png"
@@ -23,6 +30,7 @@
       "expo-status-bar",
       "expo-sqlite",
       "expo-secure-store",
+      "./plugins/withAndroidReleaseSigning",
       [
         "expo-image-picker",
         {
