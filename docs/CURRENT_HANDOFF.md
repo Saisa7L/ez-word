@@ -1,12 +1,12 @@
 # 当前交接
 
-最后更新：2026-10-22 18:18
+最后更新：2026-10-22 18:50
 
 ## 当前状态
 
 - 分支：`main`
 - 上一提交基线：`17f3850 Update Expo patch dependencies`
-- 当前阶段：R2 已完成，`v0.1.0` GitHub Release 已发布并通过资产校验
+- 当前阶段：R2 已完成，R3 已开始，设备已连接并安装正式 Release APK
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
 - 当前工作：正式 Release、覆盖升级、签名 Secrets 和发布资产校验已完成
@@ -30,6 +30,26 @@
 - Release 说明和完整校验信息见 `docs/releases/v0.1.0.md`。
 - 后续主分支已将 Expo 补丁版本更新为 `57.0.31`，Expo Router 更新为 `57.0.29`。
 - 最新主分支 CI `39761986811` 已通过。
+
+## R3 当前断点
+
+- 物理设备已连接：`75e7a3c5`，型号 `PHK110`，Android 16。
+- GitHub Release 的 `ez-word-v0.1.0.apk` 已通过 ADB 覆盖安装。
+- 设备当前包名 `com.saisa7.ezword`，versionName `0.1.0`，versionCode `2`。
+- 覆盖安装后原数据保留：首页显示已学习 5 天、总计已学 76、错题 41。
+- Maestro CLI 2.11.0 已安装到 `C:\Users\12642\.codex\toolchains\maestro\maestro`。
+- Maestro 运行环境需要：
+
+```text
+JAVA_HOME=C:\Users\12642\.jdks\openjdk-23.0.1
+ANDROID_HOME=C:\Users\12642\.android\sdk
+PATH 包含 %JAVA_HOME%\bin 和 %ANDROID_HOME%\platform-tools
+```
+
+- 当前问题：`maestro list-devices` 只显示 Web，不识别已连接的 Android 设备。
+- 设置 `ANDROID_SERIAL=75e7a3c5` 和 `ADB_SERVER_SOCKET=tcp:127.0.0.1:5037` 后，`maestro hierarchy` 未报错但等待超过 60 秒，已被手动停止。
+- 尚未创建 `.maestro/` 流程文件，R3 没有未提交代码。
+- 下一步优先排查 Maestro Windows 物理设备发现；若 2.11.0 无法连接，可改用已验证稳定版本或 Android 模拟器。
 
 ## 接手先做
 
