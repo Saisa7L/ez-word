@@ -5,7 +5,7 @@
 项目当前只支持 Android，不提供 iOS、Web、账号登录、云端同步或自建服务器。DeepSeek 是可选能力，仅在用户主动配置 API Key 并使用音标、例句生成时访问网络。
 
 > [!NOTE]
-> R2 已完成本地正式包名、签名构建和 APK 校验；GitHub Release 发布仍在等待签名 Secrets 配置和设备覆盖升级验收。
+> R2 已完成，`v0.1.0` 签名 APK 已发布到 GitHub Releases，并通过覆盖升级和 Release 资产校验。
 
 ## 功能
 
@@ -37,7 +37,7 @@
 
 ### 正式 APK
 
-正式签名 APK 将在完成设备覆盖升级验收后发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases)。发布前请勿把 Expo Go 开发版本视为可长期使用的正式安装包。
+正式签名 APK 已发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases/tag/v0.1.0)。这是首个 Android 开源测试版，发布说明见 [docs/releases/v0.1.0.md](docs/releases/v0.1.0.md)。
 
 ### 当前开发体验
 

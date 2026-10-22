@@ -1,6 +1,6 @@
 # 项目上下文
 
-最后更新：2026-10-21 22:21
+最后更新：2026-10-22 18:10
 
 ## 产品
 
@@ -12,7 +12,7 @@
 | 测试设备 | 一加 Ace 2，Android 16 |
 | 路径 | `F:\English vocabulary app\Project\vocab-app` |
 | 分支 | `main` |
-| 当前阶段 | R2 本地构建、签名 Secrets 和覆盖升级验收完成，准备发布 `v0.1.0` |
+| 当前阶段 | R2 和 `v0.1.0` GitHub Release 已完成，进入 R3 端到端与发布回归 |
 
 产品目标是跑通“导入词库 → 每日学习 → 填空/听写 → 错题回顾 → 单词再练 → 本地存档”的单机闭环。
 
@@ -47,7 +47,8 @@
 - R1 已补齐 README、真实截图、社区文件、MIT 许可证、依赖声明、Issue/PR/Release 模板和 CI 文档检查。
 - R2 已配置正式包名、语义版本、签名插件、本机构建脚本和 GitHub Release workflow。
 - R2 已通过 `versionCode 1 → 2` 真机覆盖升级，原有数据保留。
-- 下一阶段只剩提交最终版本、推送 `v0.1.0` 标签和确认 GitHub Release，详见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
+- `v0.1.0` GitHub Release 已发布，Release APK 和 SHA-256 已独立核验。
+- 下一阶段进入 R3 Maestro、端到端和多机型发布回归，详见 `docs/OPEN_SOURCE_RELEASE_PLAN.md`。
 - P1 任务状态机已改为 reducer 管理，并接入四个任务页的阶段守卫。
 - 已修复三种任务模式标题未写入状态和听力默认速度未从设置快照生效的问题。
 - 任务 Provider 已拆为会话和答案两个 Context，阶段推进与导航统一封装，并通过真机验收。
@@ -81,7 +82,7 @@
 - `npm audit` 会报告 Expo 工具链依赖问题，禁止执行 `npm audit fix --force`。
 - `npm audit --omit=dev` 当前仍有 30 个 Expo/Metro/Router 传递依赖告警，需要发布前给出处理结论。
 - 不要把 Expo 降级到审计建议的旧版本。
-- 已有 Git 远程仓库、首次 Actions 成功结果和本地签名 APK；尚无正式 Release APK、E2E 自动化和真机 Perfetto 数据。
+- 已有 Git 远程仓库、正式签名 Release APK 和成功发布工作流；尚无 E2E 自动化和真机 Perfetto 数据。
 - Android 备份策略、数据库明文和用户图片数据的隐私边界仍待发布前确认。
 - React Native DevTools 曾出现缓存跨磁盘移动错误，但 App 打包正常。
 - 浏览器调试不能覆盖 SQLite 原生行为、图片裁剪、SAF、TTS 和截图。

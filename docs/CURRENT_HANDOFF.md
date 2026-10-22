@@ -1,31 +1,33 @@
 # 当前交接
 
-最后更新：2026-10-21 22:57
+最后更新：2026-10-22 18:10
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`813252f Add Android release signing and workflow`
-- 当前阶段：`v0.1.0` 标签已推送，GitHub Release 工作流正在远程执行
+- 上一提交基线：`56785cb Record release workflow checkpoint`
+- 当前阶段：R2 已完成，`v0.1.0` GitHub Release 已发布并通过资产校验
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：最终通用 APK、签名 Secrets、设备覆盖升级和发布门禁已完成
+- 当前工作：正式 Release、覆盖升级、签名 Secrets 和发布资产校验已完成
 - GitHub 仓库：`https://github.com/Saisa7L/ez-word`
 - 公开反馈渠道：GitHub Issues
 - 首次 CI：`https://github.com/Saisa7L/ez-word/actions/runs/39598453592`，`quality` 成功
 - Private Vulnerability Reporting：已确认启用
+- GitHub Release：`https://github.com/Saisa7L/ez-word/releases/tag/v0.1.0`
 - 最终目标：GitHub 开源发布，主要面向国内 Android 用户；后续再考虑多语言、多平台和更多功能
 - P6 不包含 EAS、APK、签名和发布；正式发布工作转入 R1-R6
 
-## 断电前断点
+## v0.1.0 Release 结果
 
-- 当前 HEAD：`4c75dc3 Fix Android SDK setup in release workflow`
-- `v0.1.0` 标签指向 `4c75dc3`。
-- Release 运行编号：`39617879827`
-- 运行地址：`https://github.com/Saisa7L/ez-word/actions/runs/39617879827`
-- 保存进度时最后观察到 Release workflow 为 `in_progress`，已完成 SDK、质量门禁和 keystore 解码，正在构建签名 APK。
-- 第一次 Release 运行 `39616727677` 因 `android-actions/setup-android` 默认安装不存在的 `tools` 包失败，已在 `4c75dc3` 修复。
-- 下次接手先查询该运行结果；成功则核对 Release APK 和 SHA-256，失败则读取失败步骤日志后修复。
+- `v0.1.0` 标签指向 `4c75dc3 Fix Android SDK setup in release workflow`。
+- Release workflow `39617879827` 已完成，结论为 `success`。
+- 第一次 Release 运行 `39616727677` 因 Android SDK `tools` 包已移除而失败，已在 `4c75dc3` 修复。
+- Release 资产 APK：114,444,732 B。
+- Release 资产 SHA-256：`32543cc9dc563ac3ffbcbf80997f508c9bec4d7ec687d394a41fe4b4b164f294`。
+- Release 中的 SHA-256 文件与实际 APK 完全一致。
+- Release APK 已独立通过 `apksigner`、`zipalign`、包名、versionCode、ABI 和权限检查。
+- Release 说明和完整校验信息见 `docs/releases/v0.1.0.md`。
 
 ## 接手先做
 
@@ -98,12 +100,12 @@ git log --oneline --decorate -5
 - 用户已通过 `versionCode 2` 测试包完成覆盖升级，原有数据保留。
 - 最终 `v0.1.0 / versionCode 2` 通用 APK 已通过签名、zipalign、包名、版本、权限和 ABI 校验。
 
-## R2 待验收
+## 下一阶段：R3
 
-1. 提交最终 `versionCode 2` 配置。
-2. 创建并推送 `v0.1.0` 标签。
-3. 确认 GitHub Release 工作流和签名 APK。
-4. 记录 Release URL 和最终校验值。
+1. 接入 Maestro 并覆盖每日任务主流程。
+2. 覆盖返回键、错题、词库、存档、AI 设置和设置保存。
+3. 建立 Android 多机型/多分辨率最低验收矩阵。
+4. 回归日间、夜间、自定义主题、大字号、TalkBack 和减少动画。
 
 ## 架构重构完成情况
 
@@ -485,10 +487,10 @@ git status --short --branch
 git log --oneline --decorate -5
 
 当前最终目标是 GitHub 开源发布，主要面向国内 Android 用户。
-架构重构主体、R1 开源基础和 R2 本地发布工程已完成，真机覆盖升级已通过，下一步只剩最终标签和 Release 校验。
-不要重新设计 P5 主题 UI，不要替换已确认的签名或版本号，
+架构重构主体、R1 开源基础和 R2 Android Release 已完成，`v0.1.0` 已发布并通过资产校验，下一阶段是 R3 端到端与发布回归。
+不要重新设计 P5 主题 UI，不要替换已确认的签名、包名或已发布版本，
 不要把签名、API Key 或用户数据提交到 Git，
 不要回滚用户已有修改。
 
-请先说明当前 Git 状态、`v0.1.0` Release 状态、APK 签名和 SHA-256 校验结果。
+请先说明当前 Git 状态、`v0.1.0` Release 校验结果，以及 R3 测试缺口。
 ```
