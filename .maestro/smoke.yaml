@@ -1,0 +1,25 @@
+appId: com.saisa7.ezword
+name: Android release smoke
+---
+- launchApp:
+    clearState: false
+    permissions: {}
+    stopApp: true
+- assertVisible: "今日任务"
+- assertVisible: "错题回顾"
+- assertVisible: "单词再练"
+- tapOn:
+    text: "我的"
+    waitToSettleTimeoutMs: 3000
+- assertVisible: "个人资料"
+- assertVisible: "通用设置"
+- tapOn:
+    text: "通用设置"
+    waitToSettleTimeoutMs: 3000
+- assertVisible: "每日学习数量"
+- back
+- assertVisible: "我的"
+- tapOn:
+    text: "首页"
+    waitToSettleTimeoutMs: 3000
+- assertVisible: "今日任务"

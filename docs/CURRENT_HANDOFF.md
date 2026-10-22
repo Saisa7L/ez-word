@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-22 18:50
+最后更新：2026-10-22 19:19
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`17f3850 Update Expo patch dependencies`
-- 当前阶段：R2 已完成，R3 已开始，设备已连接并安装正式 Release APK
+- 上一提交基线：`fd20c24 Record R3 Maestro checkpoint`
+- 当前阶段：R2 已完成，R3 Maestro 真机链路已打通，首个 smoke flow 已通过
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：正式 Release、覆盖升级、签名 Secrets 和发布资产校验已完成
+- 当前工作：正式 Release、覆盖升级、签名 Secrets 和发布资产校验已完成；R3 开始补端到端流程
 - GitHub 仓库：`https://github.com/Saisa7L/ez-word`
 - 公开反馈渠道：GitHub Issues
 - 首次 CI：`https://github.com/Saisa7L/ez-word/actions/runs/39598453592`，`quality` 成功
@@ -31,13 +31,16 @@
 - 后续主分支已将 Expo 补丁版本更新为 `57.0.31`，Expo Router 更新为 `57.0.29`。
 - 最新主分支 CI `39761986811` 已通过。
 
-## R3 当前断点
+## R3 Maestro 接入结果
 
 - 物理设备已连接：`75e7a3c5`，型号 `PHK110`，Android 16。
 - GitHub Release 的 `ez-word-v0.1.0.apk` 已通过 ADB 覆盖安装。
 - 设备当前包名 `com.saisa7.ezword`，versionName `0.1.0`，versionCode `2`。
 - 覆盖安装后原数据保留：首页显示已学习 5 天、总计已学 76、错题 41。
 - Maestro CLI 2.11.0 已安装到 `C:\Users\12642\.codex\toolchains\maestro\maestro`。
+- `dev.mobile.maestro` driver 和 server 已预装到物理设备。
+- 新增 `.maestro/smoke.yaml`，覆盖正式 APK 启动、首页三个入口、底部 Tab、通用设置页和 Android 返回。
+- smoke flow 已在 `75e7a3c5` 真机通过。
 - Maestro 运行环境需要：
 
 ```text
@@ -46,10 +49,33 @@ ANDROID_HOME=C:\Users\12642\.android\sdk
 PATH 包含 %JAVA_HOME%\bin 和 %ANDROID_HOME%\platform-tools
 ```
 
-- 当前问题：`maestro list-devices` 只显示 Web，不识别已连接的 Android 设备。
-- 设置 `ANDROID_SERIAL=75e7a3c5` 和 `ADB_SERVER_SOCKET=tcp:127.0.0.1:5037` 后，`maestro hierarchy` 未报错但等待超过 60 秒，已被手动停止。
-- 尚未创建 `.maestro/` 流程文件，R3 没有未提交代码。
-- 下一步优先排查 Maestro Windows 物理设备发现；若 2.11.0 无法连接，可改用已验证稳定版本或 Android 模拟器。
+- Maestro 2.11.0 将 ADB server 硬编码为 `localhost:5037`，`ADB_SERVER_SOCKET` 不会改变其连接地址。
+- Native Instruments `NTKDaemonService` 会在本机 5563 端口模拟 Android emulator，并向 ADB 注入离线 `emulator-5562`。Maestro 列举设备时会因该离线 transport 提前失败，只显示 Web。
+- 真机运行 Maestro 前需临时停止 `NTKDaemonService`，结束后恢复为 `Running / Automatic`。此操作需要 UAC，不得永久禁用服务。
+- Android 16 上 `launchApp` 默认授权全部权限会尝试 `grant INTERNET` 等普通权限并被 shell 拒绝，导致启动流程卡住。flow 必须显式设置：
+
+```yaml
+- launchApp:
+    clearState: false
+    permissions: {}
+    stopApp: true
+```
+
+- Android 16 的 Tab/页面切换可能不收敛窗口稳定状态。点击命令需显式设置 `waitToSettleTimeoutMs`；当前 smoke 使用 3000 ms。
+- 嵌套滚动页中的 `scrollUntilVisible` 仍可能无限等待，smoke 已收敛为只读导航，不在该流程内测试底部“保存设置”。
+- 当前运行命令：
+
+```powershell
+$env:JAVA_HOME='C:\Users\12642\.jdks\openjdk-23.0.1'
+$env:ANDROID_HOME='C:\Users\12642\.android\sdk'
+$env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+$env:Path="$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:Path"
+& 'C:\Users\12642\.codex\toolchains\maestro\maestro\bin\maestro.bat' `
+  --platform android --device 75e7a3c5 `
+  test --no-reinstall-driver .maestro\smoke.yaml
+```
+
+- 下一步：补每日任务主流程、返回键、错题、词库、存档、AI 设置和设置保存 flow；继续使用正式 Release APK 与真实设备数据验证。
 
 ## 接手先做
 
@@ -124,10 +150,11 @@ git log --oneline --decorate -5
 
 ## 下一阶段：R3
 
-1. 接入 Maestro 并覆盖每日任务主流程。
-2. 覆盖返回键、错题、词库、存档、AI 设置和设置保存。
-3. 建立 Android 多机型/多分辨率最低验收矩阵。
-4. 回归日间、夜间、自定义主题、大字号、TalkBack 和减少动画。
+1. 已接入 Maestro 真机链路并跑通 `.maestro/smoke.yaml`。
+2. 下一批覆盖每日任务主流程。
+3. 覆盖返回键、错题、词库、存档、AI 设置和设置保存。
+4. 建立 Android 多机型/多分辨率最低验收矩阵。
+5. 回归日间、夜间、自定义主题、大字号、TalkBack 和减少动画。
 
 ## 架构重构完成情况
 
