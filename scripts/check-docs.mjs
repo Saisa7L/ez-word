@@ -5,23 +5,15 @@ const ROOT = process.cwd();
 const DOCS_DIR = join(ROOT, 'docs');
 const INDEX_PATH = join(DOCS_DIR, 'README.md');
 const REQUIRED_DOCS = [
+  'ACCEPTANCE.md',
   'ARCHITECTURE.md',
-  'ASSETS.md',
-  'CURRENT_HANDOFF.md',
   'DATABASE.md',
-  'DATA_FLOW.md',
   'DEVELOPMENT_GUIDE.md',
-  'MODULE_REFERENCE.md',
-  'OPEN_SOURCE_RELEASE_PLAN.md',
-  'PERFORMANCE_BUDGET.md',
   'PHASE_HISTORY.md',
   'PROJECT_CONTEXT.md',
-  'QUALITY_AND_TECH_DEBT.md',
   'README.md',
   'RELEASING.md',
   'REQUIREMENTS.md',
-  'THEME_GUIDE.md',
-  'UI_MAP.md',
 ];
 const REQUIRED_ROOT_FILES = [
   'CONTRIBUTING.md',

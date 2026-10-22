@@ -105,7 +105,7 @@ src/
 └─ utils/        无状态工具
 ```
 
-详细设计见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/DATA_FLOW.md](docs/DATA_FLOW.md) 和 [docs/DATABASE.md](docs/DATABASE.md)。
+详细设计见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) 和 [docs/DATABASE.md](docs/DATABASE.md)。
 
 ## 本地开发
 
@@ -136,13 +136,14 @@ npm run build:android:release
 ## 项目文档
 
 - [文档索引](docs/README.md)
-- [项目上下文](docs/PROJECT_CONTEXT.md)
+- [项目概况](docs/PROJECT_CONTEXT.md)
+- [需求规则](docs/REQUIREMENTS.md)
 - [架构说明](docs/ARCHITECTURE.md)
-- [模块与接口](docs/MODULE_REFERENCE.md)
-- [数据流](docs/DATA_FLOW.md)
 - [数据库](docs/DATABASE.md)
-- [质量与技术债](docs/QUALITY_AND_TECH_DEBT.md)
-- [开源发布计划](docs/OPEN_SOURCE_RELEASE_PLAN.md)
+- [开发指南](docs/DEVELOPMENT_GUIDE.md)
+- [验收记录](docs/ACCEPTANCE.md)
+- [开发历史](docs/PHASE_HISTORY.md)
+- [发布指南](docs/RELEASING.md)
 
 ## 隐私、安全与反馈
 

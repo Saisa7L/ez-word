@@ -1,6 +1,6 @@
 # 代码架构说明
 
-最后更新：2026-10-20 20:22
+最后更新：2026-10-22 21:32
 
 ## 架构概览
 
@@ -12,7 +12,12 @@
 - 未做：全面重写、领域模型重构、统一用例层、正式测试框架。
 - 目标：提高高内聚、降低不必要耦合，同时保持已有功能和 P5 UI 不变。
 
-完整的模块契约见 `docs/MODULE_REFERENCE.md`，质量评估和技术债见 `docs/QUALITY_AND_TECH_DEBT.md`。
+关键架构决策：
+
+- 只支持 Android，不为 iOS/Web 维护兼容分支。
+- SQLite 是核心业务数据的唯一持久化来源。
+- 所有页面和任务导航统一经过 `utils/navigationActions`。
+- 数据库和存档结构通过显式迁移、结构校验和真实 SQLite 测试保持一致。
 
 启动层级：
 
@@ -61,6 +66,8 @@ RootLayout
 | `services/archiveFiles.ts` | 存档文件读写 | `exportArchiveFile`、`pickArchiveFile` |
 | `services/aiKeyStore.ts` | API Key 安全存储 | `get/save/clearDeepSeekApiKey` |
 | `services/wordCsvFiles.ts` | CSV 文件选择和读取 | `pickWordCsvFile` |
+| `services/updateService.ts` | 版本检查、APK 下载和系统安装器调用 | `fetchLatestRelease`、`downloadUpdate`、`installUpdate` |
+| `features/updates` | 更新清单校验、版本比较和可信地址约束 | `parseUpdateManifest`、`compareVersions` |
 | `database/schema.ts` | 当前表字段、存档字段和结构校验 | `validateDatabaseSchema` |
 | `database/sqlFragments.ts` | 跨仓库共享的查询字段片段 | `selectWordColumns` |
 | `database/migrations.ts` | 版本迁移注册表和统一事务执行 | `MIGRATIONS`、`runMigrations` |
@@ -76,6 +83,25 @@ RootLayout
 | `components/Button` | 通用按钮变体和状态 | `Button` |
 | `components/Dialog` | 通用模态容器和无障碍语义 | `Dialog` |
 | `components/TaskPhasePlaceholder` | 任务阶段恢复占位 | `TaskPhasePlaceholder` |
+
+## 页面地图
+
+```text
+底部 Tab
+├─ 首页
+│  ├─ 每日任务 → 认识单词 → 选词填空 → 听力测试 → 完成
+│  ├─ 错题回顾 → 认识单词 → 选词填空 → 听力测试 → 完成
+│  └─ 单词再练 → 选词填空 → 听力测试 → 完成
+├─ 错题本 → 添加错题
+└─ 我的
+   ├─ 个人资料
+   ├─ 通用设置
+   ├─ 主题外观
+   ├─ 导入单词 → 当前词库 → 添加单词
+   ├─ 本地存档
+   ├─ AI 设置
+   └─ 关于
+```
 
 ## 状态归属
 
@@ -109,6 +135,46 @@ components → constants / hooks / utils
 - `components` 直接读取 SQLite。
 - `services` 管理页面导航。
 - 多个页面分别维护同一份业务常量。
+
+## 核心数据流
+
+### 每日任务
+
+```text
+入口 → 读取设置和未学词 → 生成任务快照
+→ 认识单词 → 填空 → 听力 → 完成页
+→ completeTaskSession 单事务写入错题、学习状态和完成记录
+```
+
+每日任务学习日使用本地凌晨 5 点边界。任务中途退出不写错题和学习状态，只有完成页保存成功才结算。
+
+### CSV 与词库
+
+```text
+系统文件选择器 → 读取 UTF-8 CSV
+→ 解析和逐行校验 → SQLite 事务 upsert
+→ 更新/恢复当前词库 → 返回新增、更新和跳过数量
+```
+
+清空词库是软停用，不删除单词、学习记录或错题历史。
+
+### 存档
+
+```text
+导出 → 读取固定业务表 → JSON 序列化和大小校验
+导入 → 解析和完整性校验 → 单事务整体替换 → 刷新主题和页面数据
+```
+
+存档不包含 DeepSeek API Key。
+
+### 检查更新
+
+```text
+关于页 → ghproxy.net 版本清单 → GitHub Raw/API 回退
+→ 版本比较 → 用户确认下载
+→ ghproxy.net APK → GitHub APK 回退
+→ 大小/MD5 校验 → Android 系统安装器
+```
 
 ## 高内聚与低耦合原则
 
@@ -160,9 +226,14 @@ src/
 └─ utils/               无状态工具
 ```
 
-资源目录和命名以 `docs/ASSETS.md` 为准，资源统一从 `src/constants/uiAssets.ts` 引用。
+## 主题与资源
 
-完整文档索引见 `docs/README.md`。目录说明已合并到本文件。
+- 主题通过 `ThemeProvider` 和 `useThemedStyles` 提供日间、夜间和自定义颜色。
+- 页面只使用主题令牌，不直接维护第二套颜色体系。
+- App 图标、启动图、导航图标和页面插画统一从 `src/constants/uiAssets.ts` 引用。
+- 图片资源保持小体积，并由性能预算脚本限制资源总量、单文件大小和数量。
+
+完整文档索引见 `docs/README.md`。
 
 ## 整理原则
 

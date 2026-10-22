@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-10-21 21:27
+最后更新：2026-10-22 21:32
 
 ## 环境
 
@@ -29,6 +29,7 @@ npx expo export --platform android --output-dir .expo/check
 ```
 
 `npm run check` 包含格式、文档、类型、Lint、覆盖率和 Expo Doctor。
+当前基线为 67 项测试，覆盖率阈值要求行、分支、函数均不低于 80%。
 
 文档检查：
 
@@ -45,6 +46,7 @@ npm run check:release
 ```
 
 该命令会额外执行 Android 导出并检查 HBC、资源总量、单资源和资源文件数预算。
+当前预算为 Android HBC 6 MB、资源总量 1 MB、单资源 512 KB、资源文件 24 个。
 
 正式签名 APK：
 
@@ -100,8 +102,6 @@ CI 使用 Node 22，并执行与 `npm run check` 相同的质量门禁。
 - `Shift + F12`：查看引用
 - `Ctrl + Shift + M`：查看 Problems
 - `Ctrl + Shift + B`：运行 TypeScript 检查
-- `F5`：浏览器调试
-
 项目不提供 Web/iOS 调试入口，最终验收以 Android 真机为准。
 
 ## Git 流程
@@ -168,3 +168,13 @@ git revert 提交编号
 - API Key 不写入源码、文档或聊天。
 - 不提交 `.env`、签名文件、密码或 GitHub 凭证。
 - Android Keystore 和密码必须单独备份。
+
+## 文档结构
+
+- `PROJECT_CONTEXT.md`：项目、版本、技术和风险概况。
+- `REQUIREMENTS.md`：功能规则和 CSV 格式。
+- `ARCHITECTURE.md`：页面、模块、导航和核心数据流。
+- `DATABASE.md`：表结构、迁移和存档关系。
+- `ACCEPTANCE.md`：最终验收结果。
+- `PHASE_HISTORY.md`：开发过程。
+- `RELEASING.md`：版本和发布流程。
