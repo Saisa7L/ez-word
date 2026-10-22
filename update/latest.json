@@ -1,14 +1,14 @@
 {
-  "version": "0.1.0",
-  "tagName": "v0.1.0",
-  "releaseUrl": "https://github.com/Saisa7L/ez-word/releases/tag/v0.1.0",
-  "apkUrl": "https://github.com/Saisa7L/ez-word/releases/download/v0.1.0/ez-word-v0.1.0.apk",
+  "version": "1.0.0",
+  "tagName": "v1.0.0",
+  "releaseUrl": "https://github.com/Saisa7L/ez-word/releases/tag/v1.0.0",
+  "apkUrl": "https://github.com/Saisa7L/ez-word/releases/download/v1.0.0/ez-word-v1.0.0.apk",
   "apkMirrorUrls": [
-    "https://ghproxy.net/https://github.com/Saisa7L/ez-word/releases/download/v0.1.0/ez-word-v0.1.0.apk"
+    "https://ghproxy.net/https://github.com/Saisa7L/ez-word/releases/download/v1.0.0/ez-word-v1.0.0.apk"
   ],
-  "sha256": "32543cc9dc563ac3ffbcbf80997f508c9bec4d7ec687d394a41fe4b4b164f294",
-  "md5": null,
-  "size": 114444732,
-  "publishedAt": "2026-10-21T14:59:11Z",
-  "notes": "易词通 v0.1.0 是首个 Android 开源测试版本。"
+  "sha256": "86fb3418de092cdcfd8203254e461a61c57e2f241969e02313be25980347d6b1",
+  "md5": "a7c338933829c249d0740ff2bedfb9dd",
+  "size": 114608476,
+  "publishedAt": "2026-10-22T13:15:24.554Z",
+  "notes": "易词通 v1.0.0 首个正式 Android 版本，完成从词库导入、每日学习、错题复习到本地存档的完整闭环。 下载 - APK：`ez-word-v1.0.0.apk` - SHA-256：见同目录 Release 资产 `ez-word-v1.0.0.apk.sha256` - 最低 Android 版本：Android 7.0（API 24） - 目标 Android 版本：Android 16（API 36） 本次更新 - 学习日改为本地时间凌晨 5 点切换，同一学习日多次完成任务不重复增加学习天数。 - 设置页改为按实际页面层级逐级返回，修复添加单词和当前词库直接返回“我的”的问题。 - 关于页启用检查更新，支持国内 `ghproxy.net` 镜像和 GitHub 回退。 - 支持在 App 内下载更新 APK，并打开 Android 系统安装器完成同签名覆盖安装。 - 存档、词库、错题、主题、个人资料和 AI 设置流程完成最终回归。 安装说明 - 从旧版覆盖安装时请勿卸载 App，现有 SQLite 数据会保留。 - 后续版本必须继续使用相同包名和签名密钥。 - Andr"
 }
