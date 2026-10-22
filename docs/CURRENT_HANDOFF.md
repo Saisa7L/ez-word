@@ -1,11 +1,11 @@
 # 当前交接
 
-最后更新：2026-10-22 18:10
+最后更新：2026-10-22 18:18
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`56785cb Record release workflow checkpoint`
+- 上一提交基线：`17f3850 Update Expo patch dependencies`
 - 当前阶段：R2 已完成，`v0.1.0` GitHub Release 已发布并通过资产校验
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
@@ -28,6 +28,8 @@
 - Release 中的 SHA-256 文件与实际 APK 完全一致。
 - Release APK 已独立通过 `apksigner`、`zipalign`、包名、versionCode、ABI 和权限检查。
 - Release 说明和完整校验信息见 `docs/releases/v0.1.0.md`。
+- 后续主分支已将 Expo 补丁版本更新为 `57.0.31`，Expo Router 更新为 `57.0.29`。
+- 最新主分支 CI `39761986811` 已通过。
 
 ## 接手先做
 
