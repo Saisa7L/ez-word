@@ -5,7 +5,7 @@
 项目当前只支持 Android，不提供 iOS、Web、账号登录、云端同步或自建服务器。DeepSeek 是可选能力，仅在用户主动配置 API Key 并使用音标、例句生成时访问网络。
 
 > [!NOTE]
-> R2 已完成，`v0.1.0` 签名 APK 已发布到 GitHub Releases，并通过覆盖升级和 Release 资产校验。
+> `v1.0.0` 正式签名 APK 已发布到 GitHub Releases，并提供国内镜像更新检查与 App 内下载安装。
 
 ## 功能
 
@@ -37,7 +37,7 @@
 
 ### 正式 APK
 
-正式签名 APK 已发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases/tag/v0.1.0)。这是首个 Android 开源测试版，发布说明见 [docs/releases/v0.1.0.md](docs/releases/v0.1.0.md)。
+正式签名 APK 已发布到 [GitHub Releases](https://github.com/Saisa7L/ez-word/releases/tag/v1.0.0)。发布说明见 [docs/releases/v1.0.0.md](docs/releases/v1.0.0.md)。
 
 ### 当前开发体验
 
@@ -69,13 +69,15 @@ App 当前只申请完成核心功能所需的权限：
 
 - 相册/媒体选择：仅在用户主动选择头像或名片背景时访问。
 - 文件选择与保存：通过 Android 系统文件选择器读取 CSV、导入存档和导出存档，不自动扫描其他文件。
-- 网络：仅在用户主动测试或调用 DeepSeek 时访问 `api.deepseek.com`。
+- 网络：仅在用户主动测试 DeepSeek、生成单词数据或检查更新时访问对应网络服务。
+- 安装未知应用：仅在用户主动下载 App 更新后用于打开 Android 系统安装器。
 - 不申请相机或麦克风权限。
 
 数据位置：
 
 - `vocabulary.db`：位于 Android 应用私有目录，保存词库、学习记录、错题、设置、主题和个人资料。
 - Android SecureStore：保存用户主动填写的 DeepSeek API Key。
+- App 缓存：更新 APK 下载完成后暂存于应用缓存目录。
 - 用户选择的文件位置：保存用户主动导出的 JSON 存档和名片图片。
 
 数据库没有额外加密，依赖 Android 应用沙箱隔离。设备被 root、系统备份或调试环境可能改变这一边界，详见 [PRIVACY.md](PRIVACY.md)。

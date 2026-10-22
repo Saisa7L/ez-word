@@ -1,15 +1,15 @@
 # 当前交接
 
-最后更新：2026-10-22 19:37
+最后更新：2026-10-22 20:36
 
 ## 当前状态
 
 - 分支：`main`
-- 上一提交基线：`fd20c24 Record R3 Maestro checkpoint`
-- 当前阶段：R2 已完成，R3 Maestro 真机链路已打通，首个 smoke flow 已通过
+- 上一提交基线：`8474807 Record daily task acceptance flows`
+- 当前阶段：v1.0.0 最终功能批次已实现，等待 Expo 真机验收
 - P5：已按当前实现收口，不再返工视觉问题
 - P6：已完成代码、文档、资源、页面拆分、数据测试和最终一致性检查
-- 当前工作：正式 Release、覆盖升级、签名 Secrets 和发布资产校验已完成；R3 开始补端到端流程
+- 当前工作：设置页逐级返回、凌晨 5 点学习日、GitHub 更新检查和 App 内 APK 下载安装已完成
 - GitHub 仓库：`https://github.com/Saisa7L/ez-word`
 - 公开反馈渠道：GitHub Issues
 - 首次 CI：`https://github.com/Saisa7L/ez-word/actions/runs/39598453592`，`quality` 成功
@@ -78,15 +78,41 @@ $env:Path="$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:Path"
   test --no-reinstall-driver .maestro\smoke.yaml
 ```
 
-- 下一步：用户手动验收设置保存与页面返回；之后再覆盖错题、词库、存档和 AI 设置。
+- 下一步：用户覆盖安装新 APK，复验设置页逐级返回；通过后再覆盖错题、词库、存档和 AI 设置。
 
-## 下一批手动验收：设置保存与页面返回
+## 设置页返回首轮验收结果
 
-1. 打开“我的 → 通用设置”，滚动到“保存设置”，点击后应出现“保存成功”。
-2. 关闭“保存成功”，等待超过 1 秒后按 Android 返回，应回到“我的”。
-3. 依次进入个人资料、主题外观、导入单词、本地存档、AI 设置、关于，并立即按 Android 返回。
-4. 每个入口都应回到“我的”，不得出现空白页或重复返回。
-5. 从“导入单词 → 当前词库 → 添加单词”进入两级页面，再连续快速返回两次，应依次回到“当前词库”和“我的”。
+- 用户确认整个过程中没有出现空白页。
+- 从“添加单词”返回时直接进入“我的”，没有回到“当前词库”。
+- 从“当前词库”返回时也直接进入“我的”，没有回到“导入单词”。
+- 根因：`useSettingsBackNavigation` 和根 BackHandler 都对所有 `/settings/*` 强制 `dismissTo('/settings')`。
+- 修复：设置子页统一改为 `backOnce`，有历史时逐级返回，无历史时才回退 `/settings`；根 BackHandler 不再强制跳转设置首页。
+
+## 设置返回层级复验（待手动执行）
+
+全量 v1.0.0 验收步骤和问题记录模板见 `V1_ACCEPTANCE_CHECKLIST.md`。
+
+1. 覆盖安装新 APK：`dist/release/ez-word-v0.1.0.apk`。
+2. 进入“导入单词 → 当前词库”，点击左上角返回，应回到“导入单词”。
+3. 再次进入“当前词库 → 添加单词”，点击左上角返回，应回到“当前词库”。
+4. 在“当前词库”再返回，应回到“导入单词”；继续返回应回到“我的”。
+5. 用 Android 系统返回键重复上述三级路径，结果应一致且不出现空白页。
+
+- 新 APK 大小：114,578,512 B。
+- 新 APK SHA-256：`0c464c92c4a8115b4be0aa4c20089f164bc52cf983cbaa05bea0692c81925e09`。
+- 新 APK 继续使用正式签名，包名 `com.saisa7.ezword`，版本 `0.1.0`，versionCode `2`，可覆盖安装并保留数据。
+
+## v1.0.0 最终功能批次
+
+- 学习日改为本地时间凌晨 5 点切换；首页仅使用 `formatStudyDate` 和 `COUNT(DISTINCT study_date)` 统计，不增加定时器或数据库字段。
+- 当前学习日 `00:00-04:59` 属于前一天，`05:00` 起属于新一天；历史 `study_date` 不重算。
+- 关于页检查更新已启用，版本清单优先使用 `ghproxy.net` Raw 镜像，失败后回退 GitHub Raw/API。
+- Release APK 下载优先使用 `ghproxy.net`，失败后回退 GitHub；下载完成后校验文件大小和可用的 MD5，再打开 Android 系统安装器。
+- APK 的应用包名、正式签名和 versionCode 仍由 Android 安装器校验，镜像无法绕过同签名覆盖安装约束。
+- 更新检查失败只提示用户自行访问 GitHub Releases，不提供跳转入口。
+- Android 增加 `REQUEST_INSTALL_PACKAGES` 权限，仅用于用户主动下载更新后打开系统安装器。
+- 更新清单位于 `update/latest.json`；发布新版本时必须同步版本号、APK 地址、镜像地址、大小和 MD5。
+- 当前 Expo 验收通过本地 `.env.local` 指向 `http://10.78.75.132:8090/update-acceptance.json`，该文件和本地清单均已 gitignore；正式构建前必须移除或改写验收覆盖地址。
 
 ## 接手先做
 

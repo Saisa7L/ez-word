@@ -1,6 +1,6 @@
 # 本地数据库说明
 
-最后更新：2026-10-20 21:42
+最后更新：2026-10-22 20:36
 
 ## 基本信息
 
@@ -116,12 +116,14 @@
 |---|---|
 | `id` | 主键 |
 | `completed_at` | 完成时间 ISO 字符串 |
-| `study_date` | 本地日期 `YYYY-MM-DD` |
+| `study_date` | 学习日 `YYYY-MM-DD`，以本地凌晨 5 点为边界 |
 | `word_count` | 本次单词数量 |
 | `wrong_count` | 本次错误数量 |
 
 ## 状态不变量
 
+- 学习日 `00:00-04:59` 属于前一天，`05:00` 起属于新一天。
+- 学习天数为 `COUNT(DISTINCT study_date)`；同一学习日完成多次任务只增加完成次数。
 - `words.learning_status = 'wrong'` 时，对应单词应存在于 `wrong_book_words`。
 - `words.learning_status = 'wrong'` 不属于单词再练的复习来源。
 - 软清空只改变 `is_active`，不能删除关联历史。

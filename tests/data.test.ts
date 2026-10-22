@@ -946,6 +946,47 @@ test('persists daily task state only in one completion step', async () => {
   assert.deepEqual({ ...session }, { word_count: 2, wrong_count: 2 });
 });
 
+test('writes study dates using the 5am boundary', async () => {
+  const adapter = await createMigratedAdapter();
+  const db = asDatabase(adapter);
+  const now = '2026-10-19T10:00:00.000Z';
+
+  await db.runAsync(
+    `INSERT INTO words (
+       id, word, meaning, phonetic, created_at, updated_at,
+       is_active, learning_status, example_sentence,
+       example_source, example_generated_at
+     ) VALUES (
+       1, 'alpha', '测试', '', $now, $now,
+       1, 'unlearned', '', '', NULL
+     )`,
+    { $now: now },
+  );
+
+  for (const completedAt of [
+    new Date(2026, 9, 22, 4, 59),
+    new Date(2026, 9, 22, 5, 0),
+  ]) {
+    await completeTaskSession(db, {
+      autoRemoveCorrectWrongReview: false,
+      completedAt,
+      fillMistakeWordIds: [],
+      listeningMistakeWordIds: [],
+      mode: 'daily',
+      wordIds: [1],
+    });
+  }
+
+  const sessions = adapter.db
+    .prepare('SELECT study_date FROM study_sessions ORDER BY id')
+    .all() as { study_date: string }[];
+
+  assert.deepEqual(
+    sessions.map((session) => session.study_date),
+    ['2026-10-21', '2026-10-22'],
+  );
+});
+
 test('applies wrong-review removal only when the task is finalized', async () => {
   const adapter = await createMigratedAdapter();
   const db = asDatabase(adapter);

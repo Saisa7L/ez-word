@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "tagName": "v0.1.0",
+  "releaseUrl": "https://github.com/Saisa7L/ez-word/releases/tag/v0.1.0",
+  "apkUrl": "https://github.com/Saisa7L/ez-word/releases/download/v0.1.0/ez-word-v0.1.0.apk",
+  "apkMirrorUrls": [
+    "https://ghproxy.net/https://github.com/Saisa7L/ez-word/releases/download/v0.1.0/ez-word-v0.1.0.apk"
+  ],
+  "sha256": "32543cc9dc563ac3ffbcbf80997f508c9bec4d7ec687d394a41fe4b4b164f294",
+  "md5": null,
+  "size": 114444732,
+  "publishedAt": "2026-10-21T14:59:11Z",
+  "notes": "易词通 v0.1.0 是首个 Android 开源测试版本。"
+}

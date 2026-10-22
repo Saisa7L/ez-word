@@ -1,6 +1,6 @@
 # Android 发布指南
 
-最后更新：2026-10-22 18:10
+最后更新：2026-10-22 20:36
 
 ## 发布身份
 
@@ -8,18 +8,14 @@
 |---|---|
 | GitHub 仓库 | `Saisa7L/ez-word` |
 | Android applicationId | `com.saisa7.ezword` |
-| 当前测试版 | `0.1.0` |
-| 当前 versionCode | `2` |
-| 当前 Release | `https://github.com/Saisa7L/ez-word/releases/tag/v0.1.0` |
+| 当前正式版 | `1.0.0` |
+| 当前 versionCode | `3` |
+| 当前 Release | `https://github.com/Saisa7L/ez-word/releases/tag/v1.0.0` |
 | 最低 Android API | 24 |
 | 目标 Android API | 36 |
 | 签名证书 SHA-256 | `8B:A8:F3:83:FD:6A:F7:C6:1F:0B:FD:2F:A7:EF:65:38:48:63:F5:29:B0:B3:3A:C8:9B:D3:EF:4C:87:21:5E:AD` |
 
-当前 Release APK 的 SHA-256：
-
-```text
-32543cc9dc563ac3ffbcbf80997f508c9bec4d7ec687d394a41fe4b4b164f294
-```
+当前 Release APK 的 SHA-256 以 GitHub Release 的 `.sha256` 资产和 `update/latest.json` 为准。
 
 ## 版本规则
 
@@ -70,8 +66,8 @@ npm run build:android:release
 脚本默认读取用户目录下的 `ez-word-release.properties`，也可以通过 `EZ_WORD_RELEASE_PROPERTIES` 指定其他位置。构建结果：
 
 ```text
-dist/release/ez-word-v0.1.0.apk
-dist/release/ez-word-v0.1.0.apk.sha256
+dist/release/ez-word-v1.0.0.apk
+dist/release/ez-word-v1.0.0.apk.sha256
 ```
 
 默认构建四种 ABI，生成通用 APK。若只需测试指定 ABI，可以设置 `EZ_WORD_ANDROID_ARCHITECTURES`，例如 `arm64-v8a`。
@@ -101,6 +97,7 @@ Secrets 只保存在 GitHub 加密配置中。工作流运行时将 keystore 解
 6. 提交变更并创建匹配的 Git 标签，例如 `v0.1.0`。
 7. 推送标签，等待 `Release Android APK` 工作流成功。
 8. 检查 GitHub Release 中的 APK、SHA-256 和自动生成说明。
+9. 更新 `update/latest.json`，写入新版本、GitHub APK 地址、`ghproxy.net` 镜像地址、文件大小、SHA-256 和 MD5。
 
 ## 发布验收
 

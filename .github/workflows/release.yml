@@ -103,7 +103,24 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: docs/releases/${{ github.ref_name }}.md
           files: |
             dist/release/ez-word-v*.apk
             dist/release/ez-word-v*.apk.sha256
           generate_release_notes: true
+
+      - name: Update release manifest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+          node scripts/write-update-manifest.mjs \
+            "dist/release/ez-word-${GITHUB_REF_NAME}.apk" \
+            "${GITHUB_REF_NAME}"
+          git add update/latest.json
+          git commit -m "Update release manifest for ${GITHUB_REF_NAME}"
+          git push origin main

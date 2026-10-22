@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { formatLocalDate } from '@/utils/date';
+import { formatStudyDate } from '@/utils/date';
 
 type RecordTaskCompletionOptions = {
   completedAt?: Date;
@@ -19,7 +19,7 @@ export async function recordTaskCompletion(
   }: RecordTaskCompletionOptions,
 ): Promise<void> {
   const completedAtIso = completedAt.toISOString();
-  const studyDate = formatLocalDate(completedAt);
+  const studyDate = formatStudyDate(completedAt);
   const uniqueWordIds = [...new Set(wordIds)];
   const wrongWordIdSet = new Set(wrongWordIds);
 

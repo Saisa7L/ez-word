@@ -10,6 +10,9 @@ const {
   addCmakeVersion: (contents: string) => string;
   addReleaseSigning: (contents: string) => string;
 } = require('../plugins/withAndroidReleaseSigning.cjs');
+const appConfig = require('../app.json') as {
+  expo: { android: { permissions?: string[] } };
+};
 
 const APP_GRADLE = `android {
     signingConfigs {
@@ -52,4 +55,12 @@ test('adds the CMake version override once', () => {
   assert.match(once, /withAndroidCmakeVersion/);
   assert.match(once, /externalNativeBuild\.cmake\.version = '3\.30\.5'/);
   assert.equal(addCmakeVersion(once), once);
+});
+
+test('requests permission to launch the Android package installer', () => {
+  assert.ok(
+    appConfig.expo.android.permissions?.includes(
+      'android.permission.REQUEST_INSTALL_PACKAGES',
+    ),
+  );
 });

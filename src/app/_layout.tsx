@@ -28,7 +28,7 @@ import {
 } from '@/utils/backNavigation';
 import { normalizeAppError } from '@/utils/appError';
 import { logger } from '@/utils/logger';
-import { backOnce, canGoBack, dismissToOnce } from '@/utils/navigationActions';
+import { backOnce, canGoBack } from '@/utils/navigationActions';
 
 export default function RootLayout() {
   return (
@@ -80,11 +80,6 @@ function HardwareBackController() {
       'hardwareBackPress',
       () => {
         if (isNavigationLocked()) {
-          return true;
-        }
-
-        if (pathname.startsWith('/settings/')) {
-          dismissToOnce('/settings');
           return true;
         }
 

@@ -1,13 +1,15 @@
-import { useFocusEffect } from 'expo-router';
+import { type Href, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { BackHandler } from 'react-native';
 
-import { dismissToOnce } from '@/utils/navigationActions';
+import { backOnce } from '@/utils/navigationActions';
 
-export function useSettingsBackNavigation(): () => void {
+export function useSettingsBackNavigation(
+  fallbackHref: Href = '/settings',
+): () => void {
   const handleBack = useCallback(() => {
-    dismissToOnce('/settings');
-  }, []);
+    backOnce(fallbackHref);
+  }, [fallbackHref]);
 
   useFocusEffect(
     useCallback(() => {

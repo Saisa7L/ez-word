@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { formatLocalDate } from '@/utils/date';
+import { formatStudyDate } from '@/utils/date';
 
 import {
   recordWrongWordsInTransaction,
@@ -35,7 +35,7 @@ export async function completeTaskSession(
   }: CompleteTaskSessionOptions,
 ): Promise<TaskCompletionResult> {
   const completedAtIso = completedAt.toISOString();
-  const studyDate = formatLocalDate(completedAt);
+  const studyDate = formatStudyDate(completedAt);
   const uniqueWordIds = [...new Set(wordIds)];
   const sourcesByWordId = new Map<number, Set<WrongBookSource>>();
 

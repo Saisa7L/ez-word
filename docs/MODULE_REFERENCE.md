@@ -1,6 +1,6 @@
 # 模块与接口参考
 
-最后更新：2026-10-21 21:27
+最后更新：2026-10-22 20:36
 
 ## 使用方式
 
@@ -268,6 +268,8 @@ Provider 内部分成两个 Context：
 | `archiveFiles` | `exportArchiveFile`、`pickArchiveFile` | Android 文件读写、扩展名和 20 MB 限额 |
 | `aiKeyStore` | `get/save/clearDeepSeekApiKey` | SecureStore |
 | `wordCsvFiles` | `pickWordCsvFile` | CSV 文件选择和读取 |
+| `updateService` | `fetchLatestRelease`、`downloadUpdate`、`installUpdate` | 版本清单网络请求、APK 下载和系统安装器调用 |
+| `updateManifest` | `parseUpdateManifest`、`compareVersions` | 更新清单校验、版本比较和可信地址约束 |
 
 ## 发布构建
 
@@ -302,7 +304,7 @@ Provider 内部分成两个 Context：
 | `useDailyTaskExitGuard` | 焦点级返回键拦截、退出确认、清空任务 | 任务页 |
 | `useDailyTaskPhaseGuard` | 阻止任务深链或错误阶段进入不匹配页面 | 四个任务阶段页 |
 | `useTaskPhaseNavigation` | 原子推进阶段并导航到对应页面 | 认识、填空、听力页 |
-| `useSettingsBackNavigation` | 设置子页固定回到 `/settings` | 设置子页和添加单词页 |
+| `useSettingsBackNavigation` | 有历史时逐级返回，无历史时回退到 `/settings` | 设置子页和添加单词页 |
 | `useSafeBackNavigation` | 有历史时返回，无历史时进入回退路由 | 普通非设置子页 |
 | `useLongPressStep` | 长按连续步进 | 设置和复习范围 |
 | `usePaginatedSelection` | 分页、加载、选择、请求竞态保护 | 错题本、词库、添加错题 |

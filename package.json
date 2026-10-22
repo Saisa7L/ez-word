@@ -1,6 +1,6 @@
 {
   "name": "vocab-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "expo-router/entry",
   "license": "MIT",
   "repository": {
@@ -19,6 +19,7 @@
     "expo-constants": "~57.0.21",
     "expo-file-system": "~57.0.7",
     "expo-image-picker": "~57.0.20",
+    "expo-intent-launcher": "~57.0.1",
     "expo-linking": "~57.0.13",
     "expo-router": "~57.0.29",
     "expo-secure-store": "~57.0.4",
@@ -53,9 +54,9 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:data && npm run test:task && npm run test:navigation",
-    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
     "test:data": "tsx --test tests/data.test.ts",
-    "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts",
+    "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
     "test:navigation": "tsx --test tests/navigationLock.test.ts",
     "doctor": "npx --yes expo-doctor@latest",
     "check": "npm run format:check && npm run docs:check && npm run typecheck && npm run lint && npm run test:coverage && npm run doctor",

@@ -3,13 +3,14 @@
     "name": "易词通",
     "slug": "vocab-app",
     "scheme": "vocabapp",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/app/icon.png",
     "userInterfaceStyle": "light",
     "android": {
       "package": "com.saisa7.ezword",
-      "versionCode": 2,
+      "versionCode": 3,
+      "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"],
       "blockedPermissions": [
         "android.permission.SYSTEM_ALERT_WINDOW",
         "android.permission.VIBRATE",

@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { formatLocalDate } from '@/utils/date';
+import { formatStudyDate } from '@/utils/date';
 
 import { ensureSettingsRows } from './settingsRows';
 
@@ -13,7 +13,7 @@ export type HomeStats = {
 };
 
 export async function getHomeStats(db: SQLiteDatabase): Promise<HomeStats> {
-  const today = formatLocalDate(new Date());
+  const today = formatStudyDate(new Date());
   const [todayRow, totalRow, wrongBookRow, studyDaysRow, checkinRow] =
     await Promise.all([
       db.getFirstAsync<{ total: number }>(
