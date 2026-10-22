@@ -1,6 +1,6 @@
 # 当前交接
 
-最后更新：2026-10-22 19:19
+最后更新：2026-10-22 19:37
 
 ## 当前状态
 
@@ -41,6 +41,8 @@
 - `dev.mobile.maestro` driver 和 server 已预装到物理设备。
 - 新增 `.maestro/smoke.yaml`，覆盖正式 APK 启动、首页三个入口、底部 Tab、通用设置页和 Android 返回。
 - smoke flow 已在 `75e7a3c5` 真机通过。
+- 新增 `.maestro/daily-task-exit.yaml` 和 `.maestro/daily-task-confirm-exit.yaml`，覆盖每日任务启动、取消退出和确认退出，均已在真机通过。
+- 用户已在 `75e7a3c5` 手动验收每日任务主流程。
 - Maestro 运行环境需要：
 
 ```text
@@ -63,6 +65,7 @@ PATH 包含 %JAVA_HOME%\bin 和 %ANDROID_HOME%\platform-tools
 
 - Android 16 的 Tab/页面切换可能不收敛窗口稳定状态。点击命令需显式设置 `waitToSettleTimeoutMs`；当前 smoke 使用 3000 ms。
 - 嵌套滚动页中的 `scrollUntilVisible` 仍可能无限等待，smoke 已收敛为只读导航，不在该流程内测试底部“保存设置”。
+- 同一任务进程内连续翻词或第二次打开同一个 Modal 时，Maestro driver 可能失稳。此类任务流程改为用户手动验收，不再重复驱动点击。
 - 当前运行命令：
 
 ```powershell
@@ -75,7 +78,15 @@ $env:Path="$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:Path"
   test --no-reinstall-driver .maestro\smoke.yaml
 ```
 
-- 下一步：补每日任务主流程、返回键、错题、词库、存档、AI 设置和设置保存 flow；继续使用正式 Release APK 与真实设备数据验证。
+- 下一步：用户手动验收设置保存与页面返回；之后再覆盖错题、词库、存档和 AI 设置。
+
+## 下一批手动验收：设置保存与页面返回
+
+1. 打开“我的 → 通用设置”，滚动到“保存设置”，点击后应出现“保存成功”。
+2. 关闭“保存成功”，等待超过 1 秒后按 Android 返回，应回到“我的”。
+3. 依次进入个人资料、主题外观、导入单词、本地存档、AI 设置、关于，并立即按 Android 返回。
+4. 每个入口都应回到“我的”，不得出现空白页或重复返回。
+5. 从“导入单词 → 当前词库 → 添加单词”进入两级页面，再连续快速返回两次，应依次回到“当前词库”和“我的”。
 
 ## 接手先做
 
@@ -106,6 +117,7 @@ git log --oneline --decorate -5
 - 每次只完成一个可回滚发布批次。
 - 代码改动运行 `npm run check:release`。
 - 稳定后按批次提交 Git。
+- 真机验收由用户手动执行。AI 只提供步骤和预期结果，不自动点击手机，除非用户明确要求自动化。
 
 ## R1 开源基础结果
 
@@ -151,8 +163,8 @@ git log --oneline --decorate -5
 ## 下一阶段：R3
 
 1. 已接入 Maestro 真机链路并跑通 `.maestro/smoke.yaml`。
-2. 下一批覆盖每日任务主流程。
-3. 覆盖返回键、错题、词库、存档、AI 设置和设置保存。
+2. 每日任务主流程已由用户手动验收通过，并保留两条任务退出 smoke flow。
+3. 下一批手动验收设置保存与页面返回，之后再覆盖错题、词库、存档和 AI 设置。
 4. 建立 Android 多机型/多分辨率最低验收矩阵。
 5. 回归日间、夜间、自定义主题、大字号、TalkBack 和减少动画。
 

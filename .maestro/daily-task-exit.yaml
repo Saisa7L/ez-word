@@ -1,0 +1,27 @@
+appId: com.saisa7.ezword
+name: Daily task start and exit
+---
+- launchApp:
+    clearState: false
+    permissions: {}
+    stopApp: true
+- tapOn:
+    text: "今日任务"
+    waitToSettleTimeoutMs: 3000
+- assertVisible: "每日任务"
+- assertVisible:
+    text: "今日 .* 个新单词，一起开始吧"
+- tapOn:
+    text: "开始"
+    waitToSettleTimeoutMs: 3000
+- extendedWaitUntil:
+    visible: "每日任务-认识单词"
+    timeout: 10000
+- tapOn:
+    text: "返回"
+    waitToSettleTimeoutMs: 3000
+- assertVisible: "退出每日任务？"
+- tapOn:
+    text: "否"
+    waitToSettleTimeoutMs: 3000
+- assertVisible: "每日任务-认识单词"
