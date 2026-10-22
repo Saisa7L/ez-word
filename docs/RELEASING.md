@@ -1,6 +1,6 @@
 # Android 发布指南
 
-最后更新：2026-10-22 20:36
+最后更新：2026-10-22 21:16
 
 ## 发布身份
 
@@ -15,7 +15,17 @@
 | 目标 Android API | 36 |
 | 签名证书 SHA-256 | `8B:A8:F3:83:FD:6A:F7:C6:1F:0B:FD:2F:A7:EF:65:38:48:63:F5:29:B0:B3:3A:C8:9B:D3:EF:4C:87:21:5E:AD` |
 
-当前 Release APK 的 SHA-256 以 GitHub Release 的 `.sha256` 资产和 `update/latest.json` 为准。
+当前 Release APK 的 SHA-256：
+
+```text
+86fb3418de092cdcfd8203254e461a61c57e2f241969e02313be25980347d6b1
+```
+
+当前 Release APK 的 MD5：
+
+```text
+a7c338933829c249d0740ff2bedfb9dd
+```
 
 ## 版本规则
 
