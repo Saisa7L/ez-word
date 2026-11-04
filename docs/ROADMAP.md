@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-04 16:52
+最后更新：2026-11-04 17:08
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -20,7 +20,7 @@
 | ID | 里程碑 | 任务 | 优先级 | 状态 | 当前任务 | 依赖 | 验收标准 | 验证方式 |
 |---|---|---|---|---|---|---|---|---|
 | M1-T1 | M1 | 适配 `check-docs.mjs` 到八文档结构（含 docs/README.md 索引校验） [ADOPT:T1] | P0 | 已完成 | 否 | 文档替换完成 | `npm run docs:check` 全过，新清单校验生效；全量 check 由 M2 解锁 | docs:check + CI |
-| M1-T2 | M1 | 修链：核查保留文件（CONTRIBUTING 等）对旧 docs 路径的引用并修复 [ADOPT:T4] | P1 | 未开始 | 否 | M1-T1 | 仓库内无指向不存在 docs 文件的链接 | 全仓 grep + docs:check |
+| M1-T2 | M1 | 修链：核查保留文件（CONTRIBUTING 等）对旧 docs 路径的引用并修复 [ADOPT:T4] | P1 | 已完成 | 否 | M1-T1 | 仓库内无指向不存在 docs 文件的链接 | 全仓 grep + docs:check |
 | M1-T3 | M1 | 拆分 `src/app/settings/about.tsx`（517 行）：表单/校验/布局分离 [ADOPT:T2a] | P1 | 未开始 | 否 | M1-T1 | 功能不变；`npm run check` 全过；主文件 <300 行 | check + 真机冒烟 |
 | M1-T4 | M1 | 拆分 `src/app/settings/profile.tsx`（478 行） [ADOPT:T2b] | P1 | 未开始 | 否 | M1-T3 | 同 M1-T3 | 同 M1-T3 |
 | M1-T5 | M1 | 拆分 `src/app/settings/word-library.tsx`（440 行） [ADOPT:T2c] | P1 | 未开始 | 否 | M1-T4 | 同 M1-T3 | 同 M1-T3 |
@@ -60,7 +60,10 @@
 - 验收标准：仓库内无死链；docs:check 路径校验通过。
 - 验证方式：`grep -r` + `npm run docs:check`。
 - 风险/回滚：低。
-- 文档更新：无（链接本身即文档更新）。
+- 文档更新：`docs/README.md` 增「旧文档名仅为溯源、非链接」约定；`DEVELOPMENT.md` 门禁说明补根文档链接校验。
+- 自检记录（2026-11-04 17:00）：全仓 grep 旧文档名（排除 `node_modules`/`dist`/`.expo`/`.adoption` 备份）后，真实死链只有 `CONTRIBUTING.md:39` 两条（指向已删的 ARCHITECTURE、DATABASE 文档），已改指 `docs/DESIGN.md` + `AGENTS.md` + `docs/DEVELOPMENT.md`。其余命中（`PROJECT.md`/`DESIGN.md` 的「来源/证据」列、`ROADMAP.md` 任务描述）为迁移溯源标注，已在 `docs/README.md` §7 说明为"迁移前文档名、非链接"。
+- 防回归：`scripts/check-docs.mjs` 新增根文档本地链接校验（6 份根文档），并做反向验证——把指向已删架构文档的链接塞回 `CONTRIBUTING.md` 时退出码 1 并报「CONTRIBUTING.md 的本地链接失效」；恢复后重新通过。
+- 验收结论（2026-11-04）：用户验收通过。提交 09b8697。
 
 ### M1-T3：拆分 about.tsx（517 行）
 
@@ -97,6 +100,7 @@
 | ID | 任务 | 完成日期 | 提交 | 验收结果 |
 |---|---|---|---|---|
 | M1-T1 | 适配 `check-docs.mjs` 到八文档结构 | 2026-11-04 | c340d4c（文档替换 9a8e8bd） | 通过：`docs:check` 绿、删文档能报错、format/type/lint 绿 |
+| M1-T2 | 修链（保留文件旧 docs 引用） | 2026-11-04 | 09b8697 | 通过：死链 0（根文档 22 条链接全解析）；docs:check 增根文档链接校验并经反向验证 |
 | B-01 | 修 `updateManifest` 清单版本断言 | 2026-11-04 | 61a26e5 | 通过：`test:coverage` 67/67 全过 |
 | （M0 历史任务明细不迁移，见 §5 里程碑记录） | | | | |
 
