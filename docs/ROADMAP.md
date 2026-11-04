@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-04 16:42
+最后更新：2026-11-04 16:52
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -11,18 +11,21 @@
 | 里程碑 | M1：文档迁移收尾与结构重构 |
 | 目标 | 替换文档后质量门禁恢复全绿；超限设置页文件拆分到位；仓库内无死链 |
 | 开始/目标日期 | 2026-11-04 / M1 全任务完成 |
-| 完成标准 | 所有任务完成 + `npm run check` 全过 + 拆分文件 <300 行且功能不变 |
+| 完成标准 | 所有任务完成 + 拆分文件 <300 行且功能不变 + `npm run docs:check` 全过；全量 `npm run check` 由 M2 覆盖率治理解锁 |
+
+> 队列中：M2 覆盖率门禁治理（M2-T1 方案研究）。2026-11-04 用户确认：M1 期间不硬修覆盖率，B-02 单列阶段研究方案；M1 各任务以自己的门禁（docs/format/type/lint/目标测试）为准。
 
 ## 2. 任务
 
 | ID | 里程碑 | 任务 | 优先级 | 状态 | 当前任务 | 依赖 | 验收标准 | 验证方式 |
 |---|---|---|---|---|---|---|---|---|
-| M1-T1 | M1 | 适配 `check-docs.mjs` 到八文档结构（含 docs/README.md 索引校验） [ADOPT:T1] | P0 | 待验收 | 是 | 文档替换完成 | `npm run check` 全过，新清单校验生效 | `npm run check` + CI |
+| M1-T1 | M1 | 适配 `check-docs.mjs` 到八文档结构（含 docs/README.md 索引校验） [ADOPT:T1] | P0 | 已完成 | 否 | 文档替换完成 | `npm run docs:check` 全过，新清单校验生效；全量 check 由 M2 解锁 | docs:check + CI |
 | M1-T2 | M1 | 修链：核查保留文件（CONTRIBUTING 等）对旧 docs 路径的引用并修复 [ADOPT:T4] | P1 | 未开始 | 否 | M1-T1 | 仓库内无指向不存在 docs 文件的链接 | 全仓 grep + docs:check |
 | M1-T3 | M1 | 拆分 `src/app/settings/about.tsx`（517 行）：表单/校验/布局分离 [ADOPT:T2a] | P1 | 未开始 | 否 | M1-T1 | 功能不变；`npm run check` 全过；主文件 <300 行 | check + 真机冒烟 |
 | M1-T4 | M1 | 拆分 `src/app/settings/profile.tsx`（478 行） [ADOPT:T2b] | P1 | 未开始 | 否 | M1-T3 | 同 M1-T3 | 同 M1-T3 |
 | M1-T5 | M1 | 拆分 `src/app/settings/word-library.tsx`（440 行） [ADOPT:T2c] | P1 | 未开始 | 否 | M1-T4 | 同 M1-T3 | 同 M1-T3 |
 | M1-T6 | M1 | 复杂页面流程下沉 features/hooks（页面直调仓库的复杂流程，范围执行时核定） [ADOPT:T3] | P2 | 未开始 | 否 | M1-T5 | 按页面逐个迁移；check 全过；依赖方向符合 DESIGN 约束 | check + lint |
+| M2-T1 | M2 | 覆盖率门禁治理：测算差距、定位低覆盖模块、输出「补测试 vs 调整阈值」方案与排期（只出方案，不改阈值、不写实现） | P1 | 未开始 | 否 | M1-T2 | 产出方案（差距清单/优先级/工作量/风险/替代阈值影响），用户选定后再拆实现任务 | 覆盖率报告 + 方案评审 |
 
 状态图例（精确枚举，不能写变体）：`未开始 / 进行中 / 待验收 / 已完成 / 已阻塞 / 已取消`
 
@@ -40,12 +43,13 @@
 - 范围（做什么）：改 `REQUIRED_DOCS` 为新八文档清单；核对索引校验、`npm run` 脚本引用校验、md 路径校验、样例校验逻辑对新结构成立；保留「最后更新精确到分钟」规则。
 - 非目标（不做什么）：不改 check 之外的门禁逻辑；不调整测试和性能预算。
 - 涉及模块/文件：`scripts/check-docs.mjs`（读 1-2 个参照文档）。
-- 验收标准：`npm run docs:check` 与 `npm run check` 全过；删除一个必需文档时 check 能报错。
-- 验证方式：`npm run check`；CI 绿。
+- 验收标准：`npm run docs:check` 全过；删除一个必需文档时 check 能报错；全量 `npm run check` 由 M2 解锁（2026-11-04 用户确认）。
+- 验证方式：`npm run docs:check`；CI 绿。
 - 风险/回滚：低；git revert 单文件即可。
 - 文档更新：`DEVELOPMENT.md` 门禁说明同步。
 - 自检记录（2026-11-04 16:39）：`scripts/check-docs.mjs` 的必需清单切为八文档结构（docs 六份 + 根 `README.md`/`AGENTS.md`），索引校验同时覆盖两份根文档；`npm run docs:check` 通过（6 docs，7 root files）；临时移走 `docs/DESIGN.md` 后退出码 1 并报"缺少必需文档"，恢复后重新通过。附带修掉 3 处把退役文档名写成反引号造成的假链接（`docs/README.md`、`docs/ROADMAP.md`、`docs/DEVELOPMENT.md`）。
-- 全量门禁现状（2026-11-04 16:41，`npm run check`）：格式/文档/类型/Lint 全过；`test:coverage` 因两项**历史遗留**失败中断（见 §7 阻塞 B-01/B-02），与本任务改动无关（本任务未改 `src/`、`tests/`、`update/`）。
+- 全量门禁现状（2026-11-04 16:41，`npm run check`）：格式/文档/类型/Lint 全过；`test:coverage` 因两项**历史遗留**失败中断（见 §7 B-02 / 已修 B-01），与本任务改动无关（本任务未改 `src/`、`tests/`、`update/`）。
+- 验收结论（2026-11-04）：用户确认 T1 自身门禁通过；全量 check 的红由 M2 覆盖率治理跟进。提交 9a8e8bd（文档替换）+ c340d4c（脚本适配）。
 
 ### M1-T2：修链（保留文件旧 docs 引用）
 
@@ -92,6 +96,8 @@
 
 | ID | 任务 | 完成日期 | 提交 | 验收结果 |
 |---|---|---|---|---|
+| M1-T1 | 适配 `check-docs.mjs` 到八文档结构 | 2026-11-04 | c340d4c（文档替换 9a8e8bd） | 通过：`docs:check` 绿、删文档能报错、format/type/lint 绿 |
+| B-01 | 修 `updateManifest` 清单版本断言 | 2026-11-04 | 61a26e5 | 通过：`test:coverage` 67/67 全过 |
 | （M0 历史任务明细不迁移，见 §5 里程碑记录） | | | | |
 
 ## 5. 里程碑记录
@@ -111,8 +117,7 @@
 
 | 任务 | 价值 | 依赖/前提 | 排期 |
 |---|---|---|---|
-| B-01 修 `tests/updateManifest.test.ts` 版本断言（硬编码 `0.1.0`，清单已是 `1.0.0`） | 恢复第 67 项测试（v1.0.0 发版后未同步） | 无 | 待用户确认 |
-| B-02 覆盖率回到门槛（当前行 71.89% / 分支 80.76% / 函数 72.17% < 80%） | 恢复 `test:coverage` 门禁；低覆盖集中在 `wordsRepository`、`userProfileRepository`、`wrongBookRepository`、`deepSeekService` | 需先定策略：补测试或评估阈值合理性（`PROJECT.md` Q1） | 待评估 |
+| B-02 覆盖率门禁治理（当前行 72.72% / 分支 79.27% / 函数 73.43% < 80%） | 恢复 `test:coverage` 门禁；低覆盖集中在 `wordsRepository`、`userProfileRepository`、`wrongBookRepository`、`deepSeekService` | 已立项为 M2-T1（只出方案，不硬修） | M1-T2 之后 |
 | 传递依赖审计项治理 | 消除 audit 噪音 | 不降级 Expo 的前提 | 待评估 |
 | 新功能需求 | 待用户提出 | M1 完成 | 待定 |
 
@@ -120,11 +125,9 @@
 
 | 风险/阻塞 | 影响任务 | 处理方式 | 负责人 |
 |---|---|---|---|
-| 替换文档至 M1-T1 完成之间 check 必红 | M1-T1 | M1-T1 自检已通过，待用户验收后关闭 | 用户+工程师 |
-| B-01：`tests/updateManifest.test.ts:51` 断言清单版本为 `0.1.0`，实际 `1.0.0`（97ebe2f 发版时未同步测试）→ `npm run check` 在 `test:coverage` 中断 | M1 全部任务（`npm run check` 全过这条验收） | 待用户确认后单独立项修 1 行断言 | 工程师 |
-| B-02：覆盖率 71.89%/80.76%/72.17% 未达 80% 阈值 → 即使 B-01 修好，门禁仍红 | M1 全部任务 | 待评估补测试或阈值策略（不擅自降阈值） | 用户+工程师 |
+| B-02：覆盖率实测 72.72%/79.27%/73.43% 未达 80% 阈值 → `npm run check` 在 `test:coverage` 中断 | M1 全部任务的「全量 check」验收 | 已关闭在 M1 内的硬修；立项 M2-T1 出方案（含补测试 vs 调阈值的对比），2026-11-04 用户确认 | 用户+工程师 |
 | 推送时机不当造成外链 404 | M1-T2 | T2 修链后统一推送 | 用户 |
-| `docs/ACCEPTANCE.md`「67 项全过 + ≥80%」为 v1.0.0 发版时记录，与当前实测（66/67、71.89%）已不一致 | 验收基线可信度 | B-01/B-02 处理完再同步 `ACCEPTANCE.md`，避免二次改 | 用户+工程师 |
+| `docs/ACCEPTANCE.md`「67 项全过 + ≥80%」为 v1.0.0 发版时记录，与当前实测（67/67、72.72%）不一致 | 验收基线可信度 | M2-T1 出结论后同步 `ACCEPTANCE.md`，避免二次改 | 用户+工程师 |
 
 ## 8. 更新规则
 
