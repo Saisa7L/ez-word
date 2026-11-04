@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-04 17:34
+最后更新：2026-11-04 17:40
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -24,7 +24,7 @@
 | M1-T2 | M1 | 修链：核查保留文件（CONTRIBUTING 等）对旧 docs 路径的引用并修复 [ADOPT:T4] | P1 | 已完成 | 否 | M1-T1 | 仓库内无指向不存在 docs 文件的链接 | 全仓 grep + docs:check |
 | M1-T3 | M1 | 拆分 `src/app/settings/about.tsx`（517 行）：表单/校验/布局分离 [ADOPT:T2a] | P1 | 待验收 | 否 | M1-T1 | 功能不变；静态门禁全过；主文件 <300 行；真机项并入批次 A | check + 批次 A |
 | M1-T4 | M1 | 拆分 `src/app/settings/profile.tsx`（478 行） [ADOPT:T2b] | P1 | 待验收 | 是 | M1-T3 | 同 M1-T3（真机项并入批次 A） | check + 批次 A |
-| M1-T5 | M1 | 拆分 `src/app/settings/word-library.tsx`（440 行） [ADOPT:T2c] | P1 | 未开始 | 否 | M1-T4 | 同 M1-T3 | 同 M1-T3 |
+| M1-T5 | M1 | 拆分 `src/app/settings/word-library.tsx`（440 行） [ADOPT:T2c] | P1 | 待验收 | 是 | M1-T4 | 同 M1-T3（真机项并入批次 A） | check + 批次 A |
 | M1-T6 | M1 | 复杂页面流程下沉 features/hooks（页面直调仓库的复杂流程，范围执行时核定） [ADOPT:T3] | P2 | 未开始 | 否 | M1-T5 | 按页面逐个迁移；check 全过；依赖方向符合 DESIGN 约束 | check + lint |
 | M2-T1 | M2 | 覆盖率门禁治理：测算差距、定位低覆盖模块、输出「补测试 vs 调整阈值」方案与排期（只出方案，不改阈值、不写实现） | P1 | 未开始 | 否 | M1-T2 | 产出方案（差距清单/优先级/工作量/风险/替代阈值影响），用户选定后再拆实现任务 | 覆盖率报告 + 方案评审 |
 
@@ -91,6 +91,9 @@
 ### M1-T5：拆分 word-library.tsx（440 行）
 
 - 同 M1-T3 模式；文件 `src/app/settings/word-library.tsx`；词库列表/搜索/操作区块抽离。
+- 自检记录（2026-11-04 17:38）：440 → 271 行，新增 3 个文件——`features/word-library/useWordLibrary.ts`（104，分页加载+勾选+移除/改状态）、`WordLibraryRow.tsx`（133，单行含状态徽标与选择标记）、`WordStatusMenu.tsx`（46，批量改状态菜单）。保持不变的行为：`usePaginatedSelection` 的页码/选择语义、移除前 `showConfirm` 的措辞与 `danger`、改状态菜单的 `tone: 'danger'` 取消项、两个按钮的 disabled 条件（`selectedIds.size === 0 || isRemoving/isUpdatingStatus`）、`pushOnce('/settings/word-library/add')` 导航、`ActionOptionModal` 先 onClose 再执行 option。按下态样式仍由页面持有并通过 `pressedStyle` 传入（同 T4），避免两处各定义一份。
+- 检查结果：`typecheck`/`lint`/`format:check` 全过；`npm run test` 67/67 全过。
+- 替代验证（2026-11-04 17:39）：① 样式等价审计——31 个键，丢失 0、内容变化 0、同键不同值 0、新增 0；② `npx expo export --platform android` 退出码 0。真机项并入批次 A。
 
 ### M1-T6：复杂页面流程下沉
 
@@ -138,7 +141,7 @@
 | 风险/阻塞 | 影响任务 | 处理方式 | 负责人 |
 |---|---|---|---|
 | B-02：覆盖率实测 72.72%/79.27%/73.43% 未达 80% 阈值 → `npm run check` 在 `test:coverage` 中断 | M1 全部任务的「全量 check」验收 | 已关闭在 M1 内的硬修；立项 M2-T1 出方案（含补测试 vs 调阈值的对比），2026-11-04 用户确认 | 用户+工程师 |
-| 推送时机不当造成外链 404 | M1-T2 | T2 修链后统一推送 | 用户 |
+| 推送时机不当造成外链 404 | M1-T2 及之后 | 2026-11-04 用户决定：本地提交全部暂存，等 M1-T5 完成且批次 A 真机验收通过后一次性 push，保证远程仓库始终是可用状态 | 用户 |
 | `docs/ACCEPTANCE.md`「67 项全过 + ≥80%」为 v1.0.0 发版时记录，与当前实测（67/67、72.72%）不一致 | 验收基线可信度 | M2-T1 出结论后同步 `ACCEPTANCE.md`，避免二次改 | 用户+工程师 |
 | 真机验收延后到批次统一执行：3 个拆分任务叠加后若某处走形，排查面变大 | M1-T3/T4/T5 | ① 每个任务保持独立提交，必要时按提交二分；② 每任务额外跑样式等价审计 + `expo export` 打包，把"样式走形""加载失败"挡在提交前；③ 批次 A 触发后失败项回 `进行中` 并单独立项 | 用户+工程师 |
 
@@ -154,6 +157,7 @@
 
 - 批次执行前先启动 Expo 开发服务器：`REACT_NATIVE_PACKAGER_HOSTNAME=<WLAN_IP> npx expo start --host lan`（本机有虚拟网卡会抢占 LAN IP，必须固定广播地址）。
 - 批次内任一项失败：定位到所属任务的提交 → 该任务回 `进行中`，其余已通过项不回退。
+- 当前状态（2026-11-04 17:40）：T3/T4/T5 均已自检完成并提交，批次 A 已具备执行条件，等用户回到电脑前触发；批次 A 通过后才推送本地提交。
 
 ## 8. 更新规则
 
