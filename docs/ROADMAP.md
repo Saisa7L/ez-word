@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-04 17:25
+最后更新：2026-11-04 17:34
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -23,7 +23,7 @@
 | M1-T1 | M1 | 适配 `check-docs.mjs` 到八文档结构（含 docs/README.md 索引校验） [ADOPT:T1] | P0 | 已完成 | 否 | 文档替换完成 | `npm run docs:check` 全过，新清单校验生效；全量 check 由 M2 解锁 | docs:check + CI |
 | M1-T2 | M1 | 修链：核查保留文件（CONTRIBUTING 等）对旧 docs 路径的引用并修复 [ADOPT:T4] | P1 | 已完成 | 否 | M1-T1 | 仓库内无指向不存在 docs 文件的链接 | 全仓 grep + docs:check |
 | M1-T3 | M1 | 拆分 `src/app/settings/about.tsx`（517 行）：表单/校验/布局分离 [ADOPT:T2a] | P1 | 待验收 | 否 | M1-T1 | 功能不变；静态门禁全过；主文件 <300 行；真机项并入批次 A | check + 批次 A |
-| M1-T4 | M1 | 拆分 `src/app/settings/profile.tsx`（478 行） [ADOPT:T2b] | P1 | 进行中 | 是 | M1-T3 | 同 M1-T3（真机项并入批次 A） | 同 M1-T3 |
+| M1-T4 | M1 | 拆分 `src/app/settings/profile.tsx`（478 行） [ADOPT:T2b] | P1 | 待验收 | 是 | M1-T3 | 同 M1-T3（真机项并入批次 A） | check + 批次 A |
 | M1-T5 | M1 | 拆分 `src/app/settings/word-library.tsx`（440 行） [ADOPT:T2c] | P1 | 未开始 | 否 | M1-T4 | 同 M1-T3 | 同 M1-T3 |
 | M1-T6 | M1 | 复杂页面流程下沉 features/hooks（页面直调仓库的复杂流程，范围执行时核定） [ADOPT:T3] | P2 | 未开始 | 否 | M1-T5 | 按页面逐个迁移；check 全过；依赖方向符合 DESIGN 约束 | check + lint |
 | M2-T1 | M2 | 覆盖率门禁治理：测算差距、定位低覆盖模块、输出「补测试 vs 调整阈值」方案与排期（只出方案，不改阈值、不写实现） | P1 | 未开始 | 否 | M1-T2 | 产出方案（差距清单/优先级/工作量/风险/替代阈值影响），用户选定后再拆实现任务 | 覆盖率报告 + 方案评审 |
@@ -83,6 +83,10 @@
 ### M1-T4：拆分 profile.tsx（478 行）
 
 - 同 M1-T3 模式；文件 `src/app/settings/profile.tsx`；个人资料表单/预览/外观弹窗区块抽离。
+- 与 T3 的差异（执行时核定）：UI 区块此前已抽到 `features/profile/`（`ProfileCard`/`ProfileEditModal`/两个外观弹窗），478 行里主要剩状态、副作用与业务流程 → 抽出的是 hook 与动作模块，而非展示组件。
+- 自检记录（2026-11-04 17:31）：478 → 292 行，新增 4 个文件——`features/profile/useProfileData.ts`（161，加载/编辑态/保存）、`features/profile/profileImageActions.ts`（117，选图与名片导出，依赖以参数注入）、`features/profile/ProfileOptionRow.tsx`（74，两行选项去重）、`features/profile/ProfileCameraMenu.tsx`（41，名片菜单）。保持不变的行为：`active` 标志防卸载后 setState、头像 3MB/背景 6MB 上限与提示文案、`captureRef` 前 `setTimeout(100)`、`releaseCapture` 在 finally、`isCapturing` 互斥与 `cardRef` 就绪判断、姓名非空在编辑提交与保存处各校验一次、`ActionOptionModal` 先 onClose 再执行 option（`ProfileCameraMenu` 仍靠此顺序）。`SettingsRow` 未复用（91px 大行+右箭头，与此处 56px 胶囊行视觉不同，复用会改版面）。按下态样式仍由页面持有并通过 `pressedStyle` 传入，避免两处各定义一份 opacity 0.68。
+- 检查结果：`typecheck`/`lint`/`format:check` 全过；`npm run test` 67/67 全过。
+- 替代验证（2026-11-04 17:33）：① 样式等价审计——13 个键，丢失 0、内容变化 0、同键不同值 0、新增 0；② `npx expo export --platform android` 退出码 0。真机项并入批次 A。
 
 ### M1-T5：拆分 word-library.tsx（440 行）
 
