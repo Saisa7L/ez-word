@@ -48,5 +48,7 @@ test('keeps the published update manifest valid', () => {
   const manifest = JSON.parse(
     readFileSync(new URL('../update/latest.json', import.meta.url), 'utf8'),
   );
-  assert.equal(parseUpdateManifest(manifest).version, '0.1.0');
+  const parsed = parseUpdateManifest(manifest);
+  assert.equal(parsed.tagName, `v${parsed.version}`);
+  assert.ok(parsed.apkUrl.includes(parsed.tagName));
 });
