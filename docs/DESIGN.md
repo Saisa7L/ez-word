@@ -1,6 +1,6 @@
 # 设计与架构
 
-最后更新：2026-11-04 14:57
+最后更新：2026-11-04 17:15
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 2，deep 数据核对零冲突）
 
@@ -94,7 +94,8 @@ flowchart TD
 | `features/ai` | 批量补齐并写入音标和例句 | `generateWordData.ts` |
 | `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
 | `features/theme` | 运行时主题和动态样式 | `ThemeProvider.tsx` |
-| `features/updates` | 更新清单校验、版本比较、可信地址 | `parseUpdateManifest`、`compareVersions` |
+| `features/settings` | 设置页区块（AI Key、每日任务表单、关于页信息行与更新弹窗），纯 props 展示 | `AiKeySection.tsx`、`AboutInfoRow.tsx`、`AboutUpdateDialog.tsx` |
+| `features/updates` | 更新清单校验、版本比较、可信地址、更新流程编排（检查/下载进度/取消/卸载清理） | `parseUpdateManifest`、`compareVersions`、`useAppUpdate` |
 | `database/*Repository.ts` | 各数据域 SQL 访问 | 仓库导出函数 |
 | `database/migrations.ts` | 版本迁移注册表 + 单事务执行 | `MIGRATIONS`、`runMigrations` |
 | `database/schema.ts` | 当前表字段、存档字段、结构校验 | `validateDatabaseSchema` |
@@ -411,7 +412,7 @@ components → constants / hooks / utils
 | 可维护 | 规则只写一处吗？ | 学习日边界在 `utils/studyDate` 单点；导航锁单点；学习规则在 reducer | 否 |
 | 可扩展 | 加 iOS/云同步改哪里？ | 平台耦合集中在 services/speech 等；但 N1-N3 明确不做，不留缝 | 否 |
 | 低耦合 | 依赖单向？ | 依赖方向表 + lint 辅助；无循环依赖记录 | 否 |
-| 高内聚 | God 模块？ | 3 个设置页超限（about 517/profile 478/word-library 440 行）→ M1-T3~T5 处理 | 否（已排期） |
+| 高内聚 | God 模块？ | about 页已拆分（517→245 行，区块/弹窗/流程各自成文件）；profile 478/word-library 440 待拆 → M1-T4/T5 | 否（已排期） |
 | 测试性 | 核心规则可脱离 UI 测试？ | 67 项测试覆盖数据/reducer/导航/更新纯逻辑；SQLite 测试跑 Node 内置 | 否 |
 | 不过度设计 | 假想抽象？ | ARCHITECTURE 明示「只有真实复用才抽离」；无预建抽象层记录 | 否 |
 
@@ -447,6 +448,6 @@ components → constants / hooks / utils
 
 | 问题 | 影响 | 临时方案 | 计划 |
 |---|---|---|---|
-| 设置页超限（about 517 / profile 478 / word-library 440 行，承担表单+校验+数据库+布局） | 维护困难 | 保持功能冻结 | ROADMAP M1-T3/T4/T5 |
+| 设置页超限（profile 478 / word-library 440 行，承担表单+校验+数据库+布局；about 已由 M1-T3 拆到 245 行） | 维护困难 | 保持功能冻结 | ROADMAP M1-T4/T5 |
 | 页面直接调用仓库的复杂流程 | 数据编排散在页面 | 简单读取保留直调 | ROADMAP M1-T6 |
 | Expo/Metro/Router 传递依赖审计项 | audit 噪音 | 禁止降级 Expo 强修 | Backlog 待评估 |
