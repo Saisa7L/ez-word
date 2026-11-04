@@ -1,0 +1,245 @@
+# 代码架构说明
+
+最后更新：2026-10-22 21:32
+
+## 架构概览
+
+项目是单机 Expo + React Native App。SQLite 是业务数据的唯一持久化来源，页面状态只保存当前交互过程。
+
+当前 P6 不是从零进行完整的软件架构设计，而是在已有可运行版本上做渐进式重构：
+
+- 已做：职责盘点、重复逻辑抽离、分页状态统一、文档和依赖边界记录。
+- 未做：全面重写、领域模型重构、统一用例层、正式测试框架。
+- 目标：提高高内聚、降低不必要耦合，同时保持已有功能和 P5 UI 不变。
+
+关键架构决策：
+
+- 只支持 Android，不为 iOS/Web 维护兼容分支。
+- SQLite 是核心业务数据的唯一持久化来源。
+- 所有页面和任务导航统一经过 `utils/navigationActions`。
+- 数据库和存档结构通过显式迁移、结构校验和真实 SQLite 测试保持一致。
+
+启动层级：
+
+```text
+RootLayout
+├─ SQLiteProvider
+│  └─ ThemeProvider
+│     └─ DailyTaskProvider
+│        └─ ThemedApp
+│           ├─ StatusBar
+│           └─ AppFeedbackProvider
+│              └─ Expo Router Stack / Tabs
+```
+
+## 分层职责
+
+| 层 | 目录 | 职责 | 不应承担 |
+|---|---|---|---|
+| 页面与导航 | `src/app` | 路由、页面布局、局部 UI 状态、调用业务和仓库 | 复杂 SQL、跨页面长期状态 |
+| 用例编排 | `src/application` | 任务选词、完成结算等可测试业务动作 | SQL、React 组件、导航 |
+| 领域模型 | `src/domain` | 跨层稳定类型和业务语义 | React、Expo、SQLite |
+| 通用 UI | `src/components` | 可复用卡片、弹层、分页、滚动提示、反馈 UI | 业务数据读取 |
+| 业务流程 | `src/features` | 任务流程状态、导入解析、AI 批处理、存档、主题 | 页面视觉细节 |
+| 数据访问 | `src/database` | 建表迁移、SQL 查询、行数据到驼峰对象转换 | 页面导航、弹窗文案 |
+| 外部服务 | `src/services` | DeepSeek、TTS、文件选择、安全存储 | React 状态 |
+| 复用状态 | `src/hooks` | 返回键拦截、长按步进等交互逻辑 | 数据库业务 |
+| 常量与资源 | `src/constants` | 主题、资源引用、资料默认值、应用信息 | 可变业务状态 |
+| 工具 | `src/utils` | 日期、分页、洗牌、导航和格式化 | 页面组件 |
+
+## 模块清单
+
+| 模块 | 作用 | 主要入口 |
+|---|---|---|
+| `features/daily-task` | 每日任务状态机、题目生成、任务标题、填空和听力区块 | `taskReducer.ts`、`DailyTaskProvider.tsx`、`fill-blank/`、`listening/` |
+| `application/daily-task` | 三种任务模式的启动选词编排 | `startTaskSelection.ts` |
+| `domain/word` | 任务流程领域类型 | `taskWord.ts` |
+| `features/word-import` | CSV 选择、解析、校验、导入和页面区块 | `importWordCsv.ts`、`csv.ts`、`components/` |
+| `features/ai` | 批量补齐并写入音标和例句 | `generateWordData.ts` |
+| `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
+| `features/theme` | 运行时主题和动态样式 | `ThemeProvider.tsx` |
+| `features/profile` | 个人名片展示、编辑和外观弹窗 | `ProfileCard.tsx` |
+| `features/settings` | 通用设置表单和 AI 设置区块 | `DailyTaskSettingsForm.tsx` |
+| `database/*Repository.ts` | 各数据域 SQL 访问 | 仓库文件导出的函数 |
+| `services/deepSeekService.ts` | DeepSeek 请求和返回解析 | `generateWordData`、`parseGeneratedWordDataResponse` |
+| `services/speech.ts` | 听力顺序播放 | `playWordSequence` |
+| `services/archiveFiles.ts` | 存档文件读写 | `exportArchiveFile`、`pickArchiveFile` |
+| `services/aiKeyStore.ts` | API Key 安全存储 | `get/save/clearDeepSeekApiKey` |
+| `services/wordCsvFiles.ts` | CSV 文件选择和读取 | `pickWordCsvFile` |
+| `services/updateService.ts` | 版本检查、APK 下载和系统安装器调用 | `fetchLatestRelease`、`downloadUpdate`、`installUpdate` |
+| `features/updates` | 更新清单校验、版本比较和可信地址约束 | `parseUpdateManifest`、`compareVersions` |
+| `database/schema.ts` | 当前表字段、存档字段和结构校验 | `validateDatabaseSchema` |
+| `database/sqlFragments.ts` | 跨仓库共享的查询字段片段 | `selectWordColumns` |
+| `database/migrations.ts` | 版本迁移注册表和统一事务执行 | `MIGRATIONS`、`runMigrations` |
+| `database/settingsRows.ts` | 四张设置表单行缺失时自动补齐 | `ensureSettingsRows` |
+| `database/taskCompletionRepository.ts` | 完成页统一结算任务数据 | `completeTaskSession` |
+| `database/taskWordMapper.ts` | 数据库行到任务领域对象映射 | `mapTaskWordRow` |
+| `database/wrongBookRepository.ts` | 错题分页、来源关联和学习状态事务 | `listWrongBookWords`、`recordWrongWordsInTransaction` |
+| `utils/appError` | 统一错误码和应用错误对象 | `AppError`、`normalizeAppError` |
+| `utils/logger` | 本地日志、敏感信息脱敏和诊断文本 | `logger`、`buildDiagnosticReport` |
+| `hooks/useDailyTaskPhaseGuard` | 任务路由与显式阶段一致性校验 | `useDailyTaskPhaseGuard` |
+| `utils/backNavigation` | 全导航动作锁、最小/最大锁定和纯测试入口 | `beginNavigationLock`、`completeNavigationLock`、`runNavigationOnce` |
+| `utils/navigationActions` | 唯一 Expo Router 导航动作入口 | `pushOnce`、`backOnce`、`replaceOnce`、`dismissToOnce`、`resetToHomeOnce` |
+| `components/Button` | 通用按钮变体和状态 | `Button` |
+| `components/Dialog` | 通用模态容器和无障碍语义 | `Dialog` |
+| `components/TaskPhasePlaceholder` | 任务阶段恢复占位 | `TaskPhasePlaceholder` |
+
+## 页面地图
+
+```text
+底部 Tab
+├─ 首页
+│  ├─ 每日任务 → 认识单词 → 选词填空 → 听力测试 → 完成
+│  ├─ 错题回顾 → 认识单词 → 选词填空 → 听力测试 → 完成
+│  └─ 单词再练 → 选词填空 → 听力测试 → 完成
+├─ 错题本 → 添加错题
+└─ 我的
+   ├─ 个人资料
+   ├─ 通用设置
+   ├─ 主题外观
+   ├─ 导入单词 → 当前词库 → 添加单词
+   ├─ 本地存档
+   ├─ AI 设置
+   └─ 关于
+```
+
+## 状态归属
+
+| 状态 | 所属位置 | 是否持久化 |
+|---|---|---|
+| 当前主题 | `ThemeProvider` | 是，`theme_settings` |
+| 当前任务单词、任务最终错词、计时 | `DailyTaskProvider` | 否，离开任务即重置 |
+| 填空答案和当前页填空错误标记 | 填空页面局部状态 | 否 |
+| 听力答案和当前页听力错误标记 | 听力页面局部状态 | 否 |
+| 首页统计和用户名头像 | 首页局部状态 | 从 SQLite 每次进入时读取 |
+| 错题本、词库分页和选择 | 对应页面局部状态 | 选择是临时的，数据写入 SQLite |
+| 全局提示和确认弹窗 | `AppFeedbackProvider` | 否 |
+| 资料、任务/复习/AI/主题设置、学习记录 | SQLite | 是 |
+
+## 依赖方向
+
+推荐方向：
+
+```text
+app → application / features / database / services / components
+application → domain / database / utils
+features → domain / database / services / utils
+database → domain / constants / utils
+services → features（仅在解析等纯逻辑需要时）
+components → constants / hooks / utils
+```
+
+禁止新增：
+
+- `database` 反向依赖页面或 React。
+- `components` 直接读取 SQLite。
+- `services` 管理页面导航。
+- 多个页面分别维护同一份业务常量。
+
+## 核心数据流
+
+### 每日任务
+
+```text
+入口 → 读取设置和未学词 → 生成任务快照
+→ 认识单词 → 填空 → 听力 → 完成页
+→ completeTaskSession 单事务写入错题、学习状态和完成记录
+```
+
+每日任务学习日使用本地凌晨 5 点边界。任务中途退出不写错题和学习状态，只有完成页保存成功才结算。
+
+### CSV 与词库
+
+```text
+系统文件选择器 → 读取 UTF-8 CSV
+→ 解析和逐行校验 → SQLite 事务 upsert
+→ 更新/恢复当前词库 → 返回新增、更新和跳过数量
+```
+
+清空词库是软停用，不删除单词、学习记录或错题历史。
+
+### 存档
+
+```text
+导出 → 读取固定业务表 → JSON 序列化和大小校验
+导入 → 解析和完整性校验 → 单事务整体替换 → 刷新主题和页面数据
+```
+
+存档不包含 DeepSeek API Key。
+
+### 检查更新
+
+```text
+关于页 → ghproxy.net 版本清单 → GitHub Raw/API 回退
+→ 版本比较 → 用户确认下载
+→ ghproxy.net APK → GitHub APK 回退
+→ 大小/MD5 校验 → Android 系统安装器
+```
+
+## 高内聚与低耦合原则
+
+高内聚指一个文件围绕一个明确职责组织；低耦合指模块之间通过少量稳定接口交互。
+
+本项目当前采用以下判断：
+
+- SQL 只放在 `database`。
+- 外部网络、文件、SecureStore 和 TTS 只放在 `services`。
+- 跨页面任务运行态放在 Provider。
+- 列表分页和选择状态放在 Hook。
+- 页面只保留路由、展示和局部交互。
+- 所有页面导航统一调用 `utils/navigationActions`，不在页面或 Hook 中直接调用 Router。
+- 只有出现真实复用或复杂编排时才抽离，不为了目录整齐制造抽象。
+
+架构判断必须同时考虑：
+
+- 数据所有权是否清晰。
+- 事务边界是否单一。
+- 调用方向是否单向。
+- 模块是否可以独立理解和验证。
+- 改动是否能用小批次提交和回滚。
+
+## 当前结构性问题
+
+1. 部分设置页同时承担表单、校验、数据库调用和复杂布局，文件超过 500 行。
+2. 页面可以直接调用仓库。简单读取可保留，复杂流程应进入 `features` 或自定义 Hook。
+3. 存档和运行时校验已共用 `database/schema.ts`；迁移 SQL 仍手写，但已收敛为版本注册表、统一事务和列级幂等执行。
+4. `word-import` 已剥离文件 I/O，保留纯解析和入库用例。
+5. 错题本、当前词库和添加错题已通过 `usePaginatedSelection` 统一分页和选择状态。
+
+## 目录速查
+
+```text
+src/
+├─ app/                 页面和路由
+├─ components/          通用 UI
+├─ components/icons/    代码 SVG 图标
+├─ constants/           主题、资源映射和固定配置
+├─ database/            SQLite 迁移和仓库
+├─ features/            业务流程
+│  ├─ ai/
+│  ├─ archive/
+│  ├─ daily-task/
+│  ├─ theme/
+│  └─ word-import/
+├─ hooks/               复用交互状态
+├─ services/            外部 I/O
+└─ utils/               无状态工具
+```
+
+## 主题与资源
+
+- 主题通过 `ThemeProvider` 和 `useThemedStyles` 提供日间、夜间和自定义颜色。
+- 页面只使用主题令牌，不直接维护第二套颜色体系。
+- App 图标、启动图、导航图标和页面插画统一从 `src/constants/uiAssets.ts` 引用。
+- 图片资源保持小体积，并由性能预算脚本限制资源总量、单文件大小和数量。
+
+完整文档索引见 `docs/README.md`。
+
+## 整理原则
+
+- 先建立可追踪的边界，再做文件拆分。
+- 修改前先搜索同类实现，优先复用或扩展现有组件、样式、Hook 和工具。
+- 每次只抽离一个明确重复，不进行跨模块大重写。
+- 页面只保留展示和交互，复杂数据编排再下沉。
+- 抽离前后必须通过类型检查和 lint。
+- 不因整理改变已收口的 P5 视觉规则。
