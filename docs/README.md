@@ -1,6 +1,6 @@
 # 文档索引
 
-最后更新：2026-11-04 16:42
+最后更新：2026-11-04 16:59
 
 ## 1. 对外展示
 
@@ -63,7 +63,9 @@
 - `docs/samples/`：开发阶段 CSV 样例（保留原位）。
 - `docs/releases/v1.0.0.md`：v1.0.0 发布记录（保留原位）。
 - `update/latest.json`：App 内更新清单（仓库根）。
-- 旧文档（RELEASING、PHASE_HISTORY、ARCHITECTURE 等迁移前九份）的完整原件：见 `.adoption/backup/`（替换后）。发布细节摘录见 `DEVELOPMENT.md` §12；开发历史已收敛进 `ROADMAP.md` 里程碑记录。
+- 旧文档（RELEASING、PHASE_HISTORY、ARCHITECTURE 等迁移前九份）的完整原件：见 `.adoption/backup/20261104-1457/docs/`（替换后）。发布细节摘录见 `DEVELOPMENT.md` §12；开发历史已收敛进 `ROADMAP.md` 里程碑记录。
+
+> 术语约定：文档正文的「来源/证据」列中出现的 `PROJECT_CONTEXT`、`REQUIREMENTS`、`ARCHITECTURE`、`DATABASE`、`DEVELOPMENT_GUIDE`、`PHASE_HISTORY`、`RELEASING` 均为迁移前文档名，只表示内容溯源、不是可点击链接；原件路径见上一条。当前权威文档只有本页索引列出的八份。
 
 ## 8. 新增文档审批
 

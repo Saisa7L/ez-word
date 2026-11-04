@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-11-04 16:42
+最后更新：2026-11-04 17:00
 
 ## 1. 环境
 
@@ -50,7 +50,7 @@ npm run check
 
 不要跳过失败项；不能运行时说明原因和剩余风险。测试基线：67 项全过。数据层测试运行在 Node 内置 SQLite 上，出现 `ExperimentalWarning: SQLite` 属运行环境提示，不代表失败。
 
-`npm run docs:check`（`scripts/check-docs.mjs`）按八文档契约校验：六份 docs 文档 + 根 `README.md`/`AGENTS.md` 等公开文件齐全；`docs/README.md` 索引覆盖六份文档与两份根文档；每份 docs 文档的"最后更新"精确到分钟；正文中反引号包裹的 npm 脚本引用在 `package.json` 中真实存在；正文引用的 `.md` 与 `samples/` 路径真实存在。文档增删改结构时同步改这里的清单。
+`npm run docs:check`（`scripts/check-docs.mjs`）按八文档契约校验：六份 docs 文档 + 根 `README.md`/`AGENTS.md` 等公开文件齐全；`docs/README.md` 索引覆盖六份文档与两份根文档；每份 docs 文档的"最后更新"精确到分钟；正文中反引号包裹的 npm 脚本引用在 `package.json` 中真实存在；正文引用的 `.md` 与 `samples/` 路径真实存在；根文档（`AGENTS/CONTRIBUTING/PRIVACY/README/SECURITY/THIRD_PARTY_NOTICES`）里的本地 Markdown 链接可解析。文档增删改结构时同步改这里的清单。
 
 ## 5. 测试策略
 

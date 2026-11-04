@@ -36,7 +36,7 @@ npx expo start --lan
 6. 不改变已经收口的主题视觉规则，除非 Issue 明确要求。
 7. 数据库或存档字段变化必须同步 schema、迁移、旧版本兼容和测试。
 
-架构边界见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)，数据库说明见 [docs/DATABASE.md](docs/DATABASE.md)。
+架构边界、依赖规则与数据模型见 [docs/DESIGN.md](docs/DESIGN.md)；协作规则与质量门禁见 [AGENTS.md](AGENTS.md) 与 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)。
 
 ## 分支与提交
 

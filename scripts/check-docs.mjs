@@ -26,6 +26,14 @@ const INDEX_ENTRIES = [
   '../AGENTS.md',
   '../README.md',
 ];
+const ROOT_DOCS = [
+  'AGENTS.md',
+  'CONTRIBUTING.md',
+  'PRIVACY.md',
+  'README.md',
+  'SECURITY.md',
+  'THIRD_PARTY_NOTICES.md',
+];
 
 const packageJson = JSON.parse(
   await readFile(join(ROOT, 'package.json'), 'utf8'),
@@ -118,6 +126,24 @@ for (const filename of REQUIRED_DOCS) {
   }
 }
 
+for (const filename of ROOT_DOCS) {
+  const path = join(ROOT, filename);
+  if (!(await exists(path))) {
+    continue;
+  }
+
+  const content = await readFile(path, 'utf8');
+  for (const match of content.matchAll(/\]\(([^)\s]+)\)/g)) {
+    const reference = match[1].split('#')[0];
+    if (!reference || /^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(reference)) {
+      continue;
+    }
+    if (!(await exists(resolve(dirname(path), reference)))) {
+      failures.push(`${filename} 的本地链接失效 ${match[1]}`);
+    }
+  }
+}
+
 if (failures.length > 0) {
   for (const failure of failures) {
     console.error(`FAIL: ${failure}`);
@@ -126,5 +152,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Documentation checks passed (${REQUIRED_DOCS.length} docs, ${REQUIRED_ROOT_FILES.length} root files).`,
+  `Documentation checks passed (${REQUIRED_DOCS.length} docs, ${REQUIRED_ROOT_FILES.length} root files, ${ROOT_DOCS.length} root docs links).`,
 );
