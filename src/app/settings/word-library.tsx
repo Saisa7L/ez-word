@@ -1,6 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
 import { Plus, Trash2 } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,69 +7,38 @@ import {
   View,
 } from 'react-native';
 
-import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { PaginationBar } from '@/components/PaginationBar';
-import { SelectionMarker } from '@/components/SelectionMarker';
 import { radii, type ThemeColors } from '@/constants/theme';
-import {
-  deactivateWords,
-  getActiveWordCount,
-  listActiveWords,
-  type LearningStatus,
-  type WordRecord,
-} from '@/database/wordsRepository';
-import { setWordsLearningStatus } from '@/database/wrongBookRepository';
+import { WordLibraryRow } from '@/features/word-library/WordLibraryRow';
+import { WordStatusMenu } from '@/features/word-library/WordStatusMenu';
+import { useWordLibrary } from '@/features/word-library/useWordLibrary';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
-import { pushOnce } from '@/utils/navigationActions';
-import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
-
-const PAGE_SIZE = 5;
-
-const STATUS_LABELS: Record<LearningStatus, string> = {
-  learned: '已学习',
-  unlearned: '未学习',
-  wrong: '错题',
-};
+import { pushOnce } from '@/utils/navigationActions';
 
 export default function WordLibraryScreen() {
-  const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showConfirm, showNotice } = useAppFeedback();
   const handleBack = useSettingsBackNavigation();
-  const [isRemoving, setIsRemoving] = useState(false);
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const [statusModalVisible, setStatusModalVisible] = useState(false);
-
-  const loadPage = useCallback(
-    async (targetPageIndex: number) => {
-      const [totalCount, items] = await Promise.all([
-        getActiveWordCount(db),
-        listActiveWords(db, PAGE_SIZE, targetPageIndex * PAGE_SIZE),
-      ]);
-      return { items, totalCount };
-    },
-    [db],
-  );
-
   const {
-    clearSelection,
+    changeSelectedStatus,
     isLoading,
-    items: words,
+    isRemoving,
+    isUpdatingStatus,
     pageCount,
     pageIndex,
-    reload,
+    removeSelectedWords,
     selectedIds,
     setPageIndex,
+    setStatusModalVisible,
+    statusModalVisible,
     toggleSelection,
     totalCount,
-  } = usePaginatedSelection<WordRecord>({
-    loadPage,
-    pageSize: PAGE_SIZE,
-  });
+    words,
+  } = useWordLibrary({ notify: showNotice });
 
   function requestRemove() {
     if (selectedIds.size === 0 || isRemoving) {
@@ -83,23 +50,10 @@ export default function WordLibraryScreen() {
       danger: true,
       message: `将选中的 ${selectedIds.size} 个单词移出当前词库。学习状态、学习历史和错题记录都会保留。`,
       onConfirm: () => {
-        void handleRemove();
+        void removeSelectedWords();
       },
       title: '从当前词库移除？',
     });
-  }
-
-  async function handleRemove() {
-    setIsRemoving(true);
-    try {
-      await deactivateWords(db, [...selectedIds]);
-      clearSelection();
-      await reload();
-    } catch {
-      showNotice('移除失败', '无法从当前词库移除单词，请稍后重试');
-    } finally {
-      setIsRemoving(false);
-    }
   }
 
   function requestStatusChange() {
@@ -108,19 +62,6 @@ export default function WordLibraryScreen() {
     }
 
     setStatusModalVisible(true);
-  }
-
-  async function handleStatusChange(status: 'learned' | 'unlearned') {
-    setIsUpdatingStatus(true);
-    try {
-      await setWordsLearningStatus(db, [...selectedIds], status);
-      clearSelection();
-      await reload();
-    } catch {
-      showNotice('修改失败', '无法修改单词状态，请稍后重试');
-    } finally {
-      setIsUpdatingStatus(false);
-    }
   }
 
   return (
@@ -147,48 +88,17 @@ export default function WordLibraryScreen() {
                 <Text style={styles.emptyHint}>可以点击下方按钮添加新单词</Text>
               </View>
             ) : (
-              words.map((word, index) => {
-                const selected = selectedIds.has(word.id);
-                return (
-                  <Pressable
-                    key={word.id}
-                    accessibilityRole="button"
-                    onPress={() => toggleSelection(word.id)}
-                    style={({ pressed }) => [
-                      styles.wordRow,
-                      index < words.length - 1 && styles.wordRowBorder,
-                      selected && styles.wordRowSelected,
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <View style={styles.wordCopy}>
-                      <View style={styles.wordHeader}>
-                        <Text style={styles.word}>{word.word}</Text>
-                        <View
-                          style={[
-                            styles.statusBadge,
-                            word.learning_status === 'wrong' &&
-                              styles.statusBadgeWrong,
-                            word.learning_status === 'learned' &&
-                              styles.statusBadgeLearned,
-                          ]}
-                        >
-                          <Text style={styles.statusText}>
-                            {STATUS_LABELS[word.learning_status]}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text numberOfLines={2} style={styles.meaning}>
-                        {word.meaning}
-                      </Text>
-                      <Text style={styles.phonetic}>
-                        {word.phonetic || '暂无音标'}
-                      </Text>
-                    </View>
-                    <SelectionMarker index={index} selected={selected} />
-                  </Pressable>
-                );
-              })
+              words.map((word, index) => (
+                <WordLibraryRow
+                  index={index}
+                  isLast={index === words.length - 1}
+                  key={word.id}
+                  onPress={() => toggleSelection(word.id)}
+                  pressedStyle={styles.pressed}
+                  selected={selectedIds.has(word.id)}
+                  word={word}
+                />
+              ))
             )}
           </View>
 
@@ -258,29 +168,13 @@ export default function WordLibraryScreen() {
           </View>
         </View>
       </GreenSheetScreen>
-      <ActionOptionModal
-        message={`将选中的 ${selectedIds.size} 个单词统一修改为：`}
+
+      <WordStatusMenu
         onClose={() => setStatusModalVisible(false)}
-        options={[
-          {
-            label: '已学习',
-            onPress: () => {
-              void handleStatusChange('learned');
-            },
-          },
-          {
-            label: '未学习',
-            onPress: () => {
-              void handleStatusChange('unlearned');
-            },
-          },
-          {
-            label: '取消',
-            onPress: () => {},
-            tone: 'danger',
-          },
-        ]}
-        title="修改单词状态"
+        onSelect={(status) => {
+          void changeSelectedStatus(status);
+        }}
+        selectedCount={selectedIds.size}
         visible={statusModalVisible}
       />
     </>
@@ -345,17 +239,6 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
       minHeight: 380,
     },
-    meaning: {
-      color: colors.textSecondary,
-      fontSize: 15,
-      lineHeight: 22,
-      marginTop: 6,
-    },
-    phonetic: {
-      color: colors.textMuted,
-      fontSize: 13,
-      marginTop: 6,
-    },
     pressed: {
       opacity: 0.68,
     },
@@ -383,24 +266,6 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: 20,
       fontWeight: '700',
     },
-    statusBadge: {
-      backgroundColor: colors.graySoft,
-      borderRadius: 10,
-      marginLeft: 10,
-      paddingHorizontal: 9,
-      paddingVertical: 3,
-    },
-    statusBadgeLearned: {
-      backgroundColor: colors.blueSoft,
-    },
-    statusBadgeWrong: {
-      backgroundColor: colors.redSoft,
-    },
-    statusText: {
-      color: colors.textSecondary,
-      fontSize: 12,
-      fontWeight: '600',
-    },
     summaryRow: {
       marginBottom: 14,
     },
@@ -408,33 +273,5 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.text,
       fontSize: 19,
       fontWeight: '700',
-    },
-    word: {
-      color: colors.text,
-      fontSize: 20,
-      fontWeight: '700',
-    },
-    wordCopy: {
-      flex: 1,
-      marginRight: 16,
-    },
-    wordHeader: {
-      alignItems: 'center',
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-    wordRow: {
-      alignItems: 'center',
-      flexDirection: 'row',
-      minHeight: 86,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-    },
-    wordRowBorder: {
-      borderBottomColor: colors.border,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-    },
-    wordRowSelected: {
-      backgroundColor: colors.mint,
     },
   });
