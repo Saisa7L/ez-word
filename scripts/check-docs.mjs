@@ -6,22 +6,25 @@ const DOCS_DIR = join(ROOT, 'docs');
 const INDEX_PATH = join(DOCS_DIR, 'README.md');
 const REQUIRED_DOCS = [
   'ACCEPTANCE.md',
-  'ARCHITECTURE.md',
-  'DATABASE.md',
-  'DEVELOPMENT_GUIDE.md',
-  'PHASE_HISTORY.md',
-  'PROJECT_CONTEXT.md',
+  'DESIGN.md',
+  'DEVELOPMENT.md',
+  'PROJECT.md',
   'README.md',
-  'RELEASING.md',
-  'REQUIREMENTS.md',
+  'ROADMAP.md',
 ];
 const REQUIRED_ROOT_FILES = [
+  'AGENTS.md',
   'CONTRIBUTING.md',
   'LICENSE',
   'PRIVACY.md',
   'README.md',
   'SECURITY.md',
   'THIRD_PARTY_NOTICES.md',
+];
+const INDEX_ENTRIES = [
+  ...REQUIRED_DOCS.filter((name) => name !== 'README.md'),
+  '../AGENTS.md',
+  '../README.md',
 ];
 
 const packageJson = JSON.parse(
@@ -57,9 +60,9 @@ for (const filename of REQUIRED_ROOT_FILES) {
   }
 }
 
-for (const filename of REQUIRED_DOCS.filter((name) => name !== 'README.md')) {
-  if (!indexContent.includes(`\`${filename}\``)) {
-    failures.push(`文档索引缺少 ${filename}`);
+for (const entry of INDEX_ENTRIES) {
+  if (!indexContent.includes(`\`${entry}\``)) {
+    failures.push(`文档索引缺少 ${entry}`);
   }
 }
 
