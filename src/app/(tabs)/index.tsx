@@ -1,6 +1,3 @@
-import { useFocusEffect } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,72 +5,20 @@ import { ActionOptionModal } from '@/components/ActionOptionModal';
 import { HomeActionCard } from '@/components/HomeActionCard';
 import { radii, shadow, spacing, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
-import {
-  getHomeStats,
-  getLastReviewPromptStudyDay,
-  markReviewPrompted,
-  type HomeStats,
-} from '@/database/statsRepository';
-import { getDailyTaskSettings } from '@/database/settingsRepository';
-import { getUserProfile } from '@/database/userProfileRepository';
+import { useHomeOverview } from '@/features/home/useHomeOverview';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { pushOnce } from '@/utils/navigationActions';
 
 export default function HomeScreen() {
-  const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const [homeStats, setHomeStats] = useState<HomeStats | null>(null);
-  const [displayName, setDisplayName] = useState('User');
-  const [avatarData, setAvatarData] = useState('');
-  const [reviewReminderVisible, setReviewReminderVisible] = useState(false);
-
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-
-      async function loadStats() {
-        try {
-          const [nextStats, profile] = await Promise.all([
-            getHomeStats(db),
-            getUserProfile(db),
-          ]);
-          if (!active) {
-            return;
-          }
-
-          setHomeStats(nextStats);
-          setDisplayName(profile.displayName);
-          setAvatarData(profile.avatarData);
-
-          const settings = await getDailyTaskSettings(db);
-          if (
-            settings.reviewReminderEnabled &&
-            nextStats.studyDays > 0 &&
-            nextStats.studyDays % settings.reviewReminderIntervalDays === 0
-          ) {
-            const lastPrompted = await getLastReviewPromptStudyDay(db);
-            if (active && lastPrompted < nextStats.studyDays) {
-              await markReviewPrompted(db, nextStats.studyDays);
-              if (active) {
-                setReviewReminderVisible(true);
-              }
-            }
-          }
-        } catch {
-          if (active) {
-            setHomeStats(null);
-          }
-        }
-      }
-
-      void loadStats();
-
-      return () => {
-        active = false;
-      };
-    }, [db]),
-  );
+  const {
+    avatarData,
+    dismissReviewReminder,
+    displayName,
+    reviewReminderVisible,
+    stats: homeStats,
+  } = useHomeOverview();
 
   const stats = [
     { label: '今日已学', value: String(homeStats?.todayLearned ?? '--') },
@@ -147,7 +92,7 @@ export default function HomeScreen() {
 
       <ActionOptionModal
         message="已到达规定的复习时间，让我们开始复习吧！"
-        onClose={() => setReviewReminderVisible(false)}
+        onClose={dismissReviewReminder}
         options={[
           {
             label: '去复习',
