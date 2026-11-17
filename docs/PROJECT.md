@@ -210,7 +210,8 @@
 | CH3 | 2026-11-17 | 纠正 B-02 的成因表述 | §15 已知问题：覆盖率不达标的记录改为"环境注入 + 分母失真"，并补口径缺失项 | 依据 M2-T1 实测（A/B/C 三种测法对照） | 待用户评审 |
 | CH4 | 2026-11-17 | 按路线 B 修正覆盖率门禁 | §15 已知问题：B-02 关闭并改写为口径已修；逻辑层真实缺口转 Backlog | M2-T2 落地（脚本 + 三份文档同步） | 已确认 |
 | CH5 | 2026-11-17 | 按路线 C 补齐逻辑层测试 | §15 已完成补 M2；已知问题改写为「缺口已补 + 函数轴口径限制 + 剩余真实缺口」；§17 改为无下一里程碑；§11 测试基线 146 项 | M2-T3（951071c）+ M2-T4 落地 | 待用户验收 |
-| CH6 | 2026-11-17 | 校正门禁现状表述 | §17 由"全绿"改为"五项绿 + doctor 红（expo 补丁版本漂移）" | `npm run check` 实跑发现 doctor 20/21 | 待用户处理依赖升级 |
+| CH6 | 2026-11-17 | 校正门禁现状表述 | §17 由"全绿"改为"五项绿 + doctor 红（expo 补丁版本漂移）" | `npm run check` 实跑发现 doctor 20/21 | 已确认（用户决定不单独升级，随下次发版统一处理） |
+| CH7 | 2026-11-17 | 删除死代码 `studyRepository` | §15 已知问题：死代码项改为已删除并注明来历 | 用户批准；整文件删除后 146 项测试与覆盖率不变 | 已确认 |
 
 ## 14. 阶段确认记录
 
@@ -241,7 +242,7 @@
 - 逻辑层 P0/P1 缺口已由 M2-T3/M2-T4 补齐：`statsRepository`/`aiRepository`/`csv`/`importWordCsv` 100% 行覆盖；`wordsRepository` 98.40%、`userProfileRepository` 98.40%、`settingsRepository` 98.57%、`wrongBookRepository` 96.67%、`deepSeekService` 100%
 - 覆盖率函数轴不可单独用于判定：esbuild 把 TS 类型成员（如 `autoRemoveCorrectWrongReview: boolean;`）转成零长函数区间计入统计，`settingsRepository` 因此显示函数 73.53% 而真实函数未覆盖数为 0。全仓同类情况的文件不能靠"函数到 100%"验收（`ROADMAP.md` M2-T4 自检记录）
 - 剩余真实缺口（不影响 80% 门禁，记 Backlog）：`constants/theme.ts` 函数 65.52%（`normalizeHex`/`hexToRgb` 未覆盖）、`features/updates/updateManifest.ts` 的 `compareVersions` 未覆盖（直接影响更新判定）、`utils/backNavigation.ts` 定时器分支、`archiveSnapshot.ts` 分支 69.19%
-- 死代码 `studyRepository.recordTaskCompletion` 全仓无引用（与 `completeTaskSession` 的 daily 分支重复），未补测，删除需用户批准
+- 死代码 `studyRepository.recordTaskCompletion` 已于 2026-11-17 删除（全仓无引用，是 `completeTaskSession` daily 分支的真子集；来历见 `ROADMAP.md` §6）。删除后测试仍 146 项全过、覆盖率不变
 - `utils/navigationActions.ts`、`utils/navigation.ts`、`services/updateService.ts` 在模块加载期依赖 `expo-router`/`expo-file-system`，Node 无法加载，不在覆盖率范围内，回归靠真机
 - Expo/Metro/Router 传递依赖审计项存在；禁止降级 Expo 强制修复（源 PROJECT_CONTEXT 已知限制）
 
