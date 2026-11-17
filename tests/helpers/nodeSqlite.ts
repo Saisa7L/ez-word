@@ -40,9 +40,15 @@ export class NodeSqliteAdapter {
 
   async runAsync(source: string, ...params: unknown[]): Promise<unknown> {
     const statement = this.db.prepare(source);
-    return params.length === 1 && typeof params[0] === 'object'
-      ? statement.run(params[0] as SqlParams)
-      : statement.run(...(params as (number | string | null)[]));
+    const result =
+      params.length === 1 && typeof params[0] === 'object'
+        ? statement.run(params[0] as SqlParams)
+        : statement.run(...(params as (number | string | null)[]));
+    // expo-sqlite 返回 lastInsertRowId，Node 内置返回 lastInsertRowid，需对齐。
+    return {
+      changes: result.changes,
+      lastInsertRowId: Number(result.lastInsertRowid),
+    };
   }
 
   async withExclusiveTransactionAsync(
