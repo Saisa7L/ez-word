@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-17 13:25
+最后更新：2026-11-17 13:27
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -289,6 +289,7 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 | P0/P1 逻辑层补测（路线 C） | 8 个模块从零覆盖/低覆盖补到 ≥80% | 已完成 M2-T3、M2-T4（测试 67 → 146 项，覆盖率 96.26/90.16/93.84） | 已完成（2026-11-17） |
 | 删除死代码 `studyRepository.recordTaskCompletion` | 全仓无引用，与 `completeTaskSession` 的 daily 分支重复；保留会让后续维护误以为两处都要改 | 无；删除后需复跑 `test:coverage` 确认无引用链 | 待用户批准（删生产代码属破坏性操作） |
 | 剩余真实覆盖缺口 | `constants/theme.ts` 函数 65.52%（`normalizeHex`/`hexToRgb` 等未覆盖）、`features/updates/updateManifest.ts` 的 `compareVersions` 未覆盖（版本比较直接影响更新判定）、`utils/backNavigation.ts` 的定时器分支、`archiveSnapshot.ts` 分支 69.19% | 无硬依赖 | 待评估（不影响 80% 门禁，但属真实风险） |
+| expo 补丁版本升级 | 修掉 doctor 唯一红项（7 个包有新补丁） | 需 `npx expo install --check` 升级后复跑 `check:release` 与真机；不得降级 | 待用户决定（与 M2 无关，属依赖漂移） |
 | 传递依赖审计项治理 | 消除 audit 噪音 | 不降级 Expo 的前提 | 待评估 |
 | 新功能需求 | 待用户提出 | M1 完成 | 待定 |
 
