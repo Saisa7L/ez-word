@@ -29,12 +29,14 @@
 | 文档 | `npm run docs:check` | 通过 | 旧九文档结构下 |
 | 类型 | `npm run typecheck` | 通过 | |
 | Lint | `npm run lint` | 通过 | |
-| 测试 | `npm run test:coverage` | 通过 | 67 项全过；行/分支/函数 ≥80% |
+| 测试 | `npm run test:coverage` | 通过 | 146 项全过；行/分支/函数 ≥80%（v1.0.0 发版时为 67 项） |
 | Doctor | `npm run doctor` | 通过 | 21/21 |
 | 构建+预算 | `npm run check:release` | 通过 | Android 导出 + 性能预算 |
 | CI | GitHub Actions | 通过 | workflow 39781459561 全绿 |
 
-> 覆盖率口径（2026-11-17 补充）：`--experimental-test-coverage` 只统计**被测试文件加载过**的模块。132 个源文件中仅 30 个进入分母，65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在统计范围内。因此上表「≥80%」的含义是「对已加载模块的覆盖率」，不等于全项目覆盖率；纯项目代码实测 85.08%/84.09%/82.99%（推荐门禁口径）。2026-11-17 起 `test:coverage` 已用 `--test-coverage-include="**/src/**"` 限定分母（`ROADMAP.md` M2-T2），口径与 `DEVELOPMENT.md` §4 一致。
+> 覆盖率口径（2026-11-17 定稿）：`--experimental-test-coverage` 只统计**被测试文件加载过**的模块。65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在统计范围内；`utils/navigationActions.ts`、`utils/navigation.ts`、`services/updateService.ts` 在模块加载期依赖 `expo-router`/`expo-file-system`，同样无法加载，靠真机回归。因此上表「≥80%」的含义是「对已加载模块的覆盖率」，不等于全项目覆盖率。
+>
+> 2026-11-17 起 `test:coverage` 用 `--test-coverage-include="**/src/**"` + `--test-coverage-exclude="**/node_modules/**"` 限定分母（`ROADMAP.md` M2-T2），并按路线 C 补齐 P0/P1 模块（M2-T3/M2-T4）：分母 30 → 40 个模块，实测 **96.26%/90.16%/93.84%**，测试 67 → 146 项。函数轴受 TS 类型成员统计影响，不作为单独判定依据（`DEVELOPMENT.md` §4）。
 
 ## 4. 功能验收（v1.0.0 快照，全部通过）
 

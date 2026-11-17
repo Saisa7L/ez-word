@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-11-17 13:11
+最后更新：2026-11-17 13:25
 
 ## 1. 环境
 
@@ -48,20 +48,21 @@ npx expo start --lan
 npm run check
 ```
 
-不要跳过失败项；不能运行时说明原因和剩余风险。测试基线：67 项全过。数据层测试运行在 Node 内置 SQLite 上，出现 `ExperimentalWarning: SQLite` 属运行环境提示，不代表失败。
+不要跳过失败项；不能运行时说明原因和剩余风险。测试基线：146 项全过（`npm run test` = data + logic + task + navigation 四组）。数据层测试运行在 Node 内置 SQLite 上，出现 `ExperimentalWarning: SQLite` 属运行环境提示，不代表失败。
 
-覆盖率口径（2026-11-17 起）：`test:coverage` 用 `--test-coverage-include="**/src/**"` + `--test-coverage-exclude="**/node_modules/**"` 正向限定分母，**只统计 `src/` 内可被 Node 加载的模块**。两点须知：① 65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在覆盖率范围内，回归靠 Maestro 与真机验收，不要为此调低阈值；② include 必须与 exclude 成对使用，只写 `include "**/src/**"` 会把 `tsx` 包内路径含 `src` 的文件（`common.js`/`index.js`/`node.js`）计入分母，使总数从 85% 掉到 80.99%（实测）。修改这两个参数后在 CI 与本机各跑一次，确认分母一致。
+覆盖率口径（2026-11-17 起）：`test:coverage` 用 `--test-coverage-include="**/src/**"` + `--test-coverage-exclude="**/node_modules/**"` 正向限定分母，**只统计 `src/` 内可被 Node 加载的模块**。两点须知：① 65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在覆盖率范围内，回归靠 Maestro 与真机验收，不要为此调低阈值；② include 必须与 exclude 成对使用，只写 `include "**/src/**"` 会把 `tsx` 包内路径含 `src` 的文件（`common.js`/`index.js`/`node.js`）计入分母，使总数从 85% 掉到 80.99%（实测）。修改这两个参数后在 CI 与本机各跑一次，确认分母一致。③ **函数覆盖率不能单独当门禁**：esbuild 会把 TS 类型成员（如 `autoRemoveCorrectWrongReview: boolean;`）转成零长函数区间计入统计，含大型对象类型声明的文件函数占比永远到不了 100%——`settingsRepository` 显示 73.53% 时真实函数未覆盖数为 0（用 `NODE_V8_COVERAGE` 抓明细核对过）。判定模块是否达标看行与分支，函数轴只作参考。
 
 `npm run docs:check`（`scripts/check-docs.mjs`）按八文档契约校验：六份 docs 文档 + 根 `README.md`/`AGENTS.md` 等公开文件齐全；`docs/README.md` 索引覆盖六份文档与两份根文档；每份 docs 文档的"最后更新"精确到分钟；正文中反引号包裹的 npm 脚本引用在 `package.json` 中真实存在；正文引用的 `.md` 与 `samples/` 路径真实存在；根文档（`AGENTS/CONTRIBUTING/PRIVACY/README/SECURITY/THIRD_PARTY_NOTICES`）里的本地 Markdown 链接可解析。文档增删改结构时同步改这里的清单。
 
 ## 5. 测试策略
 
-- 单元测试：`tests/` 9 个文件 67 项——数据迁移/存档（data）、任务 reducer、导航锁、填空排版、无障碍、可观测性、Android 发布配置、学习日、更新清单。
+- 单元测试：`tests/` 14 个文件 146 项——数据迁移/存档（data）、仓库读写与聚合（repositories / repositoryWrites）、CSV 解析与导入（wordImport）、AI 单词数据生成与 DeepSeek 请求（aiWordData）、工具函数（utils）、任务 reducer、导航锁、填空排版、无障碍、可观测性、Android 发布配置、学习日、更新清单。
+- 测试夹具：`tests/helpers/nodeSqlite.ts` 把 Node 内置 `node:sqlite` 适配成 expo-sqlite 调用形态（含两种事务入口），复用它建内存库并跑真实 SQL。注意 `runAsync` 需把 Node 的 `lastInsertRowid` 映射为 expo-sqlite 的 `lastInsertRowId`，否则插入路径会拿到 `undefined`。
 - 集成测试：真实 SQLite v0→v21 迁移、存档 round-trip（均在 data.test.ts）。
 - E2E/真机：`.maestro/` 冒烟链路 + 手动验收清单（见 `ACCEPTANCE.md`）。
 - 测试数据：`docs/samples/` CSV 样例。
-- mock 规则：无 mock 框架；网络/文件服务保持薄封装，纯逻辑单独测试。
-- 覆盖率基准：行/分支/函数 ≥80%，分母为 `src/**` 中被测试加载到的模块（见 §4 口径说明）；`src/**/*.tsx` 不纳入，靠 Maestro 与真机验收。
+- mock 规则：无 mock 框架；网络/文件服务保持薄封装，纯逻辑单独测试。需要外部请求的测试直接替换 `globalThis.fetch`（见 `tests/aiWordData.test.ts`），不引入 mock 库。
+- 覆盖率基准：行/分支/函数 ≥80%（2026-11-17 实测 96.26/90.16/93.84，分母 40 个模块），分母为 `src/**` 中被测试加载到的模块（见 §4 口径说明）；`src/**/*.tsx` 不纳入，靠 Maestro 与真机验收。
 
 ## 6. Git 流程
 

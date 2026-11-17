@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-17 13:11
+最后更新：2026-11-17 13:25
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -8,15 +8,17 @@
 
 | 项目 | 内容 |
 |---|---|
-| 里程碑 | M2：覆盖率门禁治理（**当前**，2026-11-17 用户批准启动） |
-| 目标 | 让覆盖率门禁可信：数字不随环境漂移，分母范围与门禁语义一致；阈值不动 |
-| 开始/目标日期 | 2026-11-17 / M2-T2 验收通过 |
-| 完成标准 | 门禁脚本与文档口径一致；`npm run check` 全绿且阈值仍然生效 |
+| 里程碑 | M2：覆盖率门禁治理 —— **已完成（2026-11-17）** |
+| 目标 | 让覆盖率门禁可信：数字不随环境漂移，分母范围与门禁语义一致；阈值不动；再补齐逻辑层真实缺口 |
+| 开始/目标日期 | 2026-11-17 / M2-T4 完成（实际同日） |
+| 完成标准 | 门禁脚本与文档口径一致；`npm run check` 全绿且阈值仍然生效；逻辑层真实缺口按路线 C 补齐 |
 | 上一里程碑 | M1：文档迁移收尾与结构重构 —— 已完成（2026-11-17） |
+| 下一里程碑 | 无（2026-11-17 用户明确 M2 之后的计划先搁置，下次再制订） |
 
-> 队列中：无。M1 已完成；M2 之后的计划 2026-11-17 用户明确「先搁置，下次再制订」。
+> 队列中：无。M1、M2 均已完成；后续计划 2026-11-17 用户明确「先搁置，下次再制订」，Backlog 之外不预先立项。
 > 2026-11-04 17:22 用户确认：真机验收改为批次统一执行（见 §7 真机验收批次），任务自检通过即提交并停 `待验收`，不阻塞后续拆分。
 > 2026-11-17 13:10：用户选定路线 B。M2-T1 转 `已完成`；实施任务只拆 M2-T2（口径修正），路线 C 的补测部分未采纳，P0/P1 缺口转 Backlog。
+> 2026-11-17 13:26：用户改口「接着走 C」，M2-T2 视为验收通过并转 `已完成`；路线 C 拆为 M2-T3（P0 零覆盖）与 M2-T4（P1 低覆盖）两批执行，Backlog 对应项转正。
 
 ## 2. 任务
 
@@ -31,7 +33,9 @@
 | M1-T6b | M1 | 下沉首页概览聚合与复习提醒判断 [ADOPT:T3] | P2 | 已完成 | 否 | M1-T6a | `(tabs)/index.tsx` 只留 UI；提醒标记只写一次 | check + 真机 |
 | M1-T6c | M1 | 下沉两个单词添加页的查重写入流程 [ADOPT:T3] | P2 | 已完成 | 否 | M1-T6b | `wrong-book/add.tsx`、`word-library/add.tsx` 只留 UI；查重提示文案不变 | check + 真机 |
 | M2-T1 | M2 | 覆盖率门禁治理：测算差距、定位低覆盖模块、输出「补测试 vs 调整阈值」方案与排期（只出方案，不改阈值、不写实现） | P1 | 已完成 | 否 | M1-T2 | 产出方案（差距清单/优先级/工作量/风险/替代阈值影响），用户选定后再拆实现任务 | 覆盖率报告 + 方案评审 |
-| M2-T2 | M2 | 按路线 B 修正覆盖率门禁口径：脚本正向限定分母、`DEVELOPMENT.md` 记口径与已知坑 | P1 | 待验收 | 是 | M2-T1 选定路线 B | 分母只含 `src/**`；阈值仍然生效；本地与 CI 同参数 | `npm run test:coverage` + 反向验证 |
+| M2-T2 | M2 | 按路线 B 修正覆盖率门禁口径：脚本正向限定分母、`DEVELOPMENT.md` 记口径与已知坑 | P1 | 已完成 | 否 | M2-T1 选定路线 B | 分母只含 `src/**`；阈值仍然生效；本地与 CI 同参数 | `npm run test:coverage` + 反向验证 |
+| M2-T3 | M2 | 路线 C 第一批：为 P0 零覆盖逻辑模块补测试（stats/ai/review 仓库、CSV 解析与导入、AI 单词数据生成、分页/洗牌/字节格式化） | P1 | 已完成 | 否 | M2-T2 | 新增模块全部进入分母且各自 ≥80%；测试不再依赖外部网络与真机 | `npm run test:coverage` + `npm run test` |
+| M2-T4 | M2 | 路线 C 第二批：把 P1 低覆盖模块补到 ≥80%（words/userProfile/settings/wrongBook 仓库、deepSeekService） | P1 | 已完成 | 否 | M2-T3 | 五个模块行/分支/函数均 ≥80%；行为断言覆盖既有分支而非仅执行 | `npm run test:coverage` |
 
 状态图例（精确枚举，不能写变体）：`未开始 / 进行中 / 待验收 / 已完成 / 已阻塞 / 已取消`
 
@@ -189,8 +193,8 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 | 建议 ID | 内容 | 预估 | 状态 |
 |---|---|---|---|
 | M2-T2 | 门禁口径修正：`include "**/src/**"` + `exclude "**/node_modules/**"`，`DEVELOPMENT.md` 记口径 | 0.5 天 | 已实施，见下节 |
-| M2-T3 | 补 P0 七个模块的测试（仓库/CSV/导航/AI/更新） | 1.5 天 | 未采纳（属路线 C），已转 §6 Backlog |
-| M2-T4 | 补 P1 八个模块至 ≥85%，含分支补齐 | 1.5 天 | 未采纳（属路线 C），已转 §6 Backlog |
+| M2-T3 | 补 P0 零覆盖模块的测试（仓库/CSV/AI 生成/工具函数） | 1.5 天 | 已完成（951071c） |
+| M2-T4 | 补 P1 低覆盖模块至 ≥80%，含分支补齐 | 1.5 天 | 已完成，见 §3 M2-T4 |
 
 **风险与回滚**
 
@@ -215,6 +219,34 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 - 风险/回滚：低；单行脚本参数，`git revert` 即可。CI（Linux）首次运行需观察一次 glob 匹配行为。
 - 自检记录（2026-11-17 13:11）：脚本改为 include `**/src/**` + exclude `**/node_modules/**`。`npm run test:coverage` 退出 0，行 85.08% / 分支 84.09% / 函数 82.99%；报告分母核对为 30 个 `src` 文件，无 shim、无 `tests/`、无 `tsx` 包内文件（唯一字符串匹配是命令回显本身）。反向验证：把 `--test-coverage-lines` 临时提到 99，退出码 1 并报 `85.08% line coverage does not meet threshold of 99%`，证明 include/exclude 没有架空阈值。`typecheck`/`lint`/`format:check`/`docs:check` 全过；`npm run test` 67/67。CI 侧 glob 行为待首次跑 CI 时确认（`**/src/**` 不含盘符，理论可移植）。
 
+### M2-T3：为 P0 零覆盖模块补测试（路线 C 第一批）
+
+- 背景/目的：M2-T1 查明分母只含"被测试加载过"的模块，因此 `statsRepository`、`aiRepository`、CSV 导入链路、AI 单词数据生成长期 0 覆盖却不出现在报告里——门禁绿并不代表这些代码被执行过。
+- 范围（做什么）：新增 `tests/repositories.test.ts`（统计聚合/复习提醒/AI 开关/复习选题）、`tests/wordImport.test.ts`（CSV 解析与导入）、`tests/aiWordData.test.ts`（DeepSeek 请求与解析、单词数据生成）、`tests/utils.test.ts`（分页/洗牌/字节格式化）；把三处重复的 Node SQLite 适配器抽为 `tests/helpers/nodeSqlite.ts`。
+- 非目标：不改生产代码、不改阈值、不为死代码补测、不动 `.tsx` 页面。
+- 涉及文件：4 个新测试文件 + 1 个测试夹具 + `tests/data.test.ts`（改为复用夹具）+ `package.json`（新增 `test:logic` 并把 4 个文件并入 `test`/`test:coverage`）。
+- 验收标准：新增模块进入分母且行覆盖 ≥80%；`npm run test` 与 `npm run test:coverage` 全过；不访问真实网络。
+- 验证方式：`npm run test:coverage`（分母 30 → 40 个文件）。
+- 风险/回滚：低；只加测试与测试脚本，`git revert` 单提交即可。
+- 自检记录（2026-11-17 13:25）：测试 67 → 116 项全过；覆盖率 85.08/84.09/82.99 → 89.78/86.87/86.98；`statsRepository` 100/96.55/100、`aiRepository` 100/94.12/100、`csv` 100/88.64/100、`importWordCsv` 100/100/100、`generateWordData` 92.86/92.31/100、分页与洗牌与字节格式化均 100/100/100。`typecheck`/`lint`/`format:check` 全过。
+- 研究发现（2026-11-17）：
+  - `studyRepository.recordTaskCompletion` 是死代码——全仓无引用，内容与 `completeTaskSession` 的 daily 分支重复。给死代码补测等于给它上保险，因此未补测，待用户决定是否删除。
+  - `utils/navigationActions.ts`、`utils/navigation.ts`、`services/updateService.ts` 在模块加载期依赖 `expo-router` 与 `expo-file-system`（实测 `Cannot find module 'expo-modules-core'`），Node 无法加载，按既有口径不纳入覆盖率，回归靠真机。
+  - 单列 CSV 会先触发 Papa 的 `Unable to auto-detect delimiting character`，走不到"缺少必要列"检查；已用测试固定该现有行为，未改代码。
+
+### M2-T4：把 P1 低覆盖模块补到 ≥80%（路线 C 第二批）
+
+- 背景/目的：M2-T1 的 P1 清单——`wordsRepository` 51.44%、`userProfileRepository` 59.20%、`settingsRepository` 68.10%、`wrongBookRepository` 72.12%、`deepSeekService` 64.02%。这些模块在分母里但写路径几乎没被执行过。
+- 范围（做什么）：新增 `tests/repositoryWrites.test.ts`：词库读写（软删/恢复/分页/查找/未学词选题）、资料读写（默认值/截断/钳制/upsert）、设置归一化与存取（含单表缺失的兜底）、错题本流转（记错/手动加入/移除/状态切换/来源解析排序）。
+- 非目标：不改生产代码与阈值；不补 `.tsx`；不覆盖 `studyRepository`（死代码）。
+- 涉及文件：`tests/repositoryWrites.test.ts`、`package.json`（并入 `test:logic`/`test:coverage`）。
+- 验收标准：五个模块行/分支 ≥80%，函数轴按真实函数计无缺口。
+- 验证方式：`npm run test:coverage` + V8 明细核对未覆盖函数。
+- 风险/回滚：低；只加测试。
+- 自检记录（2026-11-17 13:25）：测试 116 → 146 项全过；覆盖率 89.78/86.87/86.98 → **96.26/90.16/93.84**。`wordsRepository` 98.40/93.55/100、`userProfileRepository` 98.40/94.12/100、`wrongBookRepository` 96.67/93.10/100、`deepSeekService` 100/98.08/95.00、`settingsRepository` 98.57/98.70/73.53。
+- 口径发现（2026-11-17）：`settingsRepository` 的函数轴 73.53% 不是真实缺口。用 `NODE_V8_COVERAGE` 抓明细后确认，9 个"未覆盖函数"全是 `DailyTaskSettings` 与 `TaskSettingsRow` 里的类型成员（如 `autoRemoveCorrectWrongReview: boolean;`），被 esbuild 转成零长函数区间计入统计。四个目标模块的真实函数未覆盖数均为 0。**结论：函数覆盖率对有大型对象类型声明的文件永远到不了 100%，不应单独拿来判定门禁。**
+- 测试夹具修正（2026-11-17）：Node 的 `StatementSync.run()` 返回 `lastInsertRowid`，而 expo-sqlite 返回 `lastInsertRowId`，原夹具直接透传导致插入路径拿到 `undefined`（`upsertSingleWord` 返回 `undefined`）。已在夹具里映射字段并注明，避免"测试绿但语义错"。
+
 ## 4. 已完成
 
 | ID | 任务 | 完成日期 | 提交 | 验收结果 |
@@ -228,6 +260,9 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 | M1-T6b | 下沉首页概览与复习提醒（`index.tsx` 258→203） | 2026-11-17 | 4299839 | 通过：静态门禁全绿；`expo export` 退出 0；真机通过（三统计/头像正常、返回后刷新、提醒不重复） |
 | M1-T6c | 下沉两个添加页查重写入（414→372、176→144） | 2026-11-17 | c186a60 | 通过：静态门禁全绿；`expo export` 退出 0；真机通过（勾选添加、不存在/重复两种提示均正确） |
 | M2-T1 | 覆盖率门禁治理方案研究（查明 B-02 成因，产出四条测法对照与三路线） | 2026-11-17 | 253da1f | 通过：用户选定路线 B；方案含缺口清单/优先级/工作量/风险 |
+| M2-T2 | 覆盖率门禁口径修正（include `src/**` + exclude `node_modules`） | 2026-11-17 | 502c4dd / 3ff692e | 通过：退出 0、分母 30 个 src 文件；阈值提到 99 仍退出 1；用户 2026-11-17 指示继续路线 C，视为验收 |
+| M2-T3 | P0 零覆盖模块补测（4 个测试文件 + 共用夹具） | 2026-11-17 | 951071c | 通过：67 → 116 项；覆盖率 89.78/86.87/86.98；新增模块 ≥80% |
+| M2-T4 | P1 低覆盖模块补测（写入路径与归一化） | 2026-11-17 | 4012e42 | 通过：116 → 146 项；覆盖率 96.26/90.16/93.84；五模块真实函数缺口 0 |
 | B-01 | 修 `updateManifest` 清单版本断言 | 2026-11-04 | 61a26e5 | 通过：`test:coverage` 67/67 全过 |
 | （M0 历史任务明细不迁移，见 §5 里程碑记录） | | | | |
 
@@ -241,6 +276,7 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 | M0-产品完善 | 2026-10 | 存档、个人资料、关于页、主题、架构文档 | 完成 | P1-P6 阶段 | 见 git log | 无 |
 | M0-开源与发布 | 2026-10-22 | 开源发布 v0.1.0 → v1.0.0 | 完成 | R1-R6 阶段；签名/CI/Maestro/更新安装 | a39199e | 传递依赖审计项 |
 | M0-v1.0.0 | 2026-10-22 | 正式版发布验收 | 完成 | 67 测试全过、真机验收通过、APK 上架 Release | a39199e / 97ebe2f / 14c8f08 | 无 |
+| M2-覆盖率门禁治理 | 2026-11-17 | 让覆盖率门禁可信并补齐逻辑层真实缺口 | 完成 | 查明 B-02 为环境注入 + 分母失真；口径改为 include `src/**`；补测 P0/P1 共 8 个模块，测试 67 → 146 项，覆盖率 85.08/84.09/82.99 → 96.26/90.16/93.84 | 253da1f → 4012e42 | `studyRepository` 死代码待决定删除；theme.ts、`compareVersions`、`backNavigation`、`archiveSnapshot` 分支仍有真实缺口（见 §6） |
 | M1-文档迁移与结构重构 | 2026-11-04 → 2026-11-17 | 文档替换后门禁恢复、超限设置页拆分、页面流程下沉 | 完成 | 八文档契约 + `check-docs.mjs` 适配 + 死链清零；about/profile/word-library 三页拆分；完成页/首页/两个添加页的编排下沉为 hook | 9a8e8bd → c186a60 | 覆盖率门禁成因待查明（B-02 → M2-T1，已于 2026-11-17 查明为环境注入 + 分母失真，非测试不足） |
 
 > M0 详细历史见 `.adoption/backup/` 中迁移前的 PHASE_HISTORY 文档（替换后）。
@@ -250,7 +286,9 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 | 任务 | 价值 | 依赖/前提 | 排期 |
 |---|---|---|---|
 | B-02 覆盖率门禁治理 | 门禁可信度 | 已由 M2-T1 查明（环境注入 7pp 漂移 + 分母只含 30/132 文件），M2-T2 按路线 B 修正口径 | 已完成（待 M2-T2 验收） |
-| 补齐逻辑层测试（M2-T1 方案的路线 C） | 把 `statsRepository`/`studyRepository`/`aiRepository`/`csv.ts`/`navigationActions.ts`/`updateService.ts` 等 P0 零覆盖模块，以及 `wordsRepository`（行 51.44%/函数 44.44%）、`userProfileRepository`（59.20%）、`settingsRepository`（68.10%）、`deepSeekService`（64.02%）、`wrongBookRepository`（72.12%）补到 80%+ | 无硬依赖；口径已由 M2-T2 修正 | 待评估（用户 2026-11-17 未采纳路线 C） |
+| P0/P1 逻辑层补测（路线 C） | 8 个模块从零覆盖/低覆盖补到 ≥80% | 已完成 M2-T3、M2-T4（测试 67 → 146 项，覆盖率 96.26/90.16/93.84） | 已完成（2026-11-17） |
+| 删除死代码 `studyRepository.recordTaskCompletion` | 全仓无引用，与 `completeTaskSession` 的 daily 分支重复；保留会让后续维护误以为两处都要改 | 无；删除后需复跑 `test:coverage` 确认无引用链 | 待用户批准（删生产代码属破坏性操作） |
+| 剩余真实覆盖缺口 | `constants/theme.ts` 函数 65.52%（`normalizeHex`/`hexToRgb` 等未覆盖）、`features/updates/updateManifest.ts` 的 `compareVersions` 未覆盖（版本比较直接影响更新判定）、`utils/backNavigation.ts` 的定时器分支、`archiveSnapshot.ts` 分支 69.19% | 无硬依赖 | 待评估（不影响 80% 门禁，但属真实风险） |
 | 传递依赖审计项治理 | 消除 audit 噪音 | 不降级 Expo 的前提 | 待评估 |
 | 新功能需求 | 待用户提出 | M1 完成 | 待定 |
 

@@ -1,6 +1,6 @@
 # 项目信息
 
-最后更新：2026-11-17 13:11
+最后更新：2026-11-17 13:25
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 三批确认 + 完成宣告）
 
@@ -71,7 +71,7 @@
 | 语言/框架 | TypeScript ~6.0.3、Expo SDK 57、React Native 0.86.3、React 19.2.3 |
 | 路由 | Expo Router（`src/app/` 文件路由） |
 | 数据存储 | SQLite v21（`vocabulary.db`，WAL + 外键，显式迁移注册表） |
-| 测试/构建 | Node 内置 test runner + tsx（67 项，覆盖率阈值 80%）；`npm run check` 六合一门禁 |
+| 测试/构建 | Node 内置 test runner + tsx（146 项，覆盖率阈值 80%）；`npm run check` 六合一门禁 |
 | 运行平台/系统 | 仅 Android（最低 API 24，目标 API 36）；Expo Go 开发运行 |
 | 设备/硬件 | 验收真机：一加 Ace 2（Android 16） |
 | 网络/离线 | 核心功能全离线；仅 DeepSeek 补齐、检查更新、下载 APK 时联网 |
@@ -208,7 +208,8 @@
 | CH1 | 2026-11-04 | adoption 迁移建立本文档 | 初始版本 | 由 PROJECT_CONTEXT+REQUIREMENTS 重组 | 已确认 |
 | CH2 | 2026-11-17 | M1 完成，同步当前状态与下一里程碑 | §14 Q1/Q2 转为已决；§15 已完成/进行中；§17 改指 M2 | 依据 ROADMAP + 批次 A/B 验收结果同步 | 已确认 |
 | CH3 | 2026-11-17 | 纠正 B-02 的成因表述 | §15 已知问题：覆盖率不达标的记录改为"环境注入 + 分母失真"，并补口径缺失项 | 依据 M2-T1 实测（A/B/C 三种测法对照） | 待用户评审 |
-| CH4 | 2026-11-17 | 按路线 B 修正覆盖率门禁 | §15 已知问题：B-02 关闭并改写为口径已修；逻辑层真实缺口转 Backlog | M2-T2 落地（脚本 + 三份文档同步） | 待用户验收 |
+| CH4 | 2026-11-17 | 按路线 B 修正覆盖率门禁 | §15 已知问题：B-02 关闭并改写为口径已修；逻辑层真实缺口转 Backlog | M2-T2 落地（脚本 + 三份文档同步） | 已确认 |
+| CH5 | 2026-11-17 | 按路线 C 补齐逻辑层测试 | §15 已完成补 M2；已知问题改写为「缺口已补 + 函数轴口径限制 + 剩余真实缺口」；§17 改为无下一里程碑；§11 测试基线 146 项 | M2-T3（951071c）+ M2-T4 落地 | 待用户验收 |
 
 ## 14. 阶段确认记录
 
@@ -225,17 +226,22 @@
 
 - v1.0.0 全部 Must 功能（F1-F10）与成功标准（SC1-SC10），正式签名 APK 已发布
 - M1 文档迁移收尾与结构重构（2026-11-17 完成）：八文档契约 + `docs:check` 适配 + 死链清零；about/profile/word-library 三个超限页拆分；完成页、首页、两个添加页的编排下沉为 `features/*` hook；批次 A/B 真机验收全部通过
-- 质量体系：67 项测试全过、CI、Maestro 真机链路、性能预算；覆盖率门禁按路线 B 修正口径后实测 85.08%/84.09%/82.99%（分母为 `src/**` 中被测试加载的 30 个模块，`.tsx` 不纳入，见 `ROADMAP.md` M2-T2）
+- M2 覆盖率门禁治理（2026-11-17 完成）：口径改为 include `src/**` + exclude `node_modules`；按路线 C 补齐 P0/P1 共 8 个模块的测试，测试 67 → 146 项，覆盖率 85.08%/84.09%/82.99% → 96.26%/90.16%/93.84%（分母为 `src/**` 中被测试加载的 40 个模块，`.tsx` 不纳入）
+- 质量体系：146 项测试全过、CI、Maestro 真机链路、性能预算
 
 ### 进行中
 
-- 无。M2-T1 已产出方案并停 `待验收`，等用户选定路线；M2 之后的计划 2026-11-17 用户明确「先搁置，下次再制订」
+- 无。M1、M2 均已完成（M2 于 2026-11-17 完成）；后续计划 2026-11-17 用户明确「先搁置，下次再制订」
 
 ### 已知问题
 
 - 真机验收批次化（2026-11-04 决定，2026-11-17 批次 A 已通过）：同一批文件搬移类任务的真机项可累积；期间以静态门禁 + 样式等价审计 + `expo export` 打包作为替代验证。注意该替代验证不覆盖交互时序，改调用链的任务（如流程下沉）仍需单独验收
 - B-02 已关闭：历史记录的 72.72%/79.27%/73.43% 不可复现，成因是本机 Node 被注入外部 shim 并计入覆盖率分母（7pp 偏差）；真问题是分母只含 30/132 个源文件。M2-T2 已改为 include `src/**` + exclude `node_modules`，`DEVELOPMENT.md` 与 `ACCEPTANCE.md` 均已写明口径，65 个 `.tsx` 不纳入覆盖率、靠 Maestro 与真机验收
-- 逻辑层仍有真实缺口（路线 C 未采纳，记 Backlog）：`statsRepository`/`studyRepository`/`aiRepository`/`csv.ts`/`navigationActions.ts`/`updateService.ts` 零覆盖；`wordsRepository` 行 51.44%、`userProfileRepository` 59.20%、`settingsRepository` 68.10%、`deepSeekService` 64.02%、`wrongBookRepository` 72.12%
+- 逻辑层 P0/P1 缺口已由 M2-T3/M2-T4 补齐：`statsRepository`/`aiRepository`/`csv`/`importWordCsv` 100% 行覆盖；`wordsRepository` 98.40%、`userProfileRepository` 98.40%、`settingsRepository` 98.57%、`wrongBookRepository` 96.67%、`deepSeekService` 100%
+- 覆盖率函数轴不可单独用于判定：esbuild 把 TS 类型成员（如 `autoRemoveCorrectWrongReview: boolean;`）转成零长函数区间计入统计，`settingsRepository` 因此显示函数 73.53% 而真实函数未覆盖数为 0。全仓同类情况的文件不能靠"函数到 100%"验收（`ROADMAP.md` M2-T4 自检记录）
+- 剩余真实缺口（不影响 80% 门禁，记 Backlog）：`constants/theme.ts` 函数 65.52%（`normalizeHex`/`hexToRgb` 未覆盖）、`features/updates/updateManifest.ts` 的 `compareVersions` 未覆盖（直接影响更新判定）、`utils/backNavigation.ts` 定时器分支、`archiveSnapshot.ts` 分支 69.19%
+- 死代码 `studyRepository.recordTaskCompletion` 全仓无引用（与 `completeTaskSession` 的 daily 分支重复），未补测，删除需用户批准
+- `utils/navigationActions.ts`、`utils/navigation.ts`、`services/updateService.ts` 在模块加载期依赖 `expo-router`/`expo-file-system`，Node 无法加载，不在覆盖率范围内，回归靠真机
 - Expo/Metro/Router 传递依赖审计项存在；禁止降级 Expo 强制修复（源 PROJECT_CONTEXT 已知限制）
 
 ### 风险
@@ -256,8 +262,7 @@
 
 ## 17. 下一个里程碑
 
-- 里程碑：M2 覆盖率门禁治理（见 `ROADMAP.md`）
-- 目标：修正覆盖率门禁的口径与分母范围，让绿/红反映真实质量，再补齐关键逻辑层缺口
-- 下一个任务：无（M2-T2 口径修正已自检完成、停 `待验收`；路线 C 的补测部分未采纳，留在 Backlog，M2 之后的计划 2026-11-17 用户明确「先搁置」）
-- 已具备前提：M1 全部任务完成，批次 A/B 真机验收通过，`npm run check` 除覆盖率口径外全绿
-- 验收标准：方案含差距清单/优先级/工作量/风险/阈值影响，经用户选定后再拆实现任务
+- 里程碑：无。M1、M2 均已完成（见 `ROADMAP.md` §5）
+- 下一个任务：无。2026-11-17 用户明确 M2 之后的计划先搁置，下次由用户制订后推进；Backlog 不预先立项
+- 当前门禁：`npm run check` 全绿（覆盖率 96.26%/90.16%/93.84%，阈值 80%）
+- 备查：Backlog 里列了死代码删除、剩余真实覆盖缺口、传递依赖审计三项，均待用户决定
