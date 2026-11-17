@@ -2,8 +2,6 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
-import type { SQLiteDatabase } from 'expo-sqlite';
-
 import {
   loadDailyTaskSelection,
   loadWordReviewSelection,
@@ -38,141 +36,13 @@ import {
   stringifyArchive,
 } from '../src/features/archive/archiveSnapshot';
 import { parseGeneratedWordDataResponse } from '../src/services/deepSeekService';
-
-type SqlParams = Record<string, number | string | null>;
-
-class NodeSqliteAdapter {
-  constructor(readonly db: DatabaseSync) {}
-
-  async execAsync(source: string): Promise<void> {
-    this.db.exec(source);
-  }
-
-  async getAllAsync<T>(source: string, ...params: unknown[]): Promise<T[]> {
-    const statement = this.db.prepare(source);
-    const rows =
-      params.length === 1 && typeof params[0] === 'object'
-        ? statement.all(params[0] as SqlParams)
-        : statement.all(...(params as (number | string | null)[]));
-    return rows as T[];
-  }
-
-  async getFirstAsync<T>(
-    source: string,
-    ...params: unknown[]
-  ): Promise<T | null> {
-    const statement = this.db.prepare(source);
-    const row =
-      params.length === 1 && typeof params[0] === 'object'
-        ? statement.get(params[0] as SqlParams)
-        : statement.get(...(params as (number | string | null)[]));
-    return (row ?? null) as T | null;
-  }
-
-  async runAsync(source: string, ...params: unknown[]): Promise<unknown> {
-    const statement = this.db.prepare(source);
-    return params.length === 1 && typeof params[0] === 'object'
-      ? statement.run(params[0] as SqlParams)
-      : statement.run(...(params as (number | string | null)[]));
-  }
-
-  async withExclusiveTransactionAsync(
-    task: (transaction: NodeSqliteAdapter) => Promise<void>,
-  ): Promise<void> {
-    this.db.exec('BEGIN IMMEDIATE');
-    try {
-      await task(this);
-      this.db.exec('COMMIT');
-    } catch (error) {
-      this.db.exec('ROLLBACK');
-      throw error;
-    }
-  }
-
-  async withTransactionAsync(task: () => Promise<void>): Promise<void> {
-    this.db.exec('BEGIN');
-    try {
-      await task();
-      this.db.exec('COMMIT');
-    } catch (error) {
-      this.db.exec('ROLLBACK');
-      throw error;
-    }
-  }
-}
-
-async function createMigratedAdapter(): Promise<NodeSqliteAdapter> {
-  const adapter = new NodeSqliteAdapter(new DatabaseSync(':memory:'));
-  await migrateDatabase(asDatabase(adapter));
-  return adapter;
-}
-
-function asDatabase(adapter: NodeSqliteAdapter): SQLiteDatabase {
-  return adapter as unknown as SQLiteDatabase;
-}
-
-async function insertTestWord(
-  adapter: NodeSqliteAdapter,
-  options: {
-    exampleSentence?: string;
-    id: number;
-    isActive?: boolean;
-    learningStatus?: 'learned' | 'unlearned' | 'wrong';
-    phonetic?: string;
-    word: string;
-  },
-): Promise<void> {
-  const now = '2026-10-19T10:00:00.000Z';
-  await adapter.runAsync(
-    `INSERT INTO words (
-       id, word, meaning, phonetic, created_at, updated_at,
-       is_active, learning_status, example_sentence,
-       example_source, example_generated_at
-     ) VALUES (
-       $id, $word, $meaning, $phonetic, $now, $now,
-       $isActive, $status, $example, '', NULL
-     )`,
-    {
-      $example: options.exampleSentence ?? '',
-      $id: options.id,
-      $isActive: options.isActive === false ? 0 : 1,
-      $meaning: options.word,
-      $now: now,
-      $phonetic: options.phonetic ?? '',
-      $status: options.learningStatus ?? 'unlearned',
-      $word: options.word,
-    },
-  );
-}
-
-async function insertWrongBookEntry(
-  adapter: NodeSqliteAdapter,
-  wordId: number,
-  sources: readonly string[],
-  wrongCount = 1,
-  now = '2026-10-19T10:00:00.000Z',
-): Promise<void> {
-  await adapter.runAsync(
-    `INSERT INTO wrong_book_words (
-       word_id, added_at, last_wrong_at, wrong_count
-     ) VALUES ($wordId, $now, $now, $wrongCount)`,
-    {
-      $now: now,
-      $wordId: wordId,
-      $wrongCount: wrongCount,
-    },
-  );
-  for (const source of sources) {
-    await adapter.runAsync(
-      `INSERT INTO wrong_book_sources (word_id, source)
-       VALUES ($wordId, $source)`,
-      {
-        $source: source,
-        $wordId: wordId,
-      },
-    );
-  }
-}
+import {
+  asDatabase,
+  createMigratedAdapter,
+  insertTestWord,
+  insertWrongBookEntry,
+  NodeSqliteAdapter,
+} from './helpers/nodeSqlite';
 
 function convertSettingsToLegacyArchive(archive: {
   databaseVersion: number;

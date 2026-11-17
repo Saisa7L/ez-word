@@ -54,8 +54,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"plugins/**/*.cjs\" \".github/**/*.yml\" \"*.{js,json,ts}\"",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:data && npm run test:task && npm run test:navigation",
-    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-coverage-include=\"**/src/**\" --test-coverage-exclude=\"**/node_modules/**\" --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
+    "test": "npm run test:data && npm run test:logic && npm run test:task && npm run test:navigation",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-coverage-include=\"**/src/**\" --test-coverage-exclude=\"**/node_modules/**\" --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts tests/repositories.test.ts tests/wordImport.test.ts tests/aiWordData.test.ts tests/utils.test.ts",
     "test:data": "tsx --test tests/data.test.ts",
     "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
     "test:navigation": "tsx --test tests/navigationLock.test.ts",
@@ -64,7 +64,8 @@
     "docs:check": "node scripts/check-docs.mjs",
     "perf:budget": "node scripts/performance-budget.mjs",
     "build:android:release": "node scripts/build-android-release.mjs",
-    "check:release": "npm run check && npx expo export --platform android --output-dir .expo/check && npm run perf:budget"
+    "check:release": "npm run check && npx expo export --platform android --output-dir .expo/check && npm run perf:budget",
+    "test:logic": "tsx --test tests/repositories.test.ts tests/wordImport.test.ts tests/aiWordData.test.ts tests/utils.test.ts"
   },
   "private": true
 }
