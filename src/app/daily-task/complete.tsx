@@ -1,7 +1,6 @@
 import { useFocusEffect, useNavigation } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
 import { ArrowLeft } from 'lucide-react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback } from 'react';
 import {
   ActivityIndicator,
   BackHandler,
@@ -17,12 +16,12 @@ import { SurfaceCard } from '@/components/SurfaceCard';
 import { TaskPhasePlaceholder } from '@/components/TaskPhasePlaceholder';
 import { shadow, type ThemeColors } from '@/constants/theme';
 import { uiAssets } from '@/constants/uiAssets';
-import { completeTaskSession } from '@/database/taskCompletionRepository';
 import {
   useDailyTaskMistakes,
   useDailyTaskSession,
 } from '@/features/daily-task/DailyTaskProvider';
 import { getTaskTitle } from '@/features/daily-task/taskPresentation';
+import { useTaskCompletion } from '@/features/daily-task/useTaskCompletion';
 import { useDailyTaskPhaseGuard } from '@/hooks/useDailyTaskPhaseGuard';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
 import { resetToHomeOnce, type AppNavigation } from '@/utils/navigationActions';
@@ -34,19 +33,13 @@ function formatDuration(totalSeconds: number): string {
 }
 
 export default function DailyTaskCompleteScreen() {
-  const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
-  const { durationSeconds, resetTask, taskMode, taskSettings, words } =
-    useDailyTaskSession();
-  const { fillMistakeWordIds, listeningMistakeWordIds, wrongWordIds } =
-    useDailyTaskMistakes();
+  const { durationSeconds, resetTask, taskMode, words } = useDailyTaskSession();
+  const { wrongWordIds } = useDailyTaskMistakes();
   const navigation = useNavigation<AppNavigation>('/');
   const taskReady = useDailyTaskPhaseGuard('completed');
-  const completionStartedRef = useRef(false);
-  const [completionState, setCompletionState] = useState<
-    'error' | 'saved' | 'saving'
-  >('saving');
+  const { retry, state: completionState } = useTaskCompletion(taskReady);
   const taskTitle = getTaskTitle(taskMode);
   const learnedLabel =
     taskMode === 'daily'
@@ -55,51 +48,12 @@ export default function DailyTaskCompleteScreen() {
         ? '本次回顾单词'
         : '本次练习单词';
 
-  const saveCompletion = useCallback(async () => {
-    if (completionStartedRef.current || words.length === 0) {
-      return;
-    }
-
-    completionStartedRef.current = true;
-    try {
-      await completeTaskSession(db, {
-        autoRemoveCorrectWrongReview: taskSettings.autoRemoveCorrectWrongReview,
-        fillMistakeWordIds: [...fillMistakeWordIds],
-        listeningMistakeWordIds: [...listeningMistakeWordIds],
-        mode: taskMode,
-        wordIds: words.map((word) => word.id),
-      });
-      setCompletionState('saved');
-    } catch {
-      completionStartedRef.current = false;
-      setCompletionState('error');
-    }
-  }, [
-    db,
-    fillMistakeWordIds,
-    listeningMistakeWordIds,
-    taskMode,
-    taskSettings.autoRemoveCorrectWrongReview,
-    words,
-  ]);
-
   const handleHome = useCallback(() => {
     if (completionState === 'saving') {
       return;
     }
     resetToHomeOnce(navigation, resetTask);
   }, [completionState, navigation, resetTask]);
-
-  useEffect(() => {
-    if (!taskReady) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      void saveCompletion();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [saveCompletion, taskReady]);
 
   useFocusEffect(
     useCallback(() => {
@@ -161,10 +115,7 @@ export default function DailyTaskCompleteScreen() {
             </Text>
             <Pressable
               accessibilityRole="button"
-              onPress={() => {
-                setCompletionState('saving');
-                void saveCompletion();
-              }}
+              onPress={retry}
               style={({ pressed }) => [
                 styles.retryButton,
                 pressed && styles.pressed,
