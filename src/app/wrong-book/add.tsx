@@ -1,5 +1,5 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -15,20 +15,16 @@ import { PaginationBar } from '@/components/PaginationBar';
 import { SelectionMarker } from '@/components/SelectionMarker';
 import { radii, type ThemeColors } from '@/constants/theme';
 import type { WordRecord } from '@/database/wordsRepository';
-import { findWordByWord } from '@/database/wordsRepository';
 import {
-  addWrongBookWord,
-  addWrongBookWords,
   countAvailableWordsForWrongBook,
   listAvailableWordsForWrongBook,
 } from '@/database/wrongBookRepository';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useWrongBookAdd } from '@/features/wrong-book/useWrongBookAdd';
 import { usePaginatedSelection } from '@/hooks/usePaginatedSelection';
 import { useSafeBackNavigation } from '@/hooks/useSafeBackNavigation';
 
 const PAGE_SIZE = 5;
-
-type AddMode = 'existing' | 'manual';
 
 export default function AddWrongBookWordScreen() {
   const db = useSQLiteContext();
@@ -36,9 +32,15 @@ export default function AddWrongBookWordScreen() {
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const handleBack = useSafeBackNavigation();
-  const [mode, setMode] = useState<AddMode>('existing');
-  const [isSaving, setIsSaving] = useState(false);
-  const [manualWord, setManualWord] = useState('');
+  const {
+    addManual,
+    addSelected,
+    isSaving,
+    manualWord,
+    mode,
+    setManualWord,
+    setMode,
+  } = useWrongBookAdd({ notify: showNotice, onAdded: handleBack });
 
   const loadPage = useCallback(
     async (targetPageIndex: number) => {
@@ -68,50 +70,6 @@ export default function AddWrongBookWordScreen() {
     loadPage,
     pageSize: PAGE_SIZE,
   });
-
-  async function handleAddSelected() {
-    if (selectedIds.size === 0 || isSaving) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      await addWrongBookWords(db, [...selectedIds], 'manual');
-      handleBack();
-    } catch {
-      showNotice('添加失败', '无法加入错题本，请稍后重试');
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  async function handleManualAdd() {
-    const word = manualWord.trim();
-
-    if (!word) {
-      showNotice('请输入单词', '单词不能为空');
-      return;
-    }
-
-    if (isSaving) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const existing = await findWordByWord(db, word);
-      if (!existing) {
-        showNotice('单词不存在', `当前词库中没有“${word}”，请先导入该单词`);
-        return;
-      }
-      await addWrongBookWord(db, existing.id, 'manual');
-      handleBack();
-    } catch {
-      showNotice('添加失败', '无法保存并加入错题本，请稍后重试');
-    } finally {
-      setIsSaving(false);
-    }
-  }
 
   return (
     <GreenSheetScreen onBack={handleBack} title="添加错题">
@@ -210,7 +168,7 @@ export default function AddWrongBookWordScreen() {
               accessibilityRole="button"
               disabled={selectedIds.size === 0 || isSaving}
               onPress={() => {
-                void handleAddSelected();
+                void addSelected(selectedIds);
               }}
               style={({ pressed }) => [
                 styles.addSelectedButton,
@@ -246,7 +204,7 @@ export default function AddWrongBookWordScreen() {
               accessibilityRole="button"
               disabled={isSaving}
               onPress={() => {
-                void handleManualAdd();
+                void addManual();
               }}
               style={({ pressed }) => [
                 styles.manualAddButton,

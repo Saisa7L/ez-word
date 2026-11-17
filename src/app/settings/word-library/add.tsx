@@ -1,5 +1,3 @@
-import { useSQLiteContext } from 'expo-sqlite';
-import { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,55 +10,25 @@ import {
 import { GreenSheetScreen } from '@/components/GreenSheetScreen';
 import { useAppFeedback } from '@/components/AppFeedbackProvider';
 import { radii, type ThemeColors } from '@/constants/theme';
-import { findWordByWord, upsertSingleWord } from '@/database/wordsRepository';
 import { useAppTheme, useThemedStyles } from '@/features/theme/ThemeProvider';
+import { useWordAdd } from '@/features/word-library/useWordAdd';
 import { useSettingsBackNavigation } from '@/hooks/useSettingsBackNavigation';
 
 export default function AddLibraryWordScreen() {
-  const db = useSQLiteContext();
   const { colors } = useAppTheme();
   const styles = useThemedStyles(createStyles);
   const { showNotice } = useAppFeedback();
   const handleBack = useSettingsBackNavigation();
-  const [word, setWord] = useState('');
-  const [meaning, setMeaning] = useState('');
-  const [phonetic, setPhonetic] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-
-  async function handleAdd() {
-    const cleanWord = word.trim();
-    const cleanMeaning = meaning.trim();
-    const cleanPhonetic = phonetic.trim();
-
-    if (!cleanWord || !cleanMeaning || !cleanPhonetic) {
-      showNotice('信息不完整', '单词、释义和音标都必须填写');
-      return;
-    }
-
-    if (isSaving) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const existing = await findWordByWord(db, cleanWord);
-      if (existing?.is_active === 1) {
-        showNotice('单词已存在', `“${cleanWord}”已经在当前词库中`);
-        return;
-      }
-
-      await upsertSingleWord(db, {
-        meaning: cleanMeaning,
-        phonetic: cleanPhonetic,
-        word: cleanWord,
-      });
-      handleBack();
-    } catch {
-      showNotice('添加失败', '无法添加单词，请稍后重试');
-    } finally {
-      setIsSaving(false);
-    }
-  }
+  const {
+    addWord,
+    isSaving,
+    meaning,
+    phonetic,
+    setMeaning,
+    setPhonetic,
+    setWord,
+    word,
+  } = useWordAdd({ notify: showNotice, onAdded: handleBack });
 
   return (
     <GreenSheetScreen onBack={handleBack} title="添加单词">
@@ -107,7 +75,7 @@ export default function AddLibraryWordScreen() {
           accessibilityRole="button"
           disabled={isSaving}
           onPress={() => {
-            void handleAdd();
+            void addWord();
           }}
           style={({ pressed }) => [
             styles.addButton,
