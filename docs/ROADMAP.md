@@ -1,6 +1,6 @@
 # 开发路线图
 
-最后更新：2026-11-17 13:27
+最后更新：2026-11-17 14:19
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 1 + 完成宣告）
 
@@ -287,10 +287,10 @@ P2 —— 结构性不可测：65 个 `.tsx`（页面与展示组件）依赖 re
 |---|---|---|---|
 | B-02 覆盖率门禁治理 | 门禁可信度 | 已由 M2-T1 查明（环境注入 7pp 漂移 + 分母只含 30/132 文件），M2-T2 按路线 B 修正口径 | 已完成（待 M2-T2 验收） |
 | P0/P1 逻辑层补测（路线 C） | 8 个模块从零覆盖/低覆盖补到 ≥80% | 已完成 M2-T3、M2-T4（测试 67 → 146 项，覆盖率 96.26/90.16/93.84） | 已完成（2026-11-17） |
-| 删除死代码 `studyRepository.recordTaskCompletion` | 全仓无引用，与 `completeTaskSession` 的 daily 分支重复；保留会让后续维护误以为两处都要改 | 无；删除后需复跑 `test:coverage` 确认无引用链 | 待用户批准（删生产代码属破坏性操作） |
+| 删除死代码 `studyRepository.recordTaskCompletion` | 全仓无引用，与 `completeTaskSession` 的 daily 分支重复；保留会让后续维护误以为两处都要改。来历：`b408c30`（F5 每日任务）由 `listening.tsx` 调用，`b60ccc0` 重构把完成写入集中到 `complete.tsx` + `completeTaskSession` 后未删文件，从此死亡；`225931b` 因 schema 删除 `learned_count` 还被迫改过它一次（死代码仍在产生维护成本） | 无；删除后需复跑 `test:coverage` 确认无引用链 | 待用户批准（删生产代码属破坏性操作） |
 | 剩余真实覆盖缺口 | `constants/theme.ts` 函数 65.52%（`normalizeHex`/`hexToRgb` 等未覆盖）、`features/updates/updateManifest.ts` 的 `compareVersions` 未覆盖（版本比较直接影响更新判定）、`utils/backNavigation.ts` 的定时器分支、`archiveSnapshot.ts` 分支 69.19% | 无硬依赖 | 待评估（不影响 80% 门禁，但属真实风险） |
-| expo 补丁版本升级 | 修掉 doctor 唯一红项（7 个包有新补丁） | 需 `npx expo install --check` 升级后复跑 `check:release` 与真机；不得降级 | 待用户决定（与 M2 无关，属依赖漂移） |
-| 传递依赖审计项治理 | 消除 audit 噪音 | 不降级 Expo 的前提 | 待评估 |
+| expo 补丁版本升级 | 修掉 doctor 唯一红项（7 个包有新补丁） | 需 `npx expo install --check` 升级后复跑 `check:release` 与真机；不得降级 | **2026-11-17 用户决定不单独升级**：无必须升级的理由，改为下次发版构建时统一升级。唯一值得留意的是 expo-sqlite 57.0.5（修复「一次 database is locked 后同连接后续事务永久失败」，属原生修复，需重新构建 APK 才生效） |
+| 传递依赖审计项治理 | `npm audit` 报 13 项（6 high / 7 moderate），已核实全部落在构建期工具链（`@expo/cli`、`eslint-config-expo`、metro 相关）与应用内 URL 解析（`expo-router → query-string → decode-uri-component`），不进 APK 运行时主路径。2026-11-17 判定为非阻塞：不 `audit fix --force`（会降级 Expo），随下次 SDK 升级自然消化 | 不降级 Expo 的前提 | 待 SDK 升级时复核 |
 | 新功能需求 | 待用户提出 | M1 完成 | 待定 |
 
 ## 7. 风险与阻塞
