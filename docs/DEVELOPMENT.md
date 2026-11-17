@@ -1,6 +1,6 @@
 # 开发指南
 
-最后更新：2026-11-04 17:00
+最后更新：2026-11-17 13:11
 
 ## 1. 环境
 
@@ -50,6 +50,8 @@ npm run check
 
 不要跳过失败项；不能运行时说明原因和剩余风险。测试基线：67 项全过。数据层测试运行在 Node 内置 SQLite 上，出现 `ExperimentalWarning: SQLite` 属运行环境提示，不代表失败。
 
+覆盖率口径（2026-11-17 起）：`test:coverage` 用 `--test-coverage-include="**/src/**"` + `--test-coverage-exclude="**/node_modules/**"` 正向限定分母，**只统计 `src/` 内可被 Node 加载的模块**。两点须知：① 65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在覆盖率范围内，回归靠 Maestro 与真机验收，不要为此调低阈值；② include 必须与 exclude 成对使用，只写 `include "**/src/**"` 会把 `tsx` 包内路径含 `src` 的文件（`common.js`/`index.js`/`node.js`）计入分母，使总数从 85% 掉到 80.99%（实测）。修改这两个参数后在 CI 与本机各跑一次，确认分母一致。
+
 `npm run docs:check`（`scripts/check-docs.mjs`）按八文档契约校验：六份 docs 文档 + 根 `README.md`/`AGENTS.md` 等公开文件齐全；`docs/README.md` 索引覆盖六份文档与两份根文档；每份 docs 文档的"最后更新"精确到分钟；正文中反引号包裹的 npm 脚本引用在 `package.json` 中真实存在；正文引用的 `.md` 与 `samples/` 路径真实存在；根文档（`AGENTS/CONTRIBUTING/PRIVACY/README/SECURITY/THIRD_PARTY_NOTICES`）里的本地 Markdown 链接可解析。文档增删改结构时同步改这里的清单。
 
 ## 5. 测试策略
@@ -59,7 +61,7 @@ npm run check
 - E2E/真机：`.maestro/` 冒烟链路 + 手动验收清单（见 `ACCEPTANCE.md`）。
 - 测试数据：`docs/samples/` CSV 样例。
 - mock 规则：无 mock 框架；网络/文件服务保持薄封装，纯逻辑单独测试。
-- 覆盖率基准：行/分支/函数 ≥80%（`test:coverage` 内置阈值）。
+- 覆盖率基准：行/分支/函数 ≥80%，分母为 `src/**` 中被测试加载到的模块（见 §4 口径说明）；`src/**/*.tsx` 不纳入，靠 Maestro 与真机验收。
 
 ## 6. Git 流程
 

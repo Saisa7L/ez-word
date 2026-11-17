@@ -55,7 +55,7 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "npm run test:data && npm run test:task && npm run test:navigation",
-    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
+    "test:coverage": "node --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-coverage-include=\"**/src/**\" --test-coverage-exclude=\"**/node_modules/**\" --import tsx --test tests/data.test.ts tests/taskReducer.test.ts tests/navigationLock.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
     "test:data": "tsx --test tests/data.test.ts",
     "test:task": "tsx --test tests/taskReducer.test.ts tests/fitWordText.test.ts tests/accessibility.test.ts tests/observability.test.ts tests/androidReleaseConfig.test.ts tests/studyDate.test.ts tests/updateManifest.test.ts",
     "test:navigation": "tsx --test tests/navigationLock.test.ts",

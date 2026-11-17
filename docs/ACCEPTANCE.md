@@ -34,7 +34,7 @@
 | 构建+预算 | `npm run check:release` | 通过 | Android 导出 + 性能预算 |
 | CI | GitHub Actions | 通过 | workflow 39781459561 全绿 |
 
-> 覆盖率口径（2026-11-17 补充）：`--experimental-test-coverage` 只统计**被测试文件加载过**的模块。132 个源文件中仅 30 个进入分母，65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在统计范围内。因此上表「≥80%」的含义是「对已加载模块的覆盖率」，不等于全项目覆盖率；纯项目代码实测 85.08%/84.09%/82.99%（推荐门禁口径）。口径修正方案见 `ROADMAP.md` M2-T1。
+> 覆盖率口径（2026-11-17 补充）：`--experimental-test-coverage` 只统计**被测试文件加载过**的模块。132 个源文件中仅 30 个进入分母，65 个 `.tsx`（页面与展示组件）依赖 react-native/expo，Node 无法加载，不在统计范围内。因此上表「≥80%」的含义是「对已加载模块的覆盖率」，不等于全项目覆盖率；纯项目代码实测 85.08%/84.09%/82.99%（推荐门禁口径）。2026-11-17 起 `test:coverage` 已用 `--test-coverage-include="**/src/**"` 限定分母（`ROADMAP.md` M2-T2），口径与 `DEVELOPMENT.md` §4 一致。
 
 ## 4. 功能验收（v1.0.0 快照，全部通过）
 
