@@ -1,6 +1,6 @@
 # 设计与架构
 
-最后更新：2026-11-04 17:40
+最后更新：2026-11-17 12:49
 状态：已确认（2026-11-04）
 确认记录：已确认（2026-11-04，adoption 批次 2，deep 数据核对零冲突）
 
@@ -88,11 +88,15 @@ flowchart TD
 
 | 模块 | 作用 | 主要入口 |
 |---|---|---|
-| `features/daily-task` | 每日任务状态机、题目生成、填空/听力区块 | `taskReducer.ts`、`DailyTaskProvider.tsx` |
+| `features/daily-task` | 每日任务状态机、题目生成、填空/听力区块、完成结算流程 | `taskReducer.ts`、`DailyTaskProvider.tsx`、`useTaskCompletion.ts` |
 | `application/daily-task` | 三种任务模式启动选词编排 | `startTaskSelection.ts` |
 | `features/word-import` | CSV 选择、解析、校验、导入 | `importWordCsv.ts`、`csv.ts` |
 | `features/ai` | 批量补齐并写入音标和例句 | `generateWordData.ts` |
 | `features/archive` | 存档序列化、校验和恢复 | `archiveSnapshot.ts` |
+| `features/home` | 首页概览聚合（统计/资料/头像）与复习提醒判定 | `useHomeOverview.ts` |
+| `features/profile` | 资料卡与编辑表单、外观弹窗、名片导出、资料加载与保存 | `useProfileData.ts`、`profileImageActions.ts`、`ProfileCard.tsx` |
+| `features/word-library` | 词库列表行与状态菜单、分页选择、词库新增流程 | `useWordLibrary.ts`、`useWordAdd.ts`、`WordLibraryRow.tsx` |
+| `features/wrong-book` | 错题添加的勾选写入与手输查重流程 | `useWrongBookAdd.ts` |
 | `features/theme` | 运行时主题和动态样式 | `ThemeProvider.tsx` |
 | `features/settings` | 设置页区块（AI Key、每日任务表单、关于页信息行与更新弹窗），纯 props 展示 | `AiKeySection.tsx`、`AboutInfoRow.tsx`、`AboutUpdateDialog.tsx` |
 | `features/updates` | 更新清单校验、版本比较、可信地址、更新流程编排（检查/下载进度/取消/卸载清理） | `parseUpdateManifest`、`compareVersions`、`useAppUpdate` |
@@ -116,7 +120,7 @@ vocab-app/
 │  ├─ constants/      主题、资源、固定配置
 │  ├─ database/       迁移、schema、仓库
 │  ├─ domain/         领域类型
-│  ├─ features/       ai/ archive/ daily-task/ profile/ settings/ theme/ updates/ word-import/ word-library/
+│  ├─ features/       ai/ archive/ daily-task/ home/ profile/ settings/ theme/ updates/ word-import/ word-library/ wrong-book/
 │  ├─ hooks/          复用交互状态
 │  ├─ services/       外部 I/O
 │  ├─ types/          全局类型
@@ -395,6 +399,8 @@ components → constants / hooks / utils
 - 多个页面分别维护同一份业务常量。
 - 页面直接调用 Router（必须经 `navigationActions`）。
 
+判定「复杂流程」的标准（M1-T6 核定）：看页面里是否存在**跨调用的业务决策**——一次调用的结果决定下一次调用、决定是否写库、决定 UI 走哪个分支，即为编排，须下沉到 `features` 或 `hooks`；单次读取或写入属数据访问，保留直调。`app → database` 本身是允许方向，不作为下沉依据。
+
 ## 12. 非功能设计
 
 - 性能：性能预算门禁——Android HBC 6MB、资源总量 1MB、单资源 512KB、资源文件 24 个（`npm run perf:budget`）；图片资源从 3.29MB 优化到 0.78MB。
@@ -412,7 +418,7 @@ components → constants / hooks / utils
 | 可维护 | 规则只写一处吗？ | 学习日边界在 `utils/studyDate` 单点；导航锁单点；学习规则在 reducer | 否 |
 | 可扩展 | 加 iOS/云同步改哪里？ | 平台耦合集中在 services/speech 等；但 N1-N3 明确不做，不留缝 | 否 |
 | 低耦合 | 依赖单向？ | 依赖方向表 + lint 辅助；无循环依赖记录 | 否 |
-| 高内聚 | God 模块？ | 三个超限设置页已全部拆分（about 517→245、profile 478→292、word-library 440→271），区块/弹窗/流程各自成文件 | 否 |
+| 高内聚 | God 模块？ | 三个超限设置页已全部拆分（about 517→245、profile 478→292、word-library 440→271），区块/弹窗/流程各自成文件；四个页面的跨调用编排已下沉为 hook（complete 366→317、index 258→203、两个 add 页） | 否 |
 | 测试性 | 核心规则可脱离 UI 测试？ | 67 项测试覆盖数据/reducer/导航/更新纯逻辑；SQLite 测试跑 Node 内置 | 否 |
 | 不过度设计 | 假想抽象？ | ARCHITECTURE 明示「只有真实复用才抽离」；无预建抽象层记录 | 否 |
 
@@ -449,5 +455,5 @@ components → constants / hooks / utils
 | 问题 | 影响 | 临时方案 | 计划 |
 |---|---|---|---|
 | 设置页曾超限（about 517→245、profile 478→292、word-library 440→271，已由 M1-T3/T4/T5 拆分） | 维护困难 | 已拆分：展示区块、弹窗、数据/流程 hook 各自成文件，页面只留骨架与样式 | 已完成 |
-| 页面直接调用仓库的复杂流程 | 数据编排散在页面 | 简单读取保留直调 | ROADMAP M1-T6 |
+| 页面直接调用仓库的复杂流程 | 数据编排散在页面 | 已下沉：完成页、首页、两个添加页的跨调用判断进 `features/*` hook；单次调用属数据访问，保留直调（M1-T6a/b/c） | 已完成，判定标准见 §11 |
 | Expo/Metro/Router 传递依赖审计项 | audit 噪音 | 禁止降级 Expo 强修 | Backlog 待评估 |
